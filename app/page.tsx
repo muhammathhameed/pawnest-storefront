@@ -12,29 +12,20 @@ const currency = new Intl.NumberFormat("en-US", {
 });
 
 export default async function Home() {
-  let products: Product[] | null = null;
+  let products: Product[] = [];
   let error: Error | { message: string } | null = null;
   try {
     const result = await getSupabaseClient().from("products").select("*");
-    products = result.data;
+    products = (result.data ?? []) as Product[];
     error = result.error;
+    if (result.error) {
+      console.error("Could not load storefront products from Supabase:", result.error);
+    }
   } catch (caughtError) {
     console.error("Supabase is not configured for the storefront:", caughtError);
     error = caughtError instanceof Error ? caughtError : new Error("Store unavailable");
   }
-
-  if (error) {
-    return (
-      <main className="store-shell">
-        <div className="store-error" role="alert">
-          <h1>We couldn&apos;t load the shop</h1>
-          <p>Refresh in a moment, or come back a little later.</p>
-        </div>
-      </main>
-    );
-  }
-
-  const availableProducts = (products ?? []) as Product[];
+  const availableProducts = products;
 
   return (
     <main className="store-shell">
@@ -72,7 +63,12 @@ export default async function Home() {
           </p>
         </div>
 
-        {availableProducts.length === 0 ? (
+        {error ? (
+          <div className="store-error" role="status">
+            <h3>The collection is taking a break</h3>
+            <p>Products are temporarily unavailable. Please try again soon.</p>
+          </div>
+        ) : availableProducts.length === 0 ? (
           <div className="empty-products">
             <span aria-hidden="true">🌱</span>
             <h3>New favorites are on the way</h3>

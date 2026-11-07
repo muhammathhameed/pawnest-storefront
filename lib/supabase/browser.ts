@@ -2,19 +2,16 @@
 
 import { createBrowserClient } from "@supabase/ssr";
 import type { Database } from "../../types/database";
+import { supabaseFetch } from "./fetch";
+import { requireSupabasePublicConfig } from "./config";
 
 let client: ReturnType<typeof createBrowserClient<Database>> | undefined;
 
 export function getSupabaseBrowserClient() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const { url, anonKey } = requireSupabasePublicConfig("browser authentication");
 
-  if (!url || !anonKey) {
-    throw new Error(
-      "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required.",
-    );
-  }
-
-  client ??= createBrowserClient<Database>(url, anonKey);
+  client ??= createBrowserClient<Database>(url, anonKey, {
+    global: { fetch: supabaseFetch },
+  });
   return client;
 }
