@@ -1,20 +1,23 @@
 "use client";
 
 import { useCartStore } from "../store/cartStore";
+import type { Product } from "../types/product";
 
 export default function AddToCartButton({
   product,
 }: {
-  product: any;
+  product: Product;
 }) {
   const addItem = useCartStore((state) => state.addItem);
 
   return (
     <button
+      type="button"
       onClick={() => addItem(product)}
-      className="bg-purple-600 text-white px-4 py-2 rounded-lg"
+      className="add-to-cart-button"
+      aria-label={`Add ${product.name} to cart`}
     >
-      Add to Cart
+      Add to cart
     </button>
   );
 }
