@@ -1,4 +1,6 @@
 import { supabase } from "../lib/supabase";
+import CartButton from "../components/CartButton";
+import AddToCartButton from "../components/AddToCartButton";
 
 export default async function Home() {
   const { data: products, error } = await supabase
@@ -11,7 +13,11 @@ export default async function Home() {
 
   return (
     <main style={{ padding: "2rem" }}>
-      <h1>🐾 PawNest Store</h1>
+      <header className="flex justify-between items-center mb-8">
+  <h1 className="text-4xl font-bold">🐾 PawNest Store</h1>
+
+ <CartButton />
+</header>
 
       <div
         style={{
@@ -22,15 +28,24 @@ export default async function Home() {
         }}
       >
         {products?.map((product) => (
-          <div
-            key={product.id}
-            style={{
-              border: "1px solid #ddd",
-              borderRadius: "12px",
-              padding: "16px",
-              background: "#fff",
-            }}
-          >
+         <div
+  key={product.id}
+  className="border rounded-xl p-4 shadow-sm hover:shadow-lg transition"
+>
+  {
+            product.image_url && (
+  <img
+    src={product.image_url}
+    alt={product.name}
+    style={{
+      width: "100%",
+      height: "200px",
+      objectFit: "cover",
+      borderRadius: "8px",
+      marginBottom: "10px",
+    }}
+  />
+)}
             <h3>{product.name}</h3>
 
             <p>{product.description}</p>
@@ -43,18 +58,7 @@ export default async function Home() {
               <strong>Price:</strong> ${product.price}
             </p>
 
-            <button
-              style={{
-                background: "#6b46c1",
-                color: "white",
-                border: "none",
-                padding: "10px 15px",
-                borderRadius: "8px",
-                cursor: "pointer",
-              }}
-            >
-              Add to Cart
-            </button>
+           <AddToCartButton product={product} />
           </div>
         ))}
       </div>
