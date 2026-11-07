@@ -1,7 +1,10 @@
-import { supabase } from "../lib/supabase";
+import Link from "next/link";
 import AddToCartButton from "../components/AddToCartButton";
-import CartButton from "../components/CartButton";
+import SiteHeader from "../components/SiteHeader";
+import { getSupabaseClient } from "../lib/supabase";
 import type { Product } from "../types/product";
+
+export const dynamic = "force-dynamic";
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -9,16 +12,23 @@ const currency = new Intl.NumberFormat("en-US", {
 });
 
 export default async function Home() {
-  const { data: products, error } = await supabase
-    .from("products")
-    .select("*");
+  let products: Product[] | null = null;
+  let error: Error | { message: string } | null = null;
+  try {
+    const result = await getSupabaseClient().from("products").select("*");
+    products = result.data;
+    error = result.error;
+  } catch (caughtError) {
+    console.error("Supabase is not configured for the storefront:", caughtError);
+    error = caughtError instanceof Error ? caughtError : new Error("Store unavailable");
+  }
 
   if (error) {
     return (
       <main className="store-shell">
         <div className="store-error" role="alert">
           <h1>We couldn&apos;t load the shop</h1>
-          <p>{error.message}</p>
+          <p>Refresh in a moment, or come back a little later.</p>
         </div>
       </main>
     );
@@ -28,18 +38,7 @@ export default async function Home() {
 
   return (
     <main className="store-shell">
-      <header className="site-header">
-        <a className="brand" href="/" aria-label="PawNest Store home">
-          <span className="brand-mark" aria-hidden="true">
-            🐾
-          </span>
-          <span>
-            <strong>PawNest</strong>
-            <small>HAPPY PETS, HAPPY HOMES</small>
-          </span>
-        </a>
-        <CartButton />
-      </header>
+      <SiteHeader />
 
       <section className="hero">
         <div className="hero-copy">
@@ -84,17 +83,16 @@ export default async function Home() {
             {availableProducts.map((product) => (
               <article className="product-card" key={product.id}>
                 <div className="product-image-wrap">
-                  {product.image_url ? (
-                    <img
-                      className="product-image"
-                      src={product.image_url}
-                      alt={product.name}
-                    />
-                  ) : (
-                    <div className="product-image product-image-placeholder">
-                      <span aria-hidden="true">🐾</span>
-                    </div>
-                  )}
+                  <Link href={`/products/${product.id}`}>
+                    {product.image_url && (
+                      <img
+                        className="product-image"
+                        src={product.image_url}
+                        alt={product.name}
+                        loading="lazy"
+                      />
+                    )}
+                  </Link>
                   {product.category && (
                     <span className="product-category">{product.category}</span>
                   )}
@@ -104,6 +102,10 @@ export default async function Home() {
                     <h3>{product.name}</h3>
                     <strong>{currency.format(Number(product.price))}</strong>
                   </div>
+                  <p className="product-rating">
+                    <span aria-hidden="true">★</span>{" "}
+                    {Number(product.rating).toFixed(1)}
+                  </p>
                   {product.description && (
                     <p className="product-description">
                       {product.description}

@@ -2,6 +2,7 @@
 
 import { useCartStore } from "../store/cartStore";
 import type { Product } from "../types/product";
+import { toast } from "sonner";
 
 export default function AddToCartButton({
   product,
@@ -9,15 +10,28 @@ export default function AddToCartButton({
   product: Product;
 }) {
   const addItem = useCartStore((state) => state.addItem);
+  const items = useCartStore((state) => state.items);
+  const currentQuantity =
+    items.find((item) => String(item.product.id) === String(product.id))
+      ?.quantity ?? 0;
+  const isOutOfStock = product.stock_quantity <= currentQuantity;
 
   return (
     <button
       type="button"
-      onClick={() => addItem(product)}
+      disabled={isOutOfStock}
+      onClick={() => {
+        addItem(product);
+        toast.success(`${product.name} added to your cart.`);
+      }}
       className="add-to-cart-button"
-      aria-label={`Add ${product.name} to cart`}
+      aria-label={
+        isOutOfStock
+          ? `${product.name} is out of stock`
+          : `Add ${product.name} to cart`
+      }
     >
-      Add to cart
+      {isOutOfStock ? "Out of stock" : "Add to cart"}
     </button>
   );
 }

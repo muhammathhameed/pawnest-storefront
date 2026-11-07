@@ -21,6 +21,12 @@ export const useCartStore = create<CartStore>()(
           );
 
           if (existingItem) {
+            if (
+              existingItem.quantity >=
+              Math.min(product.stock_quantity, 99)
+            ) {
+              return state;
+            }
             return {
               items: state.items.map((item) =>
                 String(item.product.id) === String(product.id)
@@ -30,12 +36,19 @@ export const useCartStore = create<CartStore>()(
             };
           }
 
-          return { items: [...state.items, { product, quantity: 1 }] };
+          if (product.stock_quantity < 1) return state;
+          return {
+            items: [...state.items, { product, quantity: 1 }],
+          };
         }),
       updateQuantity: (productId, quantity) =>
         set((state) => {
+          const currentItem = state.items.find(
+            (item) => String(item.product.id) === String(productId),
+          );
+          const maximum = Math.min(currentItem?.product.stock_quantity ?? 99, 99);
           const nextQuantity = Number.isFinite(quantity)
-            ? Math.floor(quantity)
+            ? Math.min(Math.floor(quantity), maximum)
             : 0;
 
           return {
