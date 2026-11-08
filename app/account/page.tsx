@@ -17,7 +17,7 @@ export default async function AccountPage() {
     <main className="store-shell">
       <SiteHeader />
       <section className="account-page">
-        <p className="eyebrow">YOUR PAWNEST</p>
+        <p className="eyebrow">YOUR AURAFINDS</p>
         <h1>Welcome, {name}</h1>
         <p>Manage your account and keep all your pet essentials in one place.</p>
         <div className="account-links">
@@ -25,7 +25,7 @@ export default async function AccountPage() {
             <span aria-hidden="true">📦</span>
             <span>
               <strong>Order history</strong>
-              <small>Track your PawNest purchases</small>
+              <small>Track your AuraFinds purchases</small>
             </span>
             <span aria-hidden="true">&rarr;</span>
           </Link>

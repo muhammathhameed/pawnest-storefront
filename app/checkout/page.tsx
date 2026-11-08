@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import SiteHeader from "../../components/SiteHeader";
 import CheckoutPanel from "../../components/CheckoutPanel";
 
-export const metadata: Metadata = { title: "Checkout | PawNest" };
+export const metadata: Metadata = { title: "Checkout | AuraFinds" };
 
 export default function CheckoutPage() {
   return (

@@ -1,3 +1,6 @@
+// app/api/product-pipeline/route.ts
+export const maxDuration = 60; // Allows up to 60 seconds for serverless execution
+
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
 import {
@@ -73,6 +76,7 @@ export async function POST(request: Request) {
   if (!hasValidToken(request, pipelineSecret)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
+
   const contentType = request.headers
     .get("content-type")
     ?.split(";")[0]
@@ -128,24 +132,32 @@ export async function POST(request: Request) {
     if (error instanceof ProductPipelineConfigurationError) {
       console.error("Product pipeline configuration error:", error.message);
       return NextResponse.json(
-        { error: "Product pipeline dependencies are not configured." },
+        { error: "Product pipeline dependencies are not configured.", details: error.message },
         { status: 503 },
       );
     }
     if (error instanceof ProductPipelineSyncError) {
       console.error("Product catalog sync failed:", error.message);
       return NextResponse.json(
-        { error: "Could not save the enriched product to the catalog." },
-        { status: 500 },
+        { error: "Could not save the enriched product to the catalog.", details: error.message },
+        { status: 422 },
       );
     }
-    console.error(
-      "Product pipeline processing failed:",
-      error instanceof Error ? error.message : "Unknown error",
-    );
+
+    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorStack = error instanceof Error ? error.stack : undefined;
+
+    console.error("Product pipeline processing failed:", errorMessage, errorStack);
+    
+    // Returns detailed error JSON instead of a silent 502 gateway crash
     return NextResponse.json(
-      { error: "Could not enrich and sync the supplier product." },
-      { status: 502 },
+      { 
+        success: false, 
+        error: "Could not enrich and sync the supplier product.", 
+        details: errorMessage,
+        stack: errorStack
+      },
+      { status: 500 },
     );
   }
 }

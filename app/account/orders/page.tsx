@@ -18,7 +18,9 @@ export default async function AccountOrdersPage() {
 
   const { data: orders, error } = await supabase
     .from("orders")
-    .select("id, stripe_session_id, total_amount, payment_status, created_at")
+    .select(
+      "id, stripe_session_id, total_amount, payment_status, fulfillment_status, tracking_number, tracking_carrier, tracking_url, created_at",
+    )
     .eq("customer_user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -68,7 +70,7 @@ export default async function AccountOrdersPage() {
         <Link className="back-link" href="/account">
           &larr; My account
         </Link>
-        <p className="eyebrow">YOUR PAWNEST</p>
+        <p className="eyebrow">YOUR AURAFINDS</p>
         <h1>Order history</h1>
 
         {error ? (
@@ -105,6 +107,35 @@ export default async function AccountOrdersPage() {
                       {(order.payment_status ?? "pending").replaceAll("_", " ")}
                     </span>
                   </header>
+                  <div className="order-fulfillment">
+                    <span>
+                      Fulfillment:{" "}
+                      {(order.fulfillment_status ?? "pending").replaceAll(
+                        "_",
+                        " ",
+                      )}
+                    </span>
+                    {order.tracking_number ? (
+                      <p>
+                        Tracking
+                        {order.tracking_carrier
+                          ? ` · ${order.tracking_carrier}`
+                          : ""}
+                        :{" "}
+                        {order.tracking_url ? (
+                          <a
+                            href={order.tracking_url}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            {order.tracking_number}
+                          </a>
+                        ) : (
+                          order.tracking_number
+                        )}
+                      </p>
+                    ) : null}
+                  </div>
                   <div className="order-card-items">
                     {items.map((item, index) => (
                       <div
@@ -113,7 +144,7 @@ export default async function AccountOrdersPage() {
                       >
                         <span>
                           {productNames.get(String(item.product_id)) ??
-                            "PawNest product"}{" "}
+                            "AuraFinds product"}{" "}
                           &times; {item.quantity}
                         </span>
                         <strong>

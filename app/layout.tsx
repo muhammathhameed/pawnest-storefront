@@ -23,13 +23,13 @@ function getMetadataBase(): URL | undefined {
 }
 
 export const metadata: Metadata = {
-  title: "PawNest Store | Good things for your best friend",
+  title: "AuraFinds | Curated Viral Finds Across Every Category",
   description:
-    "Thoughtful finds and everyday favorites for the pets who make life better.",
+    "Discover curated viral finds across pet care, beauty, skincare, smart tech, and more.",
   metadataBase: getMetadataBase(),
   openGraph: {
-    title: "PawNest Store",
-    description: "Thoughtful finds and everyday favorites for your pet.",
+    title: "AuraFinds",
+    description: "Curated Viral Finds Across Every Category",
     type: "website",
   },
 };

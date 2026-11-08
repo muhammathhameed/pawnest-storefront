@@ -1,6 +1,6 @@
 export default function StoreLoading() {
   return (
-    <main className="store-shell" aria-label="Loading PawNest">
+    <main className="store-shell" aria-label="Loading AuraFinds">
       <div className="site-header skeleton" />
       <div className="skeleton hero-skeleton" />
       <div className="skeleton skeleton-line title" />

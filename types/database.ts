@@ -33,6 +33,7 @@ export interface Database {
           specifications: Json;
           variants: Json;
           status: string;
+          created_at: string;
         };
         Insert: {
           id?: string;
@@ -57,6 +58,7 @@ export interface Database {
           specifications?: Json;
           variants?: Json;
           status?: string;
+          created_at?: string;
         };
         Update: {
           id?: string;
@@ -81,6 +83,58 @@ export interface Database {
           specifications?: Json;
           variants?: Json;
           status?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      product_reviews: {
+        Row: {
+          id: string;
+          product_id: string;
+          user_id: string;
+          rating: number;
+          title: string;
+          body: string;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          user_id: string;
+          rating: number;
+          title: string;
+          body: string;
+          status?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          user_id?: string;
+          rating?: number;
+          title?: string;
+          body?: string;
+          status?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      product_cj_variants: {
+        Row: {
+          product_id: string;
+          cj_variant_id: string;
+          created_at: string;
+        };
+        Insert: {
+          product_id: string;
+          cj_variant_id: string;
+          created_at?: string;
+        };
+        Update: {
+          product_id?: string;
+          cj_variant_id?: string;
+          created_at?: string;
         };
         Relationships: [];
       };
@@ -114,6 +168,16 @@ export interface Database {
           total_amount: number;
           payment_status: string;
           currency: string;
+          shipping_details: Json | null;
+          cj_order_id: string | null;
+          fulfillment_status: string;
+          fulfillment_error: string | null;
+          fulfillment_submitted_at: string | null;
+          tracking_number: string | null;
+          tracking_carrier: string | null;
+          tracking_url: string | null;
+          tracking_last_checked_at: string | null;
+          shipped_at: string | null;
           created_at: string;
         };
         Insert: {
@@ -124,6 +188,16 @@ export interface Database {
           total_amount: number;
           payment_status: string;
           currency: string;
+          shipping_details?: Json | null;
+          cj_order_id?: string | null;
+          fulfillment_status?: string;
+          fulfillment_error?: string | null;
+          fulfillment_submitted_at?: string | null;
+          tracking_number?: string | null;
+          tracking_carrier?: string | null;
+          tracking_url?: string | null;
+          tracking_last_checked_at?: string | null;
+          shipped_at?: string | null;
           created_at?: string;
         };
         Update: {
@@ -134,6 +208,16 @@ export interface Database {
           total_amount?: number;
           payment_status?: string;
           currency?: string;
+          shipping_details?: Json | null;
+          cj_order_id?: string | null;
+          fulfillment_status?: string;
+          fulfillment_error?: string | null;
+          fulfillment_submitted_at?: string | null;
+          tracking_number?: string | null;
+          tracking_carrier?: string | null;
+          tracking_url?: string | null;
+          tracking_last_checked_at?: string | null;
+          shipped_at?: string | null;
           created_at?: string;
         };
         Relationships: [];
@@ -172,6 +256,7 @@ export interface Database {
           p_total_amount: number;
           p_payment_status: string;
           p_currency: string;
+          p_shipping_details: Json | null;
           p_items: Array<{
             product_id: string;
             quantity: number;

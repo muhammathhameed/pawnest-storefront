@@ -1,6 +1,7 @@
-# PawNest Store
+# AuraFinds
 
-A small pet-products storefront built with Next.js, Supabase, and Zustand.
+AuraFinds is a curated multi-category storefront built with Next.js, Supabase,
+Stripe, and Zustand.
 
 ## Shopping cart
 
@@ -32,6 +33,12 @@ STRIPE_SECRET_KEY=sk_test_...
 STRIPE_WEBHOOK_SECRET=whsec_...
 # Required in production; development can use the current request origin.
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
+CJ_ACCOUNT_EMAIL=...
+CJ_API_KEY=...
+CJ_DEFAULT_LOGISTIC_NAME=...
+CJ_FROM_COUNTRY_CODE=CN
+CJ_FULFILLMENT_SECRET=...
+CRON_SECRET=...
 ```
 
 Keep the service-role, Stripe secret, and webhook signing keys server-only.
@@ -39,12 +46,16 @@ Keep `PRODUCT_PIPELINE_SECRET` and `AI_GATEWAY_API_KEY` server-only as well.
 The storefront reads its catalog from the existing Supabase `products` table,
 including `id`, `name`, and `price`; `description`, `category`, and `image_url`
 are optional display fields.
+Stripe Checkout currently collects US shipping addresses, charges $5.95 for
+standard shipping, and makes shipping free on product subtotals of $75 or more.
+The Stripe webhook stores the collected shipping details on the order record
+for fulfillment.
 
 ## Supplier product pipeline
 
-Apply
-[`supabase/migrations/20261107000400_product_pipeline.sql`](./supabase/migrations/20261107000400_product_pipeline.sql)
-after the existing Supabase setup. Configure `PRODUCT_PIPELINE_SECRET`, an
+Apply the files in `supabase/migrations/` in timestamp order, then run
+[`supabase/seed.sql`](./supabase/seed.sql) to load the starter catalog.
+Configure `PRODUCT_PIPELINE_SECRET`, an
 AI Gateway API key (or Vercel Gateway OIDC in a supported deployment), and
 `AI_GATEWAY_MODEL` with a current Gateway model ID. The endpoint accepts one
 supplier product per request at `POST /api/product-pipeline`; supplier
@@ -109,7 +120,7 @@ storefront; local development can use the request origin automatically.
 The webhook uses the server-only Supabase service-role key and restricted
 database functions. Apply
 [`supabase/setup.sql`](./supabase/setup.sql) once in the Supabase SQL Editor to
-consolidate the schema changes from the three migrations and seed the catalog.
+consolidate the order, catalog, review, and fulfillment schema and seed the catalog.
 It expects the existing `products`, `customers`, `orders`, `order_items`, and
 `webhook_events` tables, with `orders.id` as the primary key and
 `order_items.order_id` referencing it. It adds Stripe order/event fields and
@@ -163,3 +174,49 @@ Set `STRIPE_WEBHOOK_SECRET` to that endpoint's signing secret. Never expose
 `SUPABASE_SERVICE_ROLE_KEY` to browser code or commit them to source control.
 The success page retrieves the Checkout Session directly from Stripe; order
 creation is finalized by the webhook and remains safe to retry.
+
+### CJ Dropshipping fulfillment
+
+Configure these server-only Vercel/local environment variables before enabling
+supplier fulfillment:
+
+- `CJ_ACCOUNT_EMAIL` and `CJ_API_KEY`: CJ API credentials.
+- `CJ_DEFAULT_LOGISTIC_NAME`: an exact supported CJ logistics method for the
+  account and destination.
+- `CJ_FROM_COUNTRY_CODE`: two-letter dispatch origin; defaults to `CN`.
+- `CJ_FULFILLMENT_SECRET`: long random secret protecting manual fulfillment.
+- `CRON_SECRET`: long random secret protecting scheduled tracking sync.
+
+Never commit credentials or add them to `NEXT_PUBLIC_*` variables. Any CJ API
+credentials previously pasted into chat or another shared channel should be
+revoked and rotated before being configured in Vercel.
+
+Apply
+[`supabase/migrations/20261107000600_cj_fulfillment.sql`](./supabase/migrations/20261107000600_cj_fulfillment.sql)
+or rerun `supabase/setup.sql`. Before activating a product for fulfillment,
+populate the private `product_cj_variants` mapping table with its product ID and
+exact CJ variant ID (VID). This table is restricted to the server's service
+role so supplier mappings are not exposed through the public catalog API. There
+is no safe automatic mapping from supplier SKU to CJ VID, and unmapped orders
+will remain pending until corrected.
+
+After a paid Stripe order is persisted, the Stripe webhook attempts
+fulfillment using CJ's current `createOrderV2` API. It submits with `payType=2`,
+which authorizes CJ to charge the account balance for the supplier order.
+Confirm the selected shipping method, product costs, and available balance
+before enabling live credentials. CJ failures are recorded on the order; use
+the protected endpoint to retry after fixing the cause:
+
+```sh
+curl -X POST https://your-store.example/api/fulfillment \
+  -H "Authorization: Bearer $CJ_FULFILLMENT_SECRET" \
+  -H "Content-Type: application/json" \
+  -d '{"orderId":"<supabase-order-id>"}'
+```
+
+The hourly Vercel cron at `/api/webhooks/cj-tracking` looks up processing orders
+and records tracking numbers/carriers when CJ makes them available. It uses
+`CRON_SECRET` as a bearer token. Customers can see fulfillment status and a
+tracking link in **My Orders**. If CJ accepts an order but the database write
+fails, its stable AuraFinds order number (`AF-<order-id>`) should be used to
+reconcile the supplier order before attempting another submission.

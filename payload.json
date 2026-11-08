@@ -1,0 +1,16 @@
+{
+  "supplierId": "SUPPLIER-01",
+  "id": "SUP-TEST-02",
+  "sku": "TEST-SKU-02",
+  "title": "Smart LED Desk Lamp with Wireless Charger",
+  "category": "Smart Lighting",
+  "cost": 18.50,
+  "stock_quantity": 150,
+  "images": ["https://images.unsplash.com/photo-1534447677768-be436bb09401"],
+  "shipping_country": "US",
+  "specs": {
+    "Brightness": "800 Lumens",
+    "Power": "10W Wireless Charging",
+    "material": "Aluminum Alloy"
+  }
+}

@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
+import { submitCJFulfillment, FulfillmentError } from "../../../../lib/cj-fulfillment";
 import { getStripeClient } from "../../../../lib/stripe";
 import { getSupabaseAdmin } from "../../../../lib/supabaseAdmin";
 
@@ -217,6 +218,22 @@ export async function POST(request: Request) {
 
   try {
     const orderItems = await getOrderItems(session);
+    const shipping = session.collected_information?.shipping_details;
+    const shippingAddress = shipping?.address;
+    const shippingDetails = shippingAddress
+      ? {
+          name: shipping.name,
+          phone: session.customer_details?.phone ?? null,
+          address: {
+            line1: shippingAddress.line1,
+            line2: shippingAddress.line2,
+            city: shippingAddress.city,
+            state: shippingAddress.state,
+            postal_code: shippingAddress.postal_code,
+            country: shippingAddress.country,
+          },
+        }
+      : null;
     const email =
       session.customer_details?.email ?? session.customer_email ?? null;
     const { data, error } = await supabase.rpc(
@@ -236,6 +253,7 @@ export async function POST(request: Request) {
         p_total_amount: session.amount_total,
         p_payment_status: session.payment_status,
         p_currency: session.currency,
+        p_shipping_details: shippingDetails,
         p_items: orderItems,
       },
     );
@@ -244,11 +262,32 @@ export async function POST(request: Request) {
 
     const result =
       data && typeof data === "object" && !Array.isArray(data) ? data : null;
+    const orderId =
+      typeof result?.order_id === "string" ? result.order_id : null;
+    if (orderId) {
+      try {
+        await submitCJFulfillment(orderId);
+      } catch (fulfillmentError) {
+        if (fulfillmentError instanceof FulfillmentError) {
+          console.error("Automatic CJ fulfillment needs attention:", {
+            orderId,
+            status: fulfillmentError.status,
+            lowBalance: fulfillmentError.lowBalance,
+            message: fulfillmentError.message,
+          });
+        } else {
+          console.error(
+            "Automatic CJ fulfillment failed for a persisted order.",
+            { orderId },
+          );
+        }
+      }
+    }
+
     return NextResponse.json({
       received: true,
       duplicate: result?.duplicate === true,
-      orderId:
-        typeof result?.order_id === "string" ? result.order_id : null,
+      orderId,
     });
   } catch (error) {
     console.error("Could not persist Stripe Checkout order:", error);
