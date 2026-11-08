@@ -4,8 +4,8 @@ import {
   ProductPipelineConfigurationError,
   ProductPipelineSyncError,
   ProductPipelineValidationError,
-} from "../../../lib/product-pipeline/errors";
-import { processSupplierProduct } from "../../../lib/product-pipeline/sync";
+} from "@/lib/product-pipeline/errors";
+import { processSupplierProduct } from "@/lib/product-pipeline/sync";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
