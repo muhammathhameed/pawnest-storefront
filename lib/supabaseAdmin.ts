@@ -10,7 +10,7 @@ export function getSupabaseAdmin() {
 
   if (!url || !serviceRoleKey) {
     throw new Error(
-      "NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for Stripe webhooks",
+      "NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are required for server-side database operations.",
     );
   }
 

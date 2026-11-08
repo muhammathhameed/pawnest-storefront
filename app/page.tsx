@@ -15,7 +15,10 @@ export default async function Home() {
   let products: Product[] = [];
   let error: Error | { message: string } | null = null;
   try {
-    const result = await getSupabaseClient().from("products").select("*");
+    const result = await getSupabaseClient()
+      .from("products")
+      .select("*")
+      .eq("status", "active");
     products = (result.data ?? []) as Product[];
     error = result.error;
     if (result.error) {

@@ -107,6 +107,7 @@ export async function POST(request: Request) {
   const { data: products, error: productsError } = await supabase
     .from("products")
     .select("id, name, price, stock_quantity")
+    .eq("status", "active")
     .in("id", [...quantities.keys()]);
 
   if (productsError) {
