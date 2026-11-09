@@ -123,7 +123,19 @@ export async function POST(request: Request) {
   }
 
   try {
-    const product = await processSupplierProduct(rawProduct);
+    console.log("Starting product pipeline sync for payload...");
+
+    // Wrap processSupplierProduct in a 45-second timeout safeguard to prevent hanging
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(() => reject(new Error("Sync execution timed out after 45 seconds")), 45000)
+    );
+
+    const product = await Promise.race([
+      processSupplierProduct(rawProduct),
+      timeoutPromise,
+    ]);
+
+    console.log("Product pipeline sync completed successfully.");
     return NextResponse.json({ product }, { status: 201 });
   } catch (error) {
     if (error instanceof ProductPipelineValidationError) {
@@ -149,7 +161,6 @@ export async function POST(request: Request) {
 
     console.error("Product pipeline processing failed:", errorMessage, errorStack);
     
-    // Returns detailed error JSON instead of a silent 502 gateway crash
     return NextResponse.json(
       { 
         success: false, 
