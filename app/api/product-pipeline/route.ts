@@ -130,8 +130,10 @@ export async function POST(request: Request) {
     console.log(`Upserting product SKU: ${product.sku} to Supabase...`);
 
     // Strictly map to valid standard columns to prevent any schema cache errors
+// Strictly map to valid standard columns including the required 'name' column
     const cleanRecord = {
       sku: product.sku,
+      name: product.title || product.name || "Untitled Product", // Fixes the null constraint on 'name'
       title: product.title || "Untitled Product",
       description: product.description || "",
       category: product.category || "General",
