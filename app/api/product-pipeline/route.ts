@@ -84,7 +84,7 @@ export async function POST(request: Request) {
           cost_price: product.cost_price,
           image_url: product.image_url || product.imageUrl,
           supplier_name: product.supplier_name || "CJ Dropshipping",
-          inventory_count: product.inventory_count || 100,
+          stock_quantity: product.stock_quantity || 100, // Using stock_quantity instead of inventory_count
           updated_at: new Date().toISOString(),
         },
         { onConflict: "sku" }
