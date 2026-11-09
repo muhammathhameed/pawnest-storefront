@@ -1,20 +1,19 @@
 // app/api/product-pipeline/route.ts
-export const maxDuration = 60; // Allows up to 60 seconds for serverless execution
+export const maxDuration = 60;
 
 import { timingSafeEqual } from "node:crypto";
 import { NextResponse } from "next/server";
-import {
-  ProductPipelineConfigurationError,
-  ProductPipelineSyncError,
-  ProductPipelineValidationError,
-} from "@/lib/product-pipeline/errors";
-import { processSupplierProduct } from "@/lib/product-pipeline/sync";
+import { createClient } from "@supabase/supabase-js";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const MAX_REQUEST_BYTES = 128 * 1024;
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+);
 
+const MAX_REQUEST_BYTES = 128 * 1024;
 class RequestBodyTooLargeError extends Error {}
 
 async function readLimitedBody(request: Request): Promise<string> {
@@ -29,11 +28,7 @@ async function readLimitedBody(request: Request): Promise<string> {
       if (done) break;
       totalBytes += value.byteLength;
       if (totalBytes > MAX_REQUEST_BYTES) {
-        try {
-          await reader.cancel();
-        } catch (error) {
-          console.error("Could not cancel oversized product pipeline body:", error);
-        }
+        try { await reader.cancel(); } catch {}
         throw new RequestBodyTooLargeError();
       }
       chunks.push(value);
@@ -55,120 +50,55 @@ function hasValidToken(request: Request, expectedToken: string): boolean {
   const authorization = request.headers.get("authorization") ?? "";
   const prefix = "Bearer ";
   if (!authorization.startsWith(prefix)) return false;
-
   const received = Buffer.from(authorization.slice(prefix.length));
   const expected = Buffer.from(expectedToken);
-  return (
-    received.length === expected.length &&
-    timingSafeEqual(received, expected)
-  );
+  return received.length === expected.length && timingSafeEqual(received, expected);
 }
 
 export async function POST(request: Request) {
   const pipelineSecret = process.env.PRODUCT_PIPELINE_SECRET;
-  if (!pipelineSecret) {
-    console.error("Product pipeline is not configured: missing shared secret.");
-    return NextResponse.json(
-      { error: "Product pipeline is not configured on this server." },
-      { status: 500 },
-    );
-  }
-  if (!hasValidToken(request, pipelineSecret)) {
+  if (!pipelineSecret || !hasValidToken(request, pipelineSecret)) {
     return NextResponse.json({ error: "Unauthorized." }, { status: 401 });
   }
 
-  const contentType = request.headers
-    .get("content-type")
-    ?.split(";")[0]
-    ?.trim()
-    .toLowerCase();
-  if (contentType !== "application/json") {
-    return NextResponse.json(
-      { error: "Content-Type must be application/json." },
-      { status: 415 },
-    );
-  }
-
-  let rawBody: string;
   try {
-    rawBody = await readLimitedBody(request);
-  } catch (error) {
-    if (error instanceof RequestBodyTooLargeError) {
-      return NextResponse.json(
-        { error: "Request body exceeds the 128 KB limit." },
-        { status: 413 },
+    const rawBody = await readLimitedBody(request);
+    const product: any = JSON.parse(rawBody);
+
+    if (!product.sku) {
+      return NextResponse.json({ error: "SKU is required." }, { status: 400 });
+    }
+
+    console.log(`Upserting product SKU: ${product.sku} to Supabase...`);
+
+    const { error: dbError } = await supabase
+      .from("products")
+      .upsert(
+        {
+          sku: product.sku,
+          supplier_id: product.supplier_id || product.sku,
+          title: product.title,
+          description: product.description,
+          category: product.category,
+          price: product.price,
+          cost_price: product.cost_price,
+          image_url: product.image_url || product.imageUrl,
+          supplier_name: product.supplier_name || "CJ Dropshipping",
+          inventory_count: product.inventory_count || 100,
+          updated_at: new Date().toISOString(),
+        },
+        { onConflict: "sku" }
       );
-    }
-    if (error instanceof TypeError) {
-      return NextResponse.json(
-        { error: "Request body must be valid UTF-8." },
-        { status: 400 },
-      );
-    }
-    console.error("Could not read product pipeline request body:", error);
-    return NextResponse.json(
-      { error: "Could not read the request body." },
-      { status: 400 },
-    );
-  }
 
-  let rawProduct: unknown;
-  try {
-    rawProduct = JSON.parse(rawBody);
-  } catch {
-    return NextResponse.json(
-      { error: "Request body must be valid JSON." },
-      { status: 400 },
-    );
-  }
-
-  try {
-    console.log("Starting product pipeline sync for payload...");
-
-    // Wrap processSupplierProduct in a 45-second timeout safeguard to prevent hanging
-    const timeoutPromise = new Promise((_, reject) =>
-      setTimeout(() => reject(new Error("Sync execution timed out after 45 seconds")), 45000)
-    );
-
-    const product = await Promise.race([
-      processSupplierProduct(rawProduct),
-      timeoutPromise,
-    ]);
-
-    console.log("Product pipeline sync completed successfully.");
-    return NextResponse.json({ product }, { status: 201 });
-  } catch (error) {
-    if (error instanceof ProductPipelineValidationError) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
-    }
-    if (error instanceof ProductPipelineConfigurationError) {
-      console.error("Product pipeline configuration error:", error.message);
-      return NextResponse.json(
-        { error: "Product pipeline dependencies are not configured.", details: error.message },
-        { status: 503 },
-      );
-    }
-    if (error instanceof ProductPipelineSyncError) {
-      console.error("Product catalog sync failed:", error.message);
-      return NextResponse.json(
-        { error: "Could not save the enriched product to the catalog.", details: error.message },
-        { status: 422 },
-      );
+    if (dbError) {
+      console.error("Supabase upsert failed:", dbError);
+      return NextResponse.json({ error: dbError.message }, { status: 422 });
     }
 
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
-    const errorStack = error instanceof Error ? error.stack : undefined;
-
-    console.error("Product pipeline processing failed:", errorMessage, errorStack);
-    
-    return NextResponse.json(
-      { 
-        success: false, 
-        error: "Could not enrich and sync the supplier product.", 
-        details: errorMessage,
-        stack: errorStack
-      },
-      { status: 500 },
-    );
+    console.log(`Successfully synced SKU: ${product.sku}`);
+    return NextResponse.json({ success: true, sku: product.sku }, { status: 201 });
+  } catch (error: any) {
+    console.error("Pipeline error:", error);
+    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
   }
 }
