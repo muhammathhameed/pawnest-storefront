@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight } from 'lucide-react';
+import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, CreditCard } from 'lucide-react';
 
 const SUGGESTED_PROMPTS = [
   "✨ Best skin care for glowing skin",
@@ -21,12 +21,11 @@ function GlassTiltCard({ product, onSelect, onAddToCart, isAdded }: { product: a
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     if (!cardRef.current) return;
     const rect = cardRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left; // x position within card
-    const y = e.clientY - rect.top;  // y position within card
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
     
-    // Calculate tilt angles (max 10 degrees)
     const rX = -((y - centerY) / centerY) * 10;
     const rY = ((x - centerX) / centerX) * 10;
 
@@ -151,6 +150,7 @@ export default function MasterStorefrontPage() {
   const [quickViewProduct, setQuickViewProduct] = useState<any | null>(null);
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
+  const [isProcessingExpress, setIsProcessingExpress] = useState<string | null>(null);
 
   // Fetch products from Supabase API / Concierge backend
   useEffect(() => {
@@ -221,6 +221,16 @@ export default function MasterStorefrontPage() {
     setTimeout(() => {
       setAddedItems(prev => ({ ...prev, [product.id]: false }));
     }, 2000);
+  };
+
+  const handleExpressPay = (provider: 'apple' | 'google') => {
+    setIsProcessingExpress(provider);
+    setTimeout(() => {
+      setIsProcessingExpress(null);
+      setCartCount(prev => prev + 1);
+      setQuickViewProduct(null);
+      alert(`Success! Express checkout via ${provider === 'apple' ? 'Apple Pay' : 'Google Pay'} completed for ${quickViewProduct?.name || 'item'}.`);
+    }, 1500);
   };
 
   const categories = ['All', 'Beauty & Skincare', 'Smart Tech & Gadgets', 'Lifestyle & Home', 'Wellness & Fitness'];
@@ -532,7 +542,7 @@ export default function MasterStorefrontPage() {
         )}
       </main>
 
-      {/* Apple Liquid Glass Quick View Modal Sheet */}
+      {/* Apple Liquid Glass Quick View Modal Sheet with Express Checkout */}
       {quickViewProduct && (
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
           <div className="backdrop-blur-[40px] bg-white/90 w-full max-w-lg rounded-t-[36px] sm:rounded-[36px] p-6 sm:p-8 shadow-[0_25px_70px_rgba(0,0,0,0.25)] border border-white animate-in slide-in-from-bottom duration-300">
@@ -565,12 +575,48 @@ export default function MasterStorefrontPage() {
                 </span>
               </div>
             </div>
-            <div className="pt-4 border-t border-slate-100 flex gap-3">
+
+            {/* Express Checkout Options */}
+            <div className="space-y-3 pt-4 border-t border-slate-100">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block text-center">Express 1-Click Checkout</span>
+              
+              <div className="grid grid-cols-2 gap-3">
+                {/* Apple Pay Button */}
+                <button
+                  onClick={() => handleExpressPay('apple')}
+                  disabled={isProcessingExpress !== null}
+                  className="py-3 bg-black hover:bg-slate-800 text-white font-semibold rounded-2xl shadow-md transition-all text-xs flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                >
+                  {isProcessingExpress === 'apple' ? (
+                    <span className="animate-pulse">Authorizing...</span>
+                  ) : (
+                    <>
+                      <span className="text-sm font-bold tracking-tight">Pay</span> Express
+                    </>
+                  )}
+                </button>
+
+                {/* Google Pay Button */}
+                <button
+                  onClick={() => handleExpressPay('google')}
+                  disabled={isProcessingExpress !== null}
+                  className="py-3 bg-white hover:bg-slate-50 text-slate-900 border border-slate-200/90 font-semibold rounded-2xl shadow-sm transition-all text-xs flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95 disabled:opacity-50"
+                >
+                  {isProcessingExpress === 'google' ? (
+                    <span className="animate-pulse">Authorizing...</span>
+                  ) : (
+                    <>
+                      <span className="font-bold text-slate-800">G</span><span className="font-semibold text-slate-700">Pay</span> Express
+                    </>
+                  )}
+                </button>
+              </div>
+
               <button
                 onClick={() => { handleAddToCart(quickViewProduct); setQuickViewProduct(null); }}
-                className="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-[0_10px_25px_rgba(99,102,241,0.35)] transition-all text-sm flex items-center justify-center gap-2 hover:scale-[1.02]"
+                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-[0_8px_20px_rgba(99,102,241,0.3)] transition-all text-xs flex items-center justify-center gap-2 hover:scale-[1.01]"
               >
-                <ShoppingBag className="w-4 h-4" /> Add to Cart & Checkout
+                <ShoppingBag className="w-4 h-4" /> Add to Standard Bag
               </button>
             </div>
           </div>
