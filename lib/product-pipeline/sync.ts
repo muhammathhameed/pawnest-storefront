@@ -19,7 +19,7 @@ export async function processSupplierProduct(rawProduct: unknown) {
   const copy = await enrichProductCopy(supplierProduct);
   const product = createAndValidateCandidate(supplierProduct, copy);
 
-  const supplierId = supplierProduct.supplierId || supplierProduct.supplier_id || "default-supplier";
+  const supplierId = (supplierProduct as any).supplierId || (supplierProduct as any).supplier_id || "default-supplier";
   const sku = supplierProduct.sku || (product.variants?.[0]?.sku) || product.external_id;
   const price = supplierProduct.price ?? (product.variants?.[0]?.price) ?? 0.00;
 
