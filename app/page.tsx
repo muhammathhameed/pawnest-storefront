@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import ProductCatalog from '@/components/ProductCatalog';
 import ProductBundler from '@/components/ProductBundler';
 import TrustBadges from '@/components/TrustBadges';
-import ShippingTrackerBadge from '@/components/ShippingTrackerBadge';
 
 const HERO_SLIDES = [
   {
@@ -94,7 +93,7 @@ export default function HomePage() {
       {/* Main Catalog & Bundler Section */}
       <main id="catalog" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
         <ProductBundler />
-        <ProductCatalog />
+        <ProductCatalog products={[]} />
       </main>
     </div>
   );
