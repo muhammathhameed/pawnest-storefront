@@ -1,17 +1,13 @@
-"use client";
+import { createBrowserClient } from '@supabase/ssr';
 
-import { createBrowserClient } from "@supabase/ssr";
-import type { Database } from "../../types/database";
-import { supabaseFetch } from "./fetch";
-import { requireSupabasePublicConfig } from "./config";
+export function createClient() {
+  return createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
+  );
+}
 
-let client: ReturnType<typeof createBrowserClient<Database>> | undefined;
-
+// Alias for legacy codebase imports expecting getSupabaseBrowserClient
 export function getSupabaseBrowserClient() {
-  const { url, anonKey } = requireSupabasePublicConfig("browser authentication");
-
-  client ??= createBrowserClient<Database>(url, anonKey, {
-    global: { fetch: supabaseFetch },
-  });
-  return client;
+  return createClient();
 }

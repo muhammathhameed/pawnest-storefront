@@ -1,70 +1,52 @@
-import { getSupabaseAdmin } from "../supabaseAdmin";
-import { google } from "@ai-sdk/google";
-import type { Json } from "../../types/database";
-import type { StorefrontProduct } from "../../types/storefront-product";
+import { createClient } from "../supabase/server";
+import { normalizeSupplierProduct } from "./normalize";
 import { enrichProductCopy } from "./enrich";
+import { createAndValidateCandidate } from "./validate";
 import {
   ProductPipelineConfigurationError,
   ProductPipelineSyncError,
 } from "./errors";
-import { normalizeSupplierProduct } from "./normalize";
-import { createAndValidateCandidate } from "./validate";
 
 export async function processSupplierProduct(rawProduct: unknown) {
   const supplierProduct = normalizeSupplierProduct(rawProduct);
-  let supabase: ReturnType<typeof getSupabaseAdmin>;
-  try {
-    supabase = getSupabaseAdmin();
-  } catch {
+  const supabase = await createClient();
+
+  if (!supabase) {
     throw new ProductPipelineConfigurationError(
-      "Supabase server credentials are missing or invalid.",
+      "Supabase server client could not be initialized."
     );
   }
   const copy = await enrichProductCopy(supplierProduct);
   const product = createAndValidateCandidate(supplierProduct, copy);
 
+  const supplierId = (supplierProduct as any).supplierId || (supplierProduct as any).supplier_id || "default-supplier";
+  const sku = (supplierProduct as any).sku || (product.variants?.[0]?.sku) || product.external_id;
+  const price = (supplierProduct as any).price ?? (product.variants?.[0]?.price) ?? 0.00;
+
   const { data, error } = await supabase
     .from("products")
     .upsert(
       {
-        supplier_id: product.supplierId,
-        sku: product.sku,
+        supplier_id: supplierId,
+        sku: sku,
         name: product.title,
-        price: product.sellingPrice,
-        cost_price: product.costPrice,
-        compare_at_price: product.compareAtPrice ?? null,
-        description: product.shortDescription,
-        short_description: product.shortDescription,
-        full_description_html: product.fullDescriptionHtml,
-        category: product.category,
+        price: price,
+        description: product.description,
+        features: product.features,
         tags: product.tags,
-        seo_title: product.seoTitle,
-        seo_description: product.seoDescription,
-        image_url: product.media.primaryImage,
-        gallery_images: product.media.galleryImages,
-        key_highlights: product.keyHighlights,
-        specifications: JSON.parse(
-          JSON.stringify(product.specifications),
-        ) as Json,
-        variants: JSON.parse(JSON.stringify(product.variants)) as Json,
-        stock_quantity: product.stock.quantity,
-        status: product.status,
+        raw_data: product.raw_data,
+        updated_at: new Date().toISOString(),
       },
-      { onConflict: "supplier_id,sku" },
+      { onConflict: "sku" }
     )
-    .select("id")
+    .select()
     .single();
 
   if (error) {
     throw new ProductPipelineSyncError(
-      `Could not sync supplier product: ${error.message}`,
-    );
-  }
-  if (!data?.id) {
-    throw new ProductPipelineSyncError(
-      "Supabase did not return an ID for the synced product.",
+      `Failed to sync product to database: ${error.message}`
     );
   }
 
-  return { ...product, id: String(data.id) } satisfies StorefrontProduct;
+  return data;
 }

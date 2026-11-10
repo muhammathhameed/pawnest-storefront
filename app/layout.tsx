@@ -1,49 +1,35 @@
 import type { Metadata } from "next";
-import ToastProvider from "../components/ToastProvider";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import AICoachWidget from "@/components/AICoachWidget";
 
-function getMetadataBase(): URL | undefined {
-  const candidates = [
-    process.env.NEXT_PUBLIC_SITE_URL,
-    process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : undefined,
-  ];
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
 
-  for (const candidate of candidates) {
-    if (!candidate) continue;
-
-    try {
-      const url = new URL(candidate);
-      if (url.protocol === "https:" || url.protocol === "http:") return url;
-    } catch {
-      console.error("Ignoring invalid URL configured for site metadata.");
-    }
-  }
-
-  return undefined;
-}
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
-  title: "AuraFinds | Curated Viral Finds Across Every Category",
-  description:
-    "Discover curated viral finds across pet care, beauty, skincare, smart tech, and more.",
-  metadataBase: getMetadataBase(),
-  openGraph: {
-    title: "AuraFinds",
-    description: "Curated Viral Finds Across Every Category",
-    type: "website",
-  },
+  title: "AuraFinds — Curated Viral Finds & Smart AR",
+  description: "High-trust e-commerce brand featuring interactive 3D/AR and AI shopping concierge.",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en">
-      <body>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-neutral-50 text-neutral-900`}
+      >
         {children}
-        <ToastProvider />
+        <AICoachWidget />
       </body>
     </html>
   );

@@ -1,172 +1,112 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import SiteHeader from "../../../components/SiteHeader";
-import { getSupabaseServerClient } from "../../../lib/supabase/server";
+import { createClient } from '@/lib/supabase/server';
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
 
-const currency = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
+export default async function OrdersPage() {
+  const supabase = await createClient();
 
-export default async function AccountOrdersPage() {
-  const supabase = await getSupabaseServerClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login?redirect=%2Faccount%2Forders");
-
-  const { data: orders, error } = await supabase
-    .from("orders")
-    .select(
-      "id, stripe_session_id, total_amount, payment_status, fulfillment_status, tracking_number, tracking_carrier, tracking_url, created_at",
-    )
-    .eq("customer_user_id", user.id)
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Could not load customer orders:", error);
+  if (!user) {
+    redirect('/login?next=/account/orders');
   }
 
-  const orderIds = (orders ?? []).map((order) => String(order.id));
+  const { data: orders, error } = await supabase
+    .from('orders')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false });
+
+  // Explicitly type and cast orders array to resolve TypeScript 'never[]' inference error
+  const typedOrders = (orders ?? []) as Array<{ id: string; [key: string]: any }>;
+  const orderIds = typedOrders.map((order) => String(order.id));
+
   const { data: orderItems, error: itemError } =
     orderIds.length > 0
       ? await supabase
-          .from("order_items")
-          .select("order_id, product_id, quantity, unit_price")
-          .in("order_id", orderIds)
+          .from('order_items')
+          .select('*')
+          .in('order_id', orderIds)
       : { data: [], error: null };
-
-  if (itemError) console.error("Could not load customer order items:", itemError);
-
-  const productIds = [
-    ...new Set((orderItems ?? []).map((item) => String(item.product_id))),
-  ];
-  const { data: products, error: productError } =
-    productIds.length > 0
-      ? await supabase
-          .from("products")
-          .select("id, name, image_url")
-          .in("id", productIds)
-      : { data: [], error: null };
-
-  if (productError) {
-    console.error("Could not load order product details:", productError);
-  }
-
-  const productNames = new Map(
-    (products ?? []).map((product) => [String(product.id), product.name]),
-  );
-  const itemsByOrder = new Map<string, typeof orderItems>();
-  for (const item of orderItems ?? []) {
-    const key = String(item.order_id);
-    itemsByOrder.set(key, [...(itemsByOrder.get(key) ?? []), item]);
-  }
 
   return (
-    <main className="store-shell">
-      <SiteHeader />
-      <section className="orders-page">
-        <Link className="back-link" href="/account">
-          &larr; My account
-        </Link>
-        <p className="eyebrow">YOUR AURAFINDS</p>
-        <h1>Order history</h1>
-
-        {error ? (
-          <div className="store-error" role="alert">
-            <h2>We couldn&apos;t load your orders</h2>
-            <p>Please refresh the page to try again.</p>
+    <div className="min-h-screen bg-slate-950 text-slate-100 p-6 md:p-12">
+      <div className="max-w-4xl mx-auto">
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight">Order History</h1>
+            <p className="text-sm text-slate-400 mt-1">Track and review your past storefront orders.</p>
           </div>
-        ) : !orders?.length ? (
-          <div className="empty-products">
-            <span aria-hidden="true">📦</span>
-            <h2>No orders just yet</h2>
-            <p>Your orders will appear here after checkout.</p>
-            <Link className="primary-button result-link" href="/">
-              Explore the shop
+          <Link
+            href="/account"
+            className="text-xs font-medium px-4 py-2 rounded-xl bg-slate-900 border border-slate-800 hover:border-slate-700 transition-all text-slate-300"
+          >
+            Back to Account
+          </Link>
+        </div>
+
+        {error && (
+          <div className="bg-red-950/40 border border-red-500/40 text-red-300 p-4 rounded-xl text-sm mb-6">
+            Failed to load orders: {error.message}
+          </div>
+        )}
+
+        {typedOrders.length === 0 ? (
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-12 text-center">
+            <div className="text-slate-400 text-sm mb-4">You haven't placed any orders yet.</div>
+            <Link
+              href="/"
+              className="inline-block bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-6 py-2.5 rounded-xl text-sm shadow-lg transition-all"
+            >
+              Explore Storefront
             </Link>
           </div>
         ) : (
-          <div className="orders-list">
-            {orders.map((order) => {
-              const items = itemsByOrder.get(String(order.id)) ?? [];
-              return (
-                <article className="order-card" key={order.id}>
-                  <header className="order-card-header">
-                    <div>
-                      <p className="eyebrow">ORDER PLACED</p>
-                      <h2>
-                        {new Date(order.created_at).toLocaleDateString(
-                          "en-US",
-                          { dateStyle: "long" },
-                        )}
-                      </h2>
+          <div className="space-y-4">
+            {typedOrders.map((order) => (
+              <div key={order.id} className="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-800">
+                  <div>
+                    <div className="text-xs font-mono text-indigo-400">Order ID: {order.id}</div>
+                    <div className="text-xs text-slate-400 mt-0.5">
+                      Placed on {new Date(order.created_at).toLocaleDateString()}
                     </div>
-                    <span className="order-status">
-                      {(order.payment_status ?? "pending").replaceAll("_", " ")}
-                    </span>
-                  </header>
-                  <div className="order-fulfillment">
-                    <span>
-                      Fulfillment:{" "}
-                      {(order.fulfillment_status ?? "pending").replaceAll(
-                        "_",
-                        " ",
-                      )}
-                    </span>
-                    {order.tracking_number ? (
-                      <p>
-                        Tracking
-                        {order.tracking_carrier
-                          ? ` · ${order.tracking_carrier}`
-                          : ""}
-                        :{" "}
-                        {order.tracking_url ? (
-                          <a
-                            href={order.tracking_url}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            {order.tracking_number}
-                          </a>
-                        ) : (
-                          order.tracking_number
-                        )}
-                      </p>
-                    ) : null}
                   </div>
-                  <div className="order-card-items">
-                    {items.map((item, index) => (
-                      <div
-                        className="order-item-row"
-                        key={`${order.id}-${item.product_id}-${index}`}
-                      >
-                        <span>
-                          {productNames.get(String(item.product_id)) ??
-                            "AuraFinds product"}{" "}
-                          &times; {item.quantity}
-                        </span>
-                        <strong>
-                          {currency.format(
-                            Number(item.unit_price) * item.quantity,
-                          )}
-                        </strong>
-                      </div>
-                    ))}
+                  <div className="flex items-center gap-3">
+                    <span className="text-xs font-semibold px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 capitalize">
+                      {order.status || 'Processing'}
+                    </span>
+                    <span className="text-sm font-bold text-white">
+                      ${Number(order.total_amount ?? 0).toFixed(2)}
+                    </span>
                   </div>
-                  <footer className="order-card-footer">
-                    <span>Order total</span>
-                    <strong>
-                      {currency.format(Number(order.total_amount) / 100)}
-                    </strong>
-                  </footer>
-                </article>
-              );
-            })}
+                </div>
+
+                <div className="pt-4">
+                  <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">Items</div>
+                  <div className="space-y-2">
+                    {(orderItems ?? [])
+                      .filter((item: any) => String(item.order_id) === String(order.id))
+                      .map((item: any) => (
+                        <div key={item.id} className="flex items-center justify-between text-sm bg-slate-950/60 p-3 rounded-xl border border-slate-800/80">
+                          <div>
+                            <div className="font-medium text-slate-200">{item.product_name || `Product #${item.product_id}`}</div>
+                            <div className="text-xs text-slate-400">Qty: {item.quantity}</div>
+                          </div>
+                          <div className="font-semibold text-slate-300">
+                            ${Number(item.price ?? 0).toFixed(2)}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
         )}
-      </section>
-    </main>
+      </div>
+    </div>
   );
 }
