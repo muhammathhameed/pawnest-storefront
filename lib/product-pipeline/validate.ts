@@ -6,11 +6,7 @@ export interface SupplierProduct {
   external_id?: string;
   title?: string;
   description?: string;
-  variants?: Array<{
-    id: string;
-    price: number;
-    sku?: string;
-  }>;
+  variants?: Array<any>;
   [key: string]: any;
 }
 
@@ -29,10 +25,14 @@ export function validateSupplierProduct(supplier: SupplierProduct, copy: Enriche
     throw new ProductPipelineValidationError("Product description is required.");
   }
 
-  if (supplier.variants) {
+  if (supplier.variants && Array.isArray(supplier.variants)) {
     supplier.variants.forEach((variant) => {
-      if (!variant.id || typeof variant.price !== "number" || variant.price < 0) {
-        throw new ProductPipelineValidationError(`Invalid variant found for product ${supplier.id || supplier.external_id}`);
+      if (variant && typeof variant === "object") {
+        const hasId = variant.id !== undefined && variant.id !== null;
+        const price = Number(variant.price);
+        if (!hasId || isNaN(price) || price < 0) {
+          throw new ProductPipelineValidationError(`Invalid variant found for product ${supplier.id || supplier.external_id}`);
+        }
       }
     });
   }
