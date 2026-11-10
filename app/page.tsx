@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, Eye } from 'lucide-react';
+import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, Eye, Camera } from 'lucide-react';
 
 const SUGGESTED_PROMPTS = [
   "✨ Best skin care for glowing skin",
@@ -17,12 +17,14 @@ function GlassTiltCard({
   onSelect, 
   onAddToCart, 
   onVrView, 
+  onArView,
   isAdded 
 }: { 
   product: any; 
   onSelect: () => void; 
   onAddToCart: (p: any, e: React.MouseEvent) => void; 
   onVrView: (p: any, e: React.MouseEvent) => void;
+  onArView: (p: any, e: React.MouseEvent) => void;
   isAdded: boolean 
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
@@ -94,14 +96,23 @@ function GlassTiltCard({
           {product.category || 'General'}
         </span>
         
-        {/* VR View 3D Badge on Top Right */}
-        <button
-          onClick={(e) => onVrView(product, e)}
-          className="absolute top-3 right-3 backdrop-blur-xl bg-indigo-600/90 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow flex items-center gap-1 z-20 transition-transform hover:scale-105"
-          title="Launch 3D VR Spatial View"
-        >
-          <Eye className="w-3 h-3" /> VR View
-        </button>
+        {/* Top Right Action Badges (VR & AR Camera) */}
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 z-20">
+          <button
+            onClick={(e) => onArView(product, e)}
+            className="backdrop-blur-xl bg-emerald-600/90 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow flex items-center gap-1 transition-transform hover:scale-105"
+            title="Project in Room (AR Camera)"
+          >
+            <Camera className="w-3 h-3" /> AR View
+          </button>
+          <button
+            onClick={(e) => onVrView(product, e)}
+            className="backdrop-blur-xl bg-indigo-600/90 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow flex items-center gap-1 transition-transform hover:scale-105"
+            title="Launch 3D VR Spatial View"
+          >
+            <Eye className="w-3 h-3" /> VR
+          </button>
+        </div>
       </div>
 
       {/* Card Body */}
@@ -168,6 +179,8 @@ export default function MasterStorefrontPage() {
   const [addedItems, setAddedItems] = useState<{ [key: string]: boolean }>({});
   const [quickViewProduct, setQuickViewProduct] = useState<any | null>(null);
   const [vrModalProduct, setVrModalProduct] = useState<any | null>(null);
+  const [arModalProduct, setArModalProduct] = useState<any | null>(null);
+  const [arScale, setArScale] = useState(1);
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [isProcessingExpress, setIsProcessingExpress] = useState<string | null>(null);
@@ -246,6 +259,12 @@ export default function MasterStorefrontPage() {
   const handleVrView = (product: any, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setVrModalProduct(product);
+  };
+
+  const handleArView = (product: any, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setArScale(1);
+    setArModalProduct(product);
   };
 
   const handleExpressPay = (provider: 'apple' | 'google') => {
@@ -523,7 +542,7 @@ export default function MasterStorefrontPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">Shop the Collection</h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">Showing {filteredProducts.length} live Supabase products with interactive 3D Liquid Glass tilt effects & spatial VR View.</p>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">Showing {filteredProducts.length} live Supabase products with interactive 3D Liquid Glass tilt effects & AR room projection.</p>
           </div>
 
           {/* Liquid Glass Category Pills */}
@@ -561,12 +580,101 @@ export default function MasterStorefrontPage() {
                 onSelect={() => setQuickViewProduct(product)}
                 onAddToCart={handleAddToCart}
                 onVrView={handleVrView}
+                onArView={handleArView}
                 isAdded={!!addedItems[product.id]}
               />
             ))}
           </div>
         )}
       </main>
+
+      {/* AR Camera Room Projection Modal */}
+      {arModalProduct && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="backdrop-blur-[50px] bg-slate-950/90 border border-emerald-500/30 w-full max-w-3xl rounded-[36px] p-6 sm:p-8 shadow-[0_30px_90px_rgba(0,0,0,0.7)] text-white relative animate-in zoom-in-95 duration-300">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <Camera className="w-3.5 h-3.5" /> AR Room Projection Mode
+                </span>
+                <span className="text-xs text-slate-400">Live Camera Feed Simulated</span>
+              </div>
+              <button 
+                onClick={() => setArModalProduct(null)}
+                className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Simulated Live AR Camera Room View */}
+            <div className="my-6 relative h-80 sm:h-[400px] rounded-3xl overflow-hidden bg-gradient-to-b from-slate-900 via-emerald-950/30 to-slate-950 border border-emerald-500/20 flex items-center justify-center p-6 shadow-inner group">
+              {/* Room Background Simulator (Living Room Floor/Wall Gradient) */}
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.2)_0,transparent_70%)]"></div>
+              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-900/80 to-transparent border-t border-emerald-500/10"></div>
+              
+              {/* Projected AR Product with Dynamic Scaling */}
+              <div 
+                className="relative z-10 transition-transform duration-200 flex items-center justify-center"
+                style={{ transform: `scale(${arScale})` }}
+              >
+                {arModalProduct.image ? (
+                  <img 
+                    src={arModalProduct.image} 
+                    alt={arModalProduct.name} 
+                    className="max-h-60 max-w-xs object-contain drop-shadow-[0_25px_35px_rgba(0,0,0,0.9)] filter brightness-105" 
+                  />
+                ) : (
+                  <div className="text-2xl font-bold">{arModalProduct.name}</div>
+                )}
+              </div>
+
+              {/* AR Surface Detection Reticle */}
+              <div className="absolute bottom-10 inset-x-0 flex flex-col items-center gap-2 z-20">
+                <div className="px-4 py-1.5 rounded-full bg-emerald-600/90 backdrop-blur-md text-[11px] font-bold text-white shadow-[0_4px_15px_rgba(16,185,129,0.4)] border border-emerald-400/40 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-white animate-ping"></span> Surface Detected: Floor & Table Plane Locked
+                </div>
+                
+                {/* Scale Control Slider */}
+                <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-black/60 backdrop-blur-md border border-white/10 text-xs">
+                  <span className="text-slate-400 font-medium">Scale:</span>
+                  <input 
+                    type="range" 
+                    min="0.6" 
+                    max="1.6" 
+                    step="0.1" 
+                    value={arScale}
+                    onChange={(e) => setArScale(parseFloat(e.target.value))}
+                    className="w-32 accent-emerald-500 cursor-pointer"
+                  />
+                  <span className="font-bold text-emerald-400">{Math.round(arScale * 100)}%</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-xl font-bold">{arModalProduct.name}</h3>
+              <p className="text-xs text-slate-300 leading-relaxed">Position this item directly into your physical room using your device's camera and LiDAR sensor.</p>
+              
+              <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                <div>
+                  <span className="text-xl font-extrabold text-white">
+                    {typeof arModalProduct.price === 'number' ? `$${arModalProduct.price.toFixed(2)}` : arModalProduct.price}
+                  </span>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { handleAddToCart(arModalProduct); setArModalProduct(null); }}
+                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-2xl shadow-lg shadow-emerald-500/30 transition-all flex items-center gap-2"
+                  >
+                    <ShoppingBag className="w-4 h-4" /> Add to Cart & Buy
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* VR Spatial View Modal */}
       {vrModalProduct && (
