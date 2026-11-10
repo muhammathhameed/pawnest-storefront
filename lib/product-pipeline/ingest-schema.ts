@@ -35,8 +35,7 @@ export const ingestItemSchema = z
     seo_title: z.string().trim().max(70).optional(),
     seo_description: z.string().trim().max(170).optional(),
     stock_quantity: z.number().int().min(0).max(1_000_000).optional(),
-  })
-  .strict();
+  });
 
 export const ingestBodySchema = z
   .object({

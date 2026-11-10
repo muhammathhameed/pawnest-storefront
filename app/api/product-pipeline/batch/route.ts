@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { hasValidBearerSecret } from "../../../../lib/api-secret";
 import { getSupabaseAdmin } from "../../../../lib/supabaseAdmin";
 import {
-  ingestBodySchema,
   ingestItemSchema,
   toRow,
 } from "../../../../lib/product-pipeline/ingest-schema";
@@ -38,11 +37,18 @@ export async function POST(request: Request) {
   }
 
   // Validate per item so one bad product never rejects the whole batch.
-  const envelope = ingestBodySchema.pick({ run_id: true }).safeParse(json);
-  const rawItems = (json as { items?: unknown })?.items;
-  if (!envelope.success || !Array.isArray(rawItems) || rawItems.length === 0 || rawItems.length > 25) {
+  const body = json as { run_id?: unknown; items?: unknown } | null;
+  const runId = typeof body?.run_id === "string" ? body.run_id.trim() : "";
+  const rawItems = body?.items;
+  if (
+    !runId ||
+    runId.length > 100 ||
+    !Array.isArray(rawItems) ||
+    rawItems.length === 0 ||
+    rawItems.length > 25
+  ) {
     return NextResponse.json(
-      { error: "Expected { run_id, items: 1..25 }." },
+      { error: "Expected { run_id: string, items: 1..25 }." },
       { status: 400 },
     );
   }
@@ -53,7 +59,7 @@ export async function POST(request: Request) {
     const parsed = ingestItemSchema.safeParse(raw);
     if (!parsed.success) {
       rejected.push({
-        sku: typeof raw?.sku === "string" ? raw.sku : null,
+        sku: typeof (raw as { sku?: unknown } | null)?.sku === "string" ? (raw as { sku: string }).sku : null,
         errors: parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`),
       });
     } else {
@@ -100,7 +106,7 @@ export async function POST(request: Request) {
 
   return NextResponse.json({
     ok: true,
-    run_id: envelope.data.run_id,
+    run_id: runId,
     upserted: rows.length,
     created: rows.filter((r) => !statusBySku.has(r.sku)).length,
     rejected,
