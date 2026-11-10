@@ -10,21 +10,30 @@ const HERO_SLIDES = [
     title: "The 2026 Curated Standard for Smart Living",
     subtitle: "Experience next-gen smart gadgets and viral essentials curated with uncompromising quality, 30-day risk-free guarantees, and lightning-fast fulfillment.",
     badge: "✨ Apple-Grade Curation",
-    tag: "Verified 4.9/5 Rating across 1,400+ Orders"
+    tag: "Verified 4.9/5 Rating across 1,400+ Orders",
+    image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=800&q=80",
+    productName: "Viral Smart Beauty & Toning Device",
+    price: "$39.99"
   },
   {
     id: 2,
     title: "Meet Your AI Shopping Concierge",
     subtitle: "Type any need in our Spotlight bar below—whether it's WFH desk upgrades, organic skincare, or smart home tech—and get instant bespoke recommendations.",
     badge: "🚀 Powered by Gemini AI",
-    tag: "Instant Semantic Product Matching"
+    tag: "Instant Semantic Product Matching",
+    image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80",
+    productName: "Ambient Warm LED Desk Lamp",
+    price: "$49.99"
   },
   {
     id: 3,
     title: "Zero-Friction Global Checkout & Delivery",
     subtitle: "Enjoy fully encrypted Apple Pay & Stripe checkout with live courier tracking updates on all 21 premier catalog items.",
     badge: "🔒 Secure & Guaranteed",
-    tag: "256-Bit SSL Encrypted Transactions"
+    tag: "256-Bit SSL Encrypted Transactions",
+    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
+    productName: "Aesthetic Organic Linen Set",
+    price: "$29.99"
   }
 ];
 
@@ -202,11 +211,31 @@ export default function MasterStorefrontPage() {
         </div>
       </header>
 
-      {/* Apple-Grade Spacious Split Hero Section */}
+      {/* Apple-Grade Blended Product-Hero Banner Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-6 relative z-0">
-        <div className="relative overflow-hidden bg-slate-900 rounded-[32px] text-white py-20 sm:py-28 px-6 sm:px-14 shadow-2xl min-h-[500px] flex flex-col justify-between">
+        <div className="relative overflow-hidden bg-slate-900 rounded-[32px] text-white py-20 sm:py-28 px-6 sm:px-14 shadow-2xl min-h-[520px] flex flex-col justify-between">
           
-          {/* Background Ambient Glows */}
+          {/* Active Blended Slide Background Image with Soft Vignette & Gradients */}
+          {HERO_SLIDES.map((slide, index) => (
+            <div
+              key={slide.id}
+              className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                index === currentSlide ? 'opacity-40 scale-105' : 'opacity-0 scale-100 pointer-events-none'
+              }`}
+              style={{
+                backgroundImage: `url(${slide.image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                transition: 'transform 7s ease-out, opacity 1s ease-in-out'
+              }}
+            >
+              {/* Multi-stop gradient blend overlay for seamless text readability */}
+              <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-slate-900/40"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/60"></div>
+            </div>
+          ))}
+
+          {/* Ambient Glows */}
           <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
           <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
@@ -220,19 +249,31 @@ export default function MasterStorefrontPage() {
                 }`}
               >
                 <div className="flex flex-wrap items-center gap-2.5 mb-5">
-                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full bg-white/10 backdrop-blur-md text-indigo-300 border border-white/20 shadow-sm">
+                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full bg-white/15 backdrop-blur-md text-indigo-200 border border-white/20 shadow-sm">
                     {slide.badge}
                   </span>
-                  <span className="text-xs text-slate-300 font-medium bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                  <span className="text-xs text-slate-200 font-medium bg-white/10 px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
                     ⭐ {slide.tag}
                   </span>
                 </div>
-                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 text-white leading-tight">
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 text-white leading-tight drop-shadow-md">
                   {slide.title}
                 </h1>
-                <p className="text-base sm:text-lg text-slate-300 mb-8 font-normal leading-relaxed max-w-2xl">
+                <p className="text-base sm:text-lg text-slate-200 mb-8 font-normal leading-relaxed max-w-2xl drop-shadow">
                   {slide.subtitle}
                 </p>
+
+                {/* Featured Product Highlight Pill */}
+                <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 mb-8 shadow-lg">
+                  <div className="w-10 h-10 rounded-xl overflow-hidden bg-white/20 shrink-0">
+                    <img src={slide.image} alt={slide.productName} className="w-full h-full object-cover" />
+                  </div>
+                  <div>
+                    <span className="text-[10px] uppercase tracking-wider text-indigo-300 font-bold block">Featured in this slide</span>
+                    <span className="text-xs font-bold text-white">{slide.productName} • <span className="text-indigo-300">{slide.price}</span></span>
+                  </div>
+                </div>
+
                 <div className="flex flex-wrap items-center gap-4">
                   <a
                     href="#catalog"
@@ -365,12 +406,23 @@ export default function MasterStorefrontPage() {
                 onClick={() => setQuickViewProduct(product)}
                 className="group bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden cursor-pointer hover:-translate-y-1.5"
               >
-                {/* Card Top Banner */}
-                <div className="p-6 pb-3 bg-gradient-to-tr from-slate-50 to-indigo-50/50 flex items-center justify-between">
-                  <span className="bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-wider border border-slate-200/60 shadow-sm truncate max-w-[140px]">
+                {/* Card Top Banner with Product Image */}
+                <div className="relative h-44 bg-gradient-to-tr from-slate-100 to-indigo-50/50 overflow-hidden flex items-center justify-center">
+                  {product.image ? (
+                    <img 
+                      src={product.image} 
+                      alt={product.name} 
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                    />
+                  ) : (
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-lg">
+                      {product.name.charAt(0)}
+                    </div>
+                  )}
+                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-wider border border-slate-200/60 shadow-sm">
                     {product.category || 'General'}
                   </span>
-                  <span className="text-[11px] font-medium text-slate-400">
+                  <span className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-md text-white px-2.5 py-0.5 rounded-full text-[10px] font-medium">
                     {product.available || 100} left
                   </span>
                 </div>
@@ -443,6 +495,11 @@ export default function MasterStorefrontPage() {
                 <X className="w-4 h-4" />
               </button>
             </div>
+            {quickViewProduct.image && (
+              <div className="mt-4 h-52 rounded-2xl overflow-hidden bg-slate-100">
+                <img src={quickViewProduct.image} alt={quickViewProduct.name} className="w-full h-full object-cover" />
+              </div>
+            )}
             <div className="py-6 space-y-4">
               <h3 className="text-xl font-extrabold text-slate-900">{quickViewProduct.name || quickViewProduct.title}</h3>
               <p className="text-sm text-slate-600 leading-relaxed">{quickViewProduct.description || quickViewProduct.reason}</p>
