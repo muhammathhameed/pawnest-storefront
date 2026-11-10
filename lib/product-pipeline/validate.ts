@@ -38,3 +38,19 @@ export function validateSupplierProduct(supplier: SupplierProduct, copy: Enriche
 
   return true;
 }
+
+// Helper function expected by sync pipeline to create and validate product candidate
+export function createAndValidateCandidate(supplierProduct: SupplierProduct, copy: EnrichedProductCopy) {
+  validateSupplierProduct(supplierProduct, copy);
+
+  return {
+    external_id: supplierProduct.id,
+    title: copy.title || supplierProduct.title || "Untitled Product",
+    description: copy.description || supplierProduct.description || "",
+    features: copy.features || [],
+    tags: copy.tags || [],
+    variants: supplierProduct.variants || [],
+    raw_data: supplierProduct,
+    created_at: new Date().toISOString(),
+  };
+}
