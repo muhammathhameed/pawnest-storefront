@@ -4,13 +4,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { WebARViewer } from "@/components/WebARViewer";
 
-interface ProductPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default async function ProductPage({ params }: ProductPageProps) {
+export default async function ProductPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
   const supabase = await createClient();
 
