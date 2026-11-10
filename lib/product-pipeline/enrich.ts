@@ -48,3 +48,6 @@ export async function enrichProductData({
 
   return object;
 }
+
+// Alias export to support sync module imports expecting enrichProductCopy
+export const enrichProductCopy = enrichProductData;
