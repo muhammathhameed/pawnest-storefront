@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight } from 'lucide-react';
 
@@ -10,6 +10,135 @@ const SUGGESTED_PROMPTS = [
   "🛋️ Aesthetic home comfort sets",
   "🧘 Ergonomic posture solutions"
 ];
+
+// 3D Tilt Card Component for Apple Liquid Glass
+function GlassTiltCard({ product, onSelect, onAddToCart, isAdded }: { product: any; onSelect: () => void; onAddToCart: (p: any, e: React.MouseEvent) => void; isAdded: boolean }) {
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [rotateX, setRotateX] = useState(0);
+  const [rotateY, setRotateY] = useState(0);
+  const [glareStyle, setGlareStyle] = useState({ opacity: 0, x: 0, y: 0 });
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left; // x position within card
+    const y = e.clientY - rect.top;  // y position within card
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    // Calculate tilt angles (max 10 degrees)
+    const rX = -((y - centerY) / centerY) * 10;
+    const rY = ((x - centerX) / centerX) * 10;
+
+    setRotateX(rX);
+    setRotateY(rY);
+    setGlareStyle({
+      opacity: 0.15,
+      x: (x / rect.width) * 100,
+      y: (y / rect.height) * 100,
+    });
+  };
+
+  const handleMouseLeave = () => {
+    setRotateX(0);
+    setRotateY(0);
+    setGlareStyle({ opacity: 0, x: 50, y: 50 });
+  };
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      onClick={onSelect}
+      style={{
+        transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1, 1, 1)`,
+        transition: 'transform 0.1s ease-out, box-shadow 0.3s ease',
+      }}
+      className="group backdrop-blur-xl bg-white/70 rounded-[32px] border border-white/90 shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] hover:shadow-[0_25px_60px_rgba(99,102,241,0.18)] flex flex-col overflow-hidden cursor-pointer relative"
+    >
+      {/* Specular Glare Effect */}
+      <div
+        className="absolute inset-0 pointer-events-none transition-opacity duration-300 z-20 rounded-[32px]"
+        style={{
+          opacity: glareStyle.opacity,
+          background: `radial-gradient(circle at ${glareStyle.x}% ${glareStyle.y}%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 80%)`,
+        }}
+      />
+
+      {/* Card Top Banner with Product Image */}
+      <div className="relative h-48 bg-gradient-to-b from-white/40 to-transparent overflow-hidden flex items-center justify-center p-4 border-b border-slate-100/80">
+        {product.image ? (
+          <img 
+            src={product.image} 
+            alt={product.name} 
+            className="w-full h-full object-contain object-center group-hover:scale-110 transition-transform duration-500 drop-shadow-md" 
+          />
+        ) : (
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg shadow-inner">
+            {product.name.charAt(0)}
+          </div>
+        )}
+        <span className="absolute top-3 left-3 backdrop-blur-xl bg-white/80 px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-wider border border-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] truncate max-w-[120px] z-10">
+          {product.category || 'General'}
+        </span>
+        <span className="absolute top-3 right-3 backdrop-blur-xl bg-slate-900/80 text-white px-2.5 py-0.5 rounded-full text-[10px] font-medium shadow z-10">
+          {product.available || 100} left
+        </span>
+      </div>
+
+      {/* Card Body */}
+      <div className="p-6 flex-1 flex flex-col justify-between z-10">
+        <div>
+          <div className="flex items-center gap-1 mb-2">
+            <div className="flex text-amber-400">
+              {[...Array(5)].map((_, i) => (
+                <Star key={i} className="w-3 h-3 fill-current" />
+              ))}
+            </div>
+            <span className="text-xs font-bold text-slate-700">{product.rating || 4.8}</span>
+            <span className="text-xs text-slate-400">({product.reviewsCount || 120})</span>
+          </div>
+          <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+            {product.name}
+          </h3>
+          <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">
+            {product.description}
+          </p>
+        </div>
+
+        <div className="mt-6 pt-4 border-t border-slate-100/80 flex items-center justify-between">
+          <div>
+            <span className="text-base font-extrabold text-slate-900">
+              {typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : product.price}
+            </span>
+            {product.originalPrice && (
+              <span className="text-xs text-slate-400 line-through ml-2">${product.originalPrice.toFixed(2)}</span>
+            )}
+          </div>
+          <button
+            onClick={(e) => onAddToCart(product, e)}
+            className={`px-3.5 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md ${
+              isAdded
+                ? 'bg-emerald-600 text-white scale-95'
+                : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:scale-105 shadow-[0_4px_12px_rgba(99,102,241,0.3)]'
+            }`}
+          >
+            {isAdded ? (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5" /> Added
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-3.5 h-3.5" /> Add
+              </>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function MasterStorefrontPage() {
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -114,7 +243,7 @@ export default function MasterStorefrontPage() {
             </div>
             <div className="flex flex-col">
               <span className="text-base font-bold tracking-tight text-slate-900 leading-none">AuraFinds</span>
-              <span className="text-[10px] uppercase tracking-widest text-indigo-600 font-semibold mt-0.5">Liquid Glass</span>
+              <span className="text-[10px] uppercase tracking-widest text-indigo-600 font-semibold mt-0.5">Liquid Glass 3D</span>
             </div>
           </Link>
 
@@ -359,7 +488,7 @@ export default function MasterStorefrontPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">Shop the Collection</h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">Showing {filteredProducts.length} live Supabase products with instant Apple Pay and AR preview.</p>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">Showing {filteredProducts.length} live Supabase products with interactive 3D Liquid Glass tilt effects.</p>
           </div>
 
           {/* Liquid Glass Category Pills */}
@@ -380,7 +509,7 @@ export default function MasterStorefrontPage() {
           </div>
         </div>
 
-        {/* Bento Product Grid with Liquid Glass Refraction Cards */}
+        {/* Bento Product Grid with Interactive 3D Tilt Glass Cards */}
         {loadingProducts ? (
           <div className="text-center py-20 text-slate-500 animate-pulse text-sm">Loading your Supabase inventory...</div>
         ) : filteredProducts.length === 0 ? (
@@ -391,82 +520,13 @@ export default function MasterStorefrontPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {filteredProducts.map((product) => (
-              <div
+              <GlassTiltCard
                 key={product.id}
-                onClick={() => setQuickViewProduct(product)}
-                className="group backdrop-blur-xl bg-white/70 rounded-[32px] border border-white/90 shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col overflow-hidden cursor-pointer hover:-translate-y-1.5"
-              >
-                {/* Card Top Banner with Product Image */}
-                <div className="relative h-48 bg-gradient-to-b from-white/40 to-transparent overflow-hidden flex items-center justify-center p-4 border-b border-slate-100/80">
-                  {product.image ? (
-                    <img 
-                      src={product.image} 
-                      alt={product.name} 
-                      className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-500 drop-shadow-md" 
-                    />
-                  ) : (
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg shadow-inner">
-                      {product.name.charAt(0)}
-                    </div>
-                  )}
-                  <span className="absolute top-3 left-3 backdrop-blur-xl bg-white/80 px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-wider border border-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] truncate max-w-[120px]">
-                    {product.category || 'General'}
-                  </span>
-                  <span className="absolute top-3 right-3 backdrop-blur-xl bg-slate-900/80 text-white px-2.5 py-0.5 rounded-full text-[10px] font-medium shadow">
-                    {product.available || 100} left
-                  </span>
-                </div>
-
-                {/* Card Body */}
-                <div className="p-6 flex-1 flex flex-col justify-between">
-                  <div>
-                    <div className="flex items-center gap-1 mb-2">
-                      <div className="flex text-amber-400">
-                        {[...Array(5)].map((_, i) => (
-                          <Star key={i} className="w-3 h-3 fill-current" />
-                        ))}
-                      </div>
-                      <span className="text-xs font-bold text-slate-700">{product.rating || 4.8}</span>
-                      <span className="text-xs text-slate-400">({product.reviewsCount || 120})</span>
-                    </div>
-                    <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
-                      {product.name}
-                    </h3>
-                    <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">
-                      {product.description}
-                    </p>
-                  </div>
-
-                  <div className="mt-6 pt-4 border-t border-slate-100/80 flex items-center justify-between">
-                    <div>
-                      <span className="text-base font-extrabold text-slate-900">
-                        {typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : product.price}
-                      </span>
-                      {product.originalPrice && (
-                        <span className="text-xs text-slate-400 line-through ml-2">${product.originalPrice.toFixed(2)}</span>
-                      )}
-                    </div>
-                    <button
-                      onClick={(e) => handleAddToCart(product, e)}
-                      className={`px-3.5 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md ${
-                        addedItems[product.id]
-                          ? 'bg-emerald-600 text-white scale-95'
-                          : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:scale-105 shadow-[0_4px_12px_rgba(99,102,241,0.3)]'
-                      }`}
-                    >
-                      {addedItems[product.id] ? (
-                        <>
-                          <CheckCircle2 className="w-3.5 h-3.5" /> Added
-                        </>
-                      ) : (
-                        <>
-                          <ShoppingBag className="w-3.5 h-3.5" /> Add
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </div>
+                product={product}
+                onSelect={() => setQuickViewProduct(product)}
+                onAddToCart={handleAddToCart}
+                isAdded={!!addedItems[product.id]}
+              />
             ))}
           </div>
         )}
@@ -519,7 +579,7 @@ export default function MasterStorefrontPage() {
 
       {/* Footer */}
       <footer className="backdrop-blur-xl bg-white/60 border-t border-slate-200/80 py-12 px-4 sm:px-8 mt-12 text-center text-xs text-slate-500 shadow-inner">
-        <p>© 2026 AuraFinds Storefront. Apple Liquid Glass Edition. Powered by Next.js & Google Generative AI. All rights reserved.</p>
+        <p>© 2026 AuraFinds Storefront. Apple Liquid Glass 3D Edition. Powered by Next.js & Google Generative AI. All rights reserved.</p>
       </footer>
     </div>
   );
