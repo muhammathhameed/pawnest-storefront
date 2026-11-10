@@ -39,7 +39,7 @@ export default function MasterStorefrontPage() {
   // Use top products from Supabase database for the hero slideshow
   const heroSlides = allProducts.length > 0 ? allProducts.slice(0, 3).map((p, idx) => ({
     id: p.id || idx,
-    title: idx === 0 ? "The Titanium Standard for Smart Living" : idx === 1 ? "Meet Your AI Shopping Concierge" : "Zero-Friction Global Checkout",
+    title: idx === 0 ? "The Liquid Glass Standard for Smart Living" : idx === 1 ? "Meet Your AI Shopping Concierge" : "Zero-Friction Global Checkout",
     subtitle: p.description || "Experience next-gen smart gadgets and viral essentials curated with uncompromising quality.",
     badge: idx === 0 ? "✨ Featured Product" : idx === 1 ? "🚀 AI Spotlight Pick" : "🔒 Verified Best Seller",
     tag: `⭐ 4.8/5 (${p.available || 100} in stock)`,
@@ -49,9 +49,9 @@ export default function MasterStorefrontPage() {
   })) : [
     {
       id: 1,
-      title: "The Titanium Standard for Smart Living",
+      title: "The Liquid Glass Standard for Smart Living",
       subtitle: "Experience next-gen smart gadgets and viral essentials curated with uncompromising quality.",
-      badge: "✨ Apple-Grade Curation",
+      badge: "✨ Apple Liquid Glass Curation",
       tag: "Verified 4.9/5 Rating",
       image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=800&q=80",
       productName: "Curated Essential",
@@ -101,20 +101,20 @@ export default function MasterStorefrontPage() {
     : allProducts.filter(p => (p.category || '').toLowerCase() === selectedCategory.toLowerCase());
 
   return (
-    <div className="min-h-screen bg-[#FBFBFD] text-[#1D1D1F] flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
       
-      {/* iOS Floating Frosted Glass Header with Clean Titanium Tech-Luxe Aesthetic */}
+      {/* Apple Liquid Glass Floating Header */}
       <header className="sticky top-4 z-50 mx-4 sm:mx-8">
-        <div className="max-w-7xl mx-auto backdrop-blur-2xl bg-white/80 border border-slate-200/80 shadow-[0_8px_30px_rgb(0,0,0,0.06)] rounded-2xl px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4 transition-all duration-300">
+        <div className="max-w-7xl mx-auto backdrop-blur-[32px] bg-white/70 border border-white/80 shadow-[0_16px_40px_rgb(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] rounded-3xl px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4 transition-all duration-300">
           
           {/* Brand Logo */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-slate-900 to-indigo-900 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-105 transition-transform">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-indigo-900 flex items-center justify-center text-white font-bold text-lg shadow-[0_4px_12px_rgba(0,0,0,0.15),inset_0_1px_1px_rgba(255,255,255,0.3)] group-hover:scale-105 transition-transform">
               A
             </div>
             <div className="flex flex-col">
               <span className="text-base font-bold tracking-tight text-slate-900 leading-none">AuraFinds</span>
-              <span className="text-[10px] uppercase tracking-widest text-indigo-600 font-semibold mt-0.5">Tech-Luxe</span>
+              <span className="text-[10px] uppercase tracking-widest text-indigo-600 font-semibold mt-0.5">Liquid Glass</span>
             </div>
           </Link>
 
@@ -127,7 +127,7 @@ export default function MasterStorefrontPage() {
                 value={searchQuery}
                 onChange={(e) => handleAiSearch(e.target.value)}
                 placeholder="✨ Spotlight AI Concierge: Search products or ask for advice..."
-                className="w-full pl-10 pr-10 py-2.5 bg-slate-100/80 border border-slate-200/80 rounded-full text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white transition-all shadow-inner"
+                className="w-full pl-10 pr-10 py-2.5 bg-white/60 border border-white/90 rounded-full text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.04)]"
               />
               {searchQuery && (
                 <button 
@@ -141,7 +141,7 @@ export default function MasterStorefrontPage() {
 
             {/* AI Suggestions Dropdown */}
             {aiSuggestions && (
-              <div className="absolute top-full left-0 right-0 mt-2.5 bg-white rounded-2xl shadow-2xl border border-slate-200/80 p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-80 overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 mt-2.5 backdrop-blur-[40px] bg-white/90 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-white p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-80 overflow-y-auto">
                 <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-100">
                   <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
                     <Sparkles className="w-3.5 h-3.5" /> AI Spotlight Recommendations
@@ -155,7 +155,7 @@ export default function MasterStorefrontPage() {
                     <div 
                       key={idx} 
                       onClick={() => { setQuickViewProduct(item); setAiSuggestions(null); setSearchQuery(''); }}
-                      className="p-3 rounded-xl hover:bg-slate-50 border border-slate-100 flex items-center justify-between transition-colors cursor-pointer group"
+                      className="p-3 rounded-2xl hover:bg-slate-100/70 border border-transparent hover:border-slate-200/60 flex items-center justify-between transition-colors cursor-pointer group"
                     >
                       <div className="pr-4">
                         <h4 className="text-xs font-bold text-slate-900 group-hover:text-indigo-600">{item.name || item.title}</h4>
@@ -183,13 +183,13 @@ export default function MasterStorefrontPage() {
             </Link>
             <Link
               href="/signup"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-indigo-600 rounded-xl shadow-md transition-all hover:scale-105"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-indigo-600 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all hover:scale-105"
             >
               Get Started
             </Link>
             <Link
               href="/cart"
-              className="relative p-2.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 transition-all flex items-center justify-center hover:scale-105 border border-slate-200/80"
+              className="relative p-2.5 rounded-full backdrop-blur-md bg-white/60 hover:bg-white text-slate-800 transition-all flex items-center justify-center hover:scale-105 border border-white/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
               aria-label="Shopping Cart"
             >
               <ShoppingBag className="w-4 h-4 text-slate-700" />
@@ -202,9 +202,9 @@ export default function MasterStorefrontPage() {
         </div>
       </header>
 
-      {/* Apple-Grade Clean Titanium Tech-Luxe Hero Section */}
+      {/* Apple Liquid Glass Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-6 relative z-0">
-        <div className="relative overflow-hidden bg-slate-900 rounded-[32px] text-white py-20 sm:py-28 px-6 sm:px-14 shadow-2xl min-h-[520px] flex flex-col justify-between">
+        <div className="relative overflow-hidden bg-slate-900 rounded-[36px] text-white py-20 sm:py-28 px-6 sm:px-14 shadow-[0_30px_70px_rgba(0,0,0,0.25)] min-h-[520px] flex flex-col justify-between border border-white/10">
           
           {/* Active Blended Slide Background Image */}
           {heroSlides.map((slide, index) => (
@@ -225,9 +225,9 @@ export default function MasterStorefrontPage() {
             </div>
           ))}
 
-          {/* Subtle Ambient Glows */}
-          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
-          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 bg-blue-500/15 rounded-full blur-3xl pointer-events-none"></div>
+          {/* Liquid Refraction Orbs */}
+          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-indigo-500/25 rounded-full blur-[100px] pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 bg-sky-500/20 rounded-full blur-[100px] pointer-events-none"></div>
 
           {/* Carousel Slide Content */}
           <div className="relative z-10 max-w-3xl my-auto">
@@ -239,10 +239,10 @@ export default function MasterStorefrontPage() {
                 }`}
               >
                 <div className="flex flex-wrap items-center gap-2.5 mb-5">
-                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full bg-white/10 backdrop-blur-md text-indigo-300 border border-white/20 shadow-sm">
+                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full backdrop-blur-xl bg-white/10 text-indigo-200 border border-white/20 shadow-[0_8px_20px_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,0.4)]">
                     {slide.badge}
                   </span>
-                  <span className="text-xs text-slate-300 font-medium bg-white/5 px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
+                  <span className="text-xs text-slate-300 font-medium backdrop-blur-xl bg-white/5 px-3 py-1 rounded-full border border-white/10">
                     {slide.tag}
                   </span>
                 </div>
@@ -253,9 +253,9 @@ export default function MasterStorefrontPage() {
                   {slide.subtitle}
                 </p>
 
-                {/* Featured Product Highlight Pill */}
-                <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 mb-8 shadow-lg">
-                  <div className="w-10 h-10 rounded-xl overflow-hidden bg-white shrink-0 flex items-center justify-center p-1">
+                {/* Liquid Glass Featured Product Highlight Pill */}
+                <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-3xl backdrop-blur-2xl bg-white/10 border border-white/20 mb-8 shadow-[0_12px_30px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.4)]">
+                  <div className="w-10 h-10 rounded-2xl overflow-hidden bg-white shrink-0 flex items-center justify-center p-1 shadow">
                     <img src={slide.image} alt={slide.productName} className="w-full h-full object-contain" />
                   </div>
                   <div>
@@ -267,13 +267,13 @@ export default function MasterStorefrontPage() {
                 <div className="flex flex-wrap items-center gap-4">
                   <a
                     href="#catalog"
-                    className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm rounded-full shadow-xl transition-all duration-200 hover:scale-105 flex items-center gap-2"
+                    className="px-8 py-3.5 bg-white text-slate-900 hover:bg-indigo-50 font-bold text-xs sm:text-sm rounded-full shadow-[0_10px_30px_rgba(255,255,255,0.2)] transition-all duration-200 hover:scale-105 flex items-center gap-2"
                   >
                     Explore All {allProducts.length} Items <ArrowRight className="w-4 h-4" />
                   </a>
                   <a
                     href="/signup"
-                    className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm rounded-full backdrop-blur-md border border-white/20 transition-all duration-200"
+                    className="px-8 py-3.5 backdrop-blur-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm rounded-full border border-white/20 transition-all duration-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]"
                   >
                     Create Account
                   </a>
@@ -294,7 +294,7 @@ export default function MasterStorefrontPage() {
                 <button
                   key={i}
                   onClick={() => handleAiSearch(promptText.replace(/^[^\s]+\s/, ''))}
-                  className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-xs text-slate-200 font-medium transition-all border border-white/10 hover:border-white/30 backdrop-blur-sm"
+                  className="px-3.5 py-1.5 rounded-full backdrop-blur-xl bg-white/10 hover:bg-white/20 text-xs text-slate-200 font-medium transition-all border border-white/15 hover:border-white/30 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)]"
                 >
                   {promptText}
                 </button>
@@ -308,7 +308,7 @@ export default function MasterStorefrontPage() {
                   key={index}
                   onClick={() => setCurrentSlide(index)}
                   className={`h-2 rounded-full transition-all duration-300 ${
-                    index === currentSlide ? 'w-8 bg-indigo-400' : 'w-2 bg-white/40 hover:bg-white/60'
+                    index === currentSlide ? 'w-8 bg-white shadow-[0_0_10px_rgba(255,255,255,0.8)]' : 'w-2 bg-white/40 hover:bg-white/60'
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 />
@@ -320,32 +320,32 @@ export default function MasterStorefrontPage() {
         </div>
       </section>
 
-      {/* Trust Badges Bento Row */}
+      {/* Trust Badges Liquid Glass Bento Row */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-indigo-50 text-indigo-600"><ShieldCheck className="w-5 h-5" /></div>
+          <div className="backdrop-blur-xl bg-white/80 border border-white/90 p-4 rounded-3xl shadow-[0_10px_30px_rgb(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.8)] flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-indigo-50 text-indigo-600 shadow-inner"><ShieldCheck className="w-5 h-5" /></div>
             <div>
               <h4 className="text-xs font-bold text-slate-900">30-Day Risk-Free</h4>
               <p className="text-[11px] text-slate-500">100% money-back guarantee</p>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600"><Truck className="w-5 h-5" /></div>
+          <div className="backdrop-blur-xl bg-white/80 border border-white/90 p-4 rounded-3xl shadow-[0_10px_30px_rgb(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.8)] flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600 shadow-inner"><Truck className="w-5 h-5" /></div>
             <div>
               <h4 className="text-xs font-bold text-slate-900">Fast & Tracked</h4>
               <p className="text-[11px] text-slate-500">Live courier tracking updates</p>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-emerald-50 text-emerald-600"><Lock className="w-5 h-5" /></div>
+          <div className="backdrop-blur-xl bg-white/80 border border-white/90 p-4 rounded-3xl shadow-[0_10px_30px_rgb(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.8)] flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-emerald-50 text-emerald-600 shadow-inner"><Lock className="w-5 h-5" /></div>
             <div>
               <h4 className="text-xs font-bold text-slate-900">Secure Checkout</h4>
               <p className="text-[11px] text-slate-500">Encrypted 256-bit SSL</p>
             </div>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-sm flex items-center gap-3">
-            <div className="p-2.5 rounded-xl bg-purple-50 text-purple-600"><Star className="w-5 h-5" /></div>
+          <div className="backdrop-blur-xl bg-white/80 border border-white/90 p-4 rounded-3xl shadow-[0_10px_30px_rgb(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.8)] flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-purple-50 text-purple-600 shadow-inner"><Star className="w-5 h-5" /></div>
             <div>
               <h4 className="text-xs font-bold text-slate-900">Curated Quality</h4>
               <p className="text-[11px] text-slate-500">Rigorously inspected items</p>
@@ -362,16 +362,16 @@ export default function MasterStorefrontPage() {
             <p className="text-xs sm:text-sm text-slate-500 mt-1">Showing {filteredProducts.length} live Supabase products with instant Apple Pay and AR preview.</p>
           </div>
 
-          {/* Category Pills */}
+          {/* Liquid Glass Category Pills */}
           <div className="flex flex-wrap items-center gap-2">
             {categories.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-4 py-2 rounded-full text-xs font-semibold transition-all shadow-sm ${
+                className={`px-4 py-2 rounded-2xl text-xs font-semibold transition-all shadow-sm ${
                   selectedCategory.toLowerCase() === cat.toLowerCase()
-                    ? 'bg-slate-900 text-white shadow-md scale-105'
-                    : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80'
+                    ? 'bg-slate-900 text-white shadow-[0_8px_20px_rgba(0,0,0,0.2)] scale-105'
+                    : 'backdrop-blur-xl bg-white/80 text-slate-700 hover:bg-white border border-white/90 shadow-[inset_0_1px_1px_rgba(255,255,255,0.8)]'
                 }`}
               >
                 {cat}
@@ -380,11 +380,11 @@ export default function MasterStorefrontPage() {
           </div>
         </div>
 
-        {/* Bento Product Grid */}
+        {/* Bento Product Grid with Liquid Glass Refraction Cards */}
         {loadingProducts ? (
           <div className="text-center py-20 text-slate-500 animate-pulse text-sm">Loading your Supabase inventory...</div>
         ) : filteredProducts.length === 0 ? (
-          <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 p-8 space-y-2">
+          <div className="text-center py-20 backdrop-blur-xl bg-white/80 rounded-3xl border border-white/90 p-8 space-y-2 shadow-[0_15px_40px_rgba(0,0,0,0.05)]">
             <h3 className="text-lg font-bold text-slate-900">No products found in this category</h3>
             <p className="text-xs text-slate-500">Try selecting "All" or searching with our AI concierge.</p>
           </div>
@@ -394,25 +394,25 @@ export default function MasterStorefrontPage() {
               <div
                 key={product.id}
                 onClick={() => setQuickViewProduct(product)}
-                className="group bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden cursor-pointer hover:-translate-y-1.5"
+                className="group backdrop-blur-xl bg-white/70 rounded-[32px] border border-white/90 shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] hover:shadow-[0_20px_50px_rgba(0,0,0,0.12)] transition-all duration-300 flex flex-col overflow-hidden cursor-pointer hover:-translate-y-1.5"
               >
                 {/* Card Top Banner with Product Image */}
-                <div className="relative h-48 bg-white overflow-hidden flex items-center justify-center p-4 border-b border-slate-100">
+                <div className="relative h-48 bg-gradient-to-b from-white/40 to-transparent overflow-hidden flex items-center justify-center p-4 border-b border-slate-100/80">
                   {product.image ? (
                     <img 
                       src={product.image} 
                       alt={product.name} 
-                      className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-500" 
+                      className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-500 drop-shadow-md" 
                     />
                   ) : (
-                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg shadow-inner">
                       {product.name.charAt(0)}
                     </div>
                   )}
-                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-wider border border-slate-200/60 shadow-sm truncate max-w-[120px]">
+                  <span className="absolute top-3 left-3 backdrop-blur-xl bg-white/80 px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-wider border border-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] truncate max-w-[120px]">
                     {product.category || 'General'}
                   </span>
-                  <span className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-md text-white px-2.5 py-0.5 rounded-full text-[10px] font-medium">
+                  <span className="absolute top-3 right-3 backdrop-blur-xl bg-slate-900/80 text-white px-2.5 py-0.5 rounded-full text-[10px] font-medium shadow">
                     {product.available || 100} left
                   </span>
                 </div>
@@ -437,7 +437,7 @@ export default function MasterStorefrontPage() {
                     </p>
                   </div>
 
-                  <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                  <div className="mt-6 pt-4 border-t border-slate-100/80 flex items-center justify-between">
                     <div>
                       <span className="text-base font-extrabold text-slate-900">
                         {typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : product.price}
@@ -448,10 +448,10 @@ export default function MasterStorefrontPage() {
                     </div>
                     <button
                       onClick={(e) => handleAddToCart(product, e)}
-                      className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md ${
+                      className={`px-3.5 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md ${
                         addedItems[product.id]
                           ? 'bg-emerald-600 text-white scale-95'
-                          : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:scale-105'
+                          : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:scale-105 shadow-[0_4px_12px_rgba(99,102,241,0.3)]'
                       }`}
                     >
                       {addedItems[product.id] ? (
@@ -472,22 +472,22 @@ export default function MasterStorefrontPage() {
         )}
       </main>
 
-      {/* iOS Quick View Modal Sheet */}
+      {/* Apple Liquid Glass Quick View Modal Sheet */}
       {quickViewProduct && (
-        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
-          <div className="bg-white w-full max-w-lg rounded-t-[32px] sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 animate-in slide-in-from-bottom duration-300">
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
+          <div className="backdrop-blur-[40px] bg-white/90 w-full max-w-lg rounded-t-[36px] sm:rounded-[36px] p-6 sm:p-8 shadow-[0_25px_70px_rgba(0,0,0,0.25)] border border-white animate-in slide-in-from-bottom duration-300">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
               <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">{quickViewProduct.category || 'General'}</span>
               <button 
                 onClick={() => setQuickViewProduct(null)}
-                className="p-1 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
+                className="p-1.5 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
             {quickViewProduct.image && (
-              <div className="mt-4 h-56 rounded-2xl overflow-hidden bg-white flex items-center justify-center p-4 border border-slate-100">
-                <img src={quickViewProduct.image} alt={quickViewProduct.name} className="w-full h-full object-contain" />
+              <div className="mt-4 h-56 rounded-3xl overflow-hidden bg-gradient-to-b from-slate-50 to-white flex items-center justify-center p-4 border border-slate-100 shadow-inner">
+                <img src={quickViewProduct.image} alt={quickViewProduct.name} className="w-full h-full object-contain drop-shadow-lg" />
               </div>
             )}
             <div className="py-6 space-y-4">
@@ -500,7 +500,7 @@ export default function MasterStorefrontPage() {
                 {quickViewProduct.originalPrice && (
                   <span className="text-sm text-slate-400 line-through">${quickViewProduct.originalPrice.toFixed(2)}</span>
                 )}
-                <span className="ml-auto px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">
+                <span className="ml-auto px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100">
                   In Stock ({quickViewProduct.available || 100})
                 </span>
               </div>
@@ -508,7 +508,7 @@ export default function MasterStorefrontPage() {
             <div className="pt-4 border-t border-slate-100 flex gap-3">
               <button
                 onClick={() => { handleAddToCart(quickViewProduct); setQuickViewProduct(null); }}
-                className="flex-1 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-lg transition-all text-sm flex items-center justify-center gap-2"
+                className="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-[0_10px_25px_rgba(99,102,241,0.35)] transition-all text-sm flex items-center justify-center gap-2 hover:scale-[1.02]"
               >
                 <ShoppingBag className="w-4 h-4" /> Add to Cart & Checkout
               </button>
@@ -518,8 +518,8 @@ export default function MasterStorefrontPage() {
       )}
 
       {/* Footer */}
-      <footer className="bg-white border-t border-slate-200/80 py-12 px-4 sm:px-8 mt-12 text-center text-xs text-slate-500">
-        <p>© 2026 AuraFinds Storefront. Powered by Next.js & Google Generative AI. All rights reserved.</p>
+      <footer className="backdrop-blur-xl bg-white/60 border-t border-slate-200/80 py-12 px-4 sm:px-8 mt-12 text-center text-xs text-slate-500 shadow-inner">
+        <p>© 2026 AuraFinds Storefront. Apple Liquid Glass Edition. Powered by Next.js & Google Generative AI. All rights reserved.</p>
       </footer>
     </div>
   );
