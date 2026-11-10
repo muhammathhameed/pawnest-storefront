@@ -1,25 +1,35 @@
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
-import './globals.css';
-import { Toaster } from 'sonner';
+import type { Metadata } from "next";
+import { Geist, Geist_Mono } from "next/font/google";
+import "./globals.css";
+import AICoachWidget from "@/components/AICoachWidget";
 
-const inter = Inter({ subsets: ['latin'] });
+const geistSans = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
+const geistMono = Geist_Mono({
+  variable: "--font-geist-mono",
+  subsets: ["latin"],
+});
 
 export const metadata: Metadata = {
-  title: 'Pawnest Storefront',
-  description: 'Market-leading e-commerce storefront with WebAR, AI Concierge, and Live Supply Chain tracking',
+  title: "AuraFinds — Curated Viral Finds & Smart AR",
+  description: "High-trust e-commerce brand featuring interactive 3D/AR and AI shopping concierge.",
 };
 
 export default function RootLayout({
   children,
-}: {
+}: Readonly<{
   children: React.ReactNode;
-}) {
+}>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-neutral-50 text-neutral-900`}
+      >
         {children}
-        <Toaster position="bottom-right" richColors />
+        <AICoachWidget />
       </body>
     </html>
   );
