@@ -3,7 +3,26 @@
 import React, { useState } from 'react';
 import { ShoppingBag, Star, CheckCircle2 } from 'lucide-react';
 
-const FEATURED_PRODUCTS = [
+interface Product {
+  id: string;
+  name: string;
+  category: string;
+  price: number;
+  originalPrice: number;
+  rating: number;
+  reviewsCount: number;
+  description: string;
+  available: number;
+}
+
+interface ProductCatalogProps {
+  products?: Product[];
+  initialCategory?: string;
+  reviewSummaries?: Record<string, any>;
+  showCollectionHeading?: boolean;
+}
+
+const DEFAULT_PRODUCTS: Product[] = [
   {
     id: 'prod-1',
     name: 'Viral Smart Beauty Gadget',
@@ -50,17 +69,23 @@ const FEATURED_PRODUCTS = [
   }
 ];
 
-export default function ProductCatalog() {
-  const [selectedCategory, setSelectedCategory] = useState('All');
+export default function ProductCatalog({
+  products = DEFAULT_PRODUCTS,
+  initialCategory = 'All',
+  showCollectionHeading = true
+}: ProductCatalogProps) {
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
   const [addedItems, setAddedItems] = useState<{ [key: string]: boolean }>({});
 
   const categories = ['All', 'Beauty & Skincare', 'Smart Tech & Gadgets', 'Lifestyle & Home', 'Wellness & Fitness'];
 
-  const filteredProducts = selectedCategory === 'All' 
-    ? FEATURED_PRODUCTS 
-    : FEATURED_PRODUCTS.filter(p => p.category === selectedCategory);
+  const displayProducts = products && products.length > 0 ? products : DEFAULT_PRODUCTS;
 
-  const handleAddToCart = (product: any) => {
+  const filteredProducts = selectedCategory === 'All' 
+    ? displayProducts 
+    : displayProducts.filter(p => p.category.toLowerCase() === selectedCategory.toLowerCase() || selectedCategory === 'All');
+
+  const handleAddToCart = (product: Product) => {
     setAddedItems(prev => ({ ...prev, [product.id]: true }));
     setTimeout(() => {
       setAddedItems(prev => ({ ...prev, [product.id]: false }));
@@ -69,6 +94,13 @@ export default function ProductCatalog() {
 
   return (
     <div className="space-y-8">
+      {showCollectionHeading && (
+        <div className="text-center space-y-2">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Shop the Collection</h2>
+          <p className="text-sm text-slate-500 max-w-xl mx-auto">Curated viral finds and smart essentials across every category.</p>
+        </div>
+      )}
+
       {/* Category Filter Pills */}
       <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
         {categories.map((cat) => (
@@ -76,7 +108,7 @@ export default function ProductCatalog() {
             key={cat}
             onClick={() => setSelectedCategory(cat)}
             className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all shadow-sm ${
-              selectedCategory === cat
+              selectedCategory.toLowerCase() === cat.toLowerCase()
                 ? 'bg-indigo-600 text-white shadow-indigo-200 scale-105'
                 : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
             }`}
