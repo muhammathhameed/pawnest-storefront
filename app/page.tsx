@@ -406,13 +406,13 @@ export default function MasterStorefrontPage() {
                 onClick={() => setQuickViewProduct(product)}
                 className="group bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden cursor-pointer hover:-translate-y-1.5"
               >
-                {/* Card Top Banner with Product Image */}
-                <div className="relative h-44 bg-gradient-to-tr from-slate-100 to-indigo-50/50 overflow-hidden flex items-center justify-center">
+                {/* Card Top Banner with Product Image (Fixed aspect ratio with object-contain and white background container) */}
+                <div className="relative h-48 bg-white overflow-hidden flex items-center justify-center p-4 border-b border-slate-100">
                   {product.image ? (
                     <img 
                       src={product.image} 
                       alt={product.name} 
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                      className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-500" 
                     />
                   ) : (
                     <div className="w-12 h-12 rounded-2xl bg-indigo-100 text-indigo-600 flex items-center justify-center font-bold text-lg">
@@ -496,8 +496,8 @@ export default function MasterStorefrontPage() {
               </button>
             </div>
             {quickViewProduct.image && (
-              <div className="mt-4 h-52 rounded-2xl overflow-hidden bg-slate-100">
-                <img src={quickViewProduct.image} alt={quickViewProduct.name} className="w-full h-full object-cover" />
+              <div className="mt-4 h-56 rounded-2xl overflow-hidden bg-white flex items-center justify-center p-4 border border-slate-100">
+                <img src={quickViewProduct.image} alt={quickViewProduct.name} className="w-full h-full object-contain" />
               </div>
             )}
             <div className="py-6 space-y-4">
