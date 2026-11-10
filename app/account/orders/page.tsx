@@ -8,6 +8,8 @@ const currency = new Intl.NumberFormat("en-US", {
   currency: "USD",
 });
 
+export const dynamic = "force-dynamic";
+
 export default async function AccountOrdersPage() {
   const supabase = await getSupabaseServerClient();
   const {

@@ -5,9 +5,12 @@ import { supabaseFetch } from "./fetch";
 import { requireSupabasePublicConfig } from "./config";
 
 export async function getSupabaseServerClient() {
-  const { url, anonKey } = requireSupabasePublicConfig("server authentication");
-
+  // Read cookies first: it tells Next.js this render depends on the request,
+  // so the page is never prerendered at build time (when Supabase env vars
+  // may be absent) before the config check below can throw.
   const cookieStore = await cookies();
+
+  const { url, anonKey } = requireSupabasePublicConfig("server authentication");
 
   return createServerClient<Database>(url, anonKey, {
     global: { fetch: supabaseFetch },
