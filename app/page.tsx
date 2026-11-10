@@ -1,188 +1,101 @@
-import { getSupabasePublicConfig } from "@/lib/supabase/config";
-import { createServerClient } from "@supabase/ssr";
-import { cookies } from "next/headers";
-import Image from "next/image";
-import Link from "next/link";
+'use client';
 
-export const dynamic = 'force-dynamic';
+import React, { useState, useEffect } from 'react';
+import ProductCatalog from '@/components/ProductCatalog';
+import ProductBundler from '@/components/ProductBundler';
+import TrustBadges from '@/components/TrustBadges';
+import ShippingTrackerBadge from '@/components/ShippingTrackerBadge';
 
-export default async function Home({
-  searchParams,
-}: {
-  searchParams: Promise<{ category?: string; q?: string }>;
-}) {
-  const resolvedParams = await searchParams;
-  const category = resolvedParams?.category;
-  const query = resolvedParams?.q;
-
-  const config = getSupabasePublicConfig();
-  let products: any[] = [];
-  let isConfigured = !!config;
-
-  if (isConfigured) {
-    try {
-      const supabase = createServerClient(config.url, config.anonKey, {
-        cookies: {
-          async getAll() {
-            const cookieStore = await cookies();
-            return cookieStore.getAll();
-          },
-          async setAll() {},
-        },
-      });
-
-      let dbQuery = supabase.from("products").select("*").order("created_at", { ascending: false });
-
-      if (category && category !== "All finds") {
-        dbQuery = dbQuery.eq("category", category);
-      }
-
-      const { data, error } = await dbQuery;
-      if (!error && data) {
-        products = data;
-      }
-    } catch {
-      isConfigured = false;
-    }
+const HERO_SLIDES = [
+  {
+    id: 1,
+    title: "Next-Gen WebAR & Smart Storefront",
+    subtitle: "Experience products in augmented reality and get instant AI concierge recommendations.",
+    badge: "🚀 Featured Innovation",
+    bg: "from-indigo-900 via-purple-900 to-slate-900"
+  },
+  {
+    id: 2,
+    title: "Curated Viral Finds Across Every Category",
+    subtitle: "Hand-picked high-demand gadgets, beauty essentials, and tech accessories with lightning-fast fulfillment.",
+    badge: "🔥 Trending Now",
+    bg: "from-blue-900 via-slate-900 to-indigo-950"
+  },
+  {
+    id: 3,
+    title: "AI-Powered Product Bundles & Savings",
+    subtitle: "Unlock instant bundle discounts and seamless problem-to-solution product combinations.",
+    badge: "✨ Special Offers",
+    bg: "from-emerald-950 via-teal-900 to-slate-900"
   }
+];
 
-  // Fallback sample products if unconfigured or empty
-  if (products.length === 0) {
-    products = [
-      {
-        id: "sample-1",
-        name: "PawNest CalmPad Dog Lick Mat",
-        price: 19.99,
-        category: "Pet Care",
-        image_url: "https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&w=600&q=80",
-        description: "Interactive calming lick mat for dogs.",
-        stock_count: 100,
-      },
-      {
-        id: "sample-2",
-        name: "Portable Paw Cleaner Cup",
-        price: 24.99,
-        category: "Pet Care",
-        image_url: "https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&w=600&q=80",
-        description: "Portable cup for cleaning muddy paws.",
-        stock_count: 100,
-      },
-      {
-        id: "sample-3",
-        name: "Smart LED Desk Lamp with Wireless Charger",
-        price: 46.25,
-        category: "Smart Tech & Gadgets",
-        image_url: "https://images.unsplash.com/photo-1534447677768-be436bb09401?auto=format&fit=crop&w=600&q=80",
-        description: "Illuminate your workspace with wireless charging.",
-        stock_count: 150,
-      },
-    ];
-  }
+export default function HomePage() {
+  const [currentSlide, setCurrentSlide] = useState(0);
 
-  // Filter by query if present
-  const filteredProducts = query
-    ? products.filter(p => p.name?.toLowerCase().includes(query.toLowerCase()) || p.description?.toLowerCase().includes(query.toLowerCase()))
-    : products;
-
-  const categories = ["All finds", "Pet Care", "Beauty & Skincare", "Smart Tech & Gadgets"];
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
-    <main className="min-h-screen bg-neutral-50 pb-20">
-      {/* Header */}
-      <header className="border-b bg-white px-6 py-4 sticky top-0 z-30 shadow-xs">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <Link href="/" className="text-xl font-bold tracking-tight text-neutral-900">
-            AuraFinds
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/cart" className="rounded-full bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-200 transition-colors">
-              🛒 View cart
-            </Link>
-          </div>
-        </div>
-      </header>
-
-      {/* Hero / Category Bar */}
-      <div className="border-b bg-white px-6 py-6">
-        <div className="mx-auto max-w-7xl">
-          <h1 className="text-2xl font-bold tracking-tight text-neutral-900">Shop the collection</h1>
-          <p className="text-sm text-neutral-500 mt-1">Curated viral finds across every category</p>
-          
-          <div className="flex gap-2 mt-6 overflow-x-auto pb-2">
-            {categories.map((cat) => {
-              const active = (!category && cat === "All finds") || category === cat;
-              return (
-                <Link
-                  key={cat}
-                  href={cat === "All finds" ? "/" : `/?category=${encodeURIComponent(cat)}`}
-                  className={`px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
-                    active
-                      ? "bg-neutral-900 text-white"
-                      : "bg-neutral-100 text-neutral-700 hover:bg-neutral-200"
-                  }`}
+    <div className="min-h-screen bg-slate-50 flex flex-col">
+      {/* Hero Product Slideshow Banner */}
+      <section className="relative overflow-hidden bg-slate-900 text-white py-16 px-4 sm:px-6 lg:px-8 shadow-xl">
+        <div className="max-w-7xl mx-auto relative z-10 min-h-[260px] flex flex-col justify-center items-center text-center transition-all duration-700 ease-in-out">
+          {HERO_SLIDES.map((slide, index) => (
+            <div
+              key={slide.id}
+              className={`absolute inset-0 flex flex-col items-center justify-center transition-opacity duration-1000 ease-in-out px-4 ${
+                index === currentSlide ? 'opacity-100 pointer-events-auto scale-100' : 'opacity-0 pointer-events-none scale-95'
+              }`}
+            >
+              <span className="inline-block px-3 py-1 mb-4 text-xs font-semibold uppercase tracking-wider rounded-full bg-white/10 backdrop-blur-md text-indigo-300 border border-white/20">
+                {slide.badge}
+              </span>
+              <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight mb-3 text-white">
+                {slide.title}
+              </h1>
+              <p className="max-w-2xl text-base sm:text-lg text-slate-300 mb-6">
+                {slide.subtitle}
+              </p>
+              <div className="flex gap-3">
+                <a
+                  href="#catalog"
+                  className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-xl shadow-lg transition-all duration-200 hover:scale-105"
                 >
-                  {cat}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
-      {/* Product Grid */}
-      <div className="mx-auto max-w-7xl px-6 pt-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {filteredProducts.map((product) => {
-            const raw = product.raw_data || {};
-            const img = product.image_url || raw.image_url || raw.image || raw.thumbnail || raw.img || "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80";
-            const stock = product.stock_count ?? raw.stock_count ?? 100;
-
-            return (
-              <div key={product.id} className="group flex flex-col bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-xs hover:shadow-md transition-shadow">
-                <Link href={`/products/${product.id}`} className="relative w-full aspect-[4/3] bg-white p-4 overflow-hidden block flex items-center justify-center">
-                  <img
-                    src={img}
-                    alt={product.name}
-                    className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {product.category && (
-                    <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-full text-[11px] font-semibold text-neutral-800 shadow-xs">
-                      {product.category}
-                    </span>
-                  )}
-                </Link>
-
-                <div className="p-5 flex flex-col flex-1 justify-between space-y-4">
-                  <div>
-                    <div className="flex items-center justify-between gap-2">
-                      <span className="text-xs font-semibold text-emerald-600">★ Curated Find</span>
-                      <span className="text-xs text-neutral-400">{stock} available</span>
-                    </div>
-                    <Link href={`/products/${product.id}`}>
-                      <h3 className="mt-1.5 font-semibold text-neutral-900 line-clamp-2 hover:text-emerald-600 transition-colors">
-                        {product.name}
-                      </h3>
-                    </Link>
-                    <p className="mt-2 text-xl font-bold text-neutral-900">
-                      ${Number(product.price || 0).toFixed(2)}
-                    </p>
-                    <p className="mt-1 text-xs text-neutral-500 line-clamp-2">
-                      {product.description || "Curated to make everyday life a little more delightful."}
-                    </p>
-                  </div>
-
-                  <Link
-                    href={`/products/${product.id}`}
-                    className="w-full rounded-xl bg-neutral-900 px-4 py-2.5 text-center text-sm font-semibold text-white shadow-xs hover:bg-neutral-800 transition-colors block"
-                  >
-                    View Product & AR
-                  </Link>
-                </div>
+                  Explore Collection
+                </a>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
-      </div>
-    </main>
+
+        {/* Slide Indicators */}
+        <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 z-20">
+          {HERO_SLIDES.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentSlide(index)}
+              className={`h-2 rounded-full transition-all duration-300 ${
+                index === currentSlide ? 'w-8 bg-indigo-400' : 'w-2 bg-white/40 hover:bg-white/60'
+              }`}
+              aria-label={`Go to slide ${index + 1}`}
+            />
+          ))}
+        </div>
+      </section>
+
+      {/* Trust Badges Bar */}
+      <TrustBadges />
+
+      {/* Main Catalog & Bundler Section */}
+      <main id="catalog" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
+        <ProductBundler />
+        <ProductCatalog />
+      </main>
+    </div>
   );
 }
