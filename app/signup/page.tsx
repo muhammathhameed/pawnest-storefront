@@ -12,7 +12,7 @@ export default function SignupPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  const handleSignup = (e: React.FormEvent) => {
+  const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
@@ -27,13 +27,29 @@ export default function SignupPage() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'signup', name, email, password })
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        localStorage.setItem('aurafinds_user', JSON.stringify(data.user));
+        localStorage.setItem('aurafinds_token', data.token);
+        setSuccessMessage('Account created successfully! Redirecting to storefront...');
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 1000);
+      } else {
+        setErrorMessage(data.error || 'Failed to create account.');
+      }
+    } catch (err) {
+      setErrorMessage('Network error. Please try again.');
+    } finally {
       setIsLoading(false);
-      setSuccessMessage('Account created successfully! Redirecting to storefront...');
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 1200);
-    }, 1000);
+    }
   };
 
   const handleMagicLink = () => {
@@ -155,8 +171,7 @@ export default function SignupPage() {
 
           {/* Divider */}
           <div className="relative my-6 text-center">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div>
-            </div>
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
             <span className="relative px-3 bg-white/80 text-[10px] font-bold uppercase tracking-widest text-slate-400">or</span>
           </div>
 
@@ -164,7 +179,7 @@ export default function SignupPage() {
           <button
             type="button"
             onClick={handleMagicLink}
-            className="w-full py-3 bg-white hover:bg-slate-500 text-slate-900 border border-slate-200/90 font-semibold rounded-2xl shadow-sm transition-all text-xs flex items-center justify-center gap-2 hover:scale-[1.01]"
+            className="w-full py-3 bg-white hover:bg-slate-550 text-slate-900 border border-slate-200/90 font-semibold rounded-2xl shadow-sm transition-all text-xs flex items-center justify-center gap-2 hover:scale-[1.01]"
           >
             <Sparkles className="w-3.5 h-3.5 text-slate-700" /> Email me a magic link
           </button>
