@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 
 declare global {
-  namespace React {
+  namespace JSX {
     interface IntrinsicElements {
       'model-viewer': React.DetailedHTMLProps<
         React.HTMLAttributes<HTMLElement> & {
@@ -37,7 +37,6 @@ export default function WebARViewer({
   productName,
 }: WebARViewerProps) {
   useEffect(() => {
-    // Dynamically load the model-viewer script on the client side
     if (!customElements.get('model-viewer')) {
       const script = document.createElement('script');
       script.type = 'module';
