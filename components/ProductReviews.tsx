@@ -6,16 +6,18 @@ import { toast } from 'sonner';
 
 interface Review {
   id: string;
-  user_id: string;
+  user_id?: string;
   rating: number;
   title: string;
-  comment: string;
+  comment?: string;
+  body?: string;
   created_at: string;
 }
 
 interface ProductReviewsProps {
   productId: string;
   reviews: Review[];
+  averageRating?: number;
 }
 
 export default function ProductReviews({ productId, reviews }: ProductReviewsProps) {
@@ -37,13 +39,13 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
         return;
       }
 
-      // Use explicit type cast to bypass strict generic table inference on untyped Supabase client
       const { error } = await (supabase.from('product_reviews') as any).insert({
         product_id: productId,
         user_id: userData.user.id,
         rating: Number(rating),
         title: title.trim(),
         comment: comment.trim(),
+        body: comment.trim(),
       });
 
       if (error) {
@@ -51,7 +53,7 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
       } else {
         toast.success('Review submitted successfully!');
         setTitle('');
-        setComment();
+        setComment('');
         window.location.reload();
       }
     } catch (err: any) {
@@ -120,20 +122,20 @@ export default function ProductReviews({ productId, reviews }: ProductReviewsPro
         {reviews.length === 0 ? (
           <div className="text-sm text-slate-400 text-center py-6">No reviews yet. Be the first to review!</div>
         ) : (
-          reviews.map((rev) => (
-            <div key={rev.id} className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-4">
+          reviews.map((rev, idx) => (
+            <div key={rev.id || idx} className="bg-slate-950/40 border border-slate-800/80 rounded-xl p-4">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-1 text-amber-400 text-xs">
-                  {Array.from({ length: rev.rating }).map((_, i) => (
+                  {Array.from({ length: rev.rating || 5 }).map((_, i) => (
                     <span key={i}>★</span>
                   ))}
                 </div>
                 <span className="text-[11px] text-slate-500">
-                  {new Date(rev.created_at).toLocaleDateString()}
+                  {rev.created_at ? new Date(rev.created_at).toLocaleDateString() : ''}
                 </span>
               </div>
               <h5 className="text-sm font-bold text-slate-200">{rev.title}</h5>
-              <p className="text-xs text-slate-400 mt-1">{rev.comment}</p>
+              <p className="text-xs text-slate-400 mt-1">{rev.comment || rev.body}</p>
             </div>
           ))
         )}
