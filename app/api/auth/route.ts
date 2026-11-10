@@ -67,7 +67,7 @@ export async function POST(request: Request) {
         success: true,
         message: 'Signed in successfully.',
         user: { id: existingUser.id, name: existingUser.name, email: existingUser.email },
-        token: `sb-token-${Math.random().toString(36).signup || Math.random().toString(36).substring(2)}`
+        token: `sb-token-${Math.random().toString(36).substring(2)}`
       });
     }
 
