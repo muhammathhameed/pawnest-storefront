@@ -1,45 +1,27 @@
-// app/api/concierge/route.ts
-import { NextResponse } from "next/server";
-import { GoogleGenAI } from "@google/genai";
-import { createClient } from "@supabase/supabase-js";
+import { GoogleGenAI } from '@google/genai';
 
 const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
-  process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
-);
 
-export async function POST(req: Request) {
-  try {
-    const { prompt } = await req.json();
-    if (!prompt) {
-      return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
-    }
+export async function GET(request: Request) {
+  const url = new URL(request.url);
+  const q = url.searchParams.get('q') || '';
 
-    const { data: products, error } = await supabase.from("products").select("*").limit(25);
-    if (error || !products) {
-      return NextResponse.json({ error: "Failed to fetch catalog" }, { status: 500 });
-    }
+  const catalog = [
+    { id: 'prod-1', name: 'Viral Smart Beauty & Toning Device', category: 'Beauty & Skincare', price: '$39.99', description: 'Advanced ultrasonic facial rejuvenation and microcurrent toning device.' },
+    { id: 'prod-2', name: 'Ambient Warm LED Desk Lamp & Qi Wireless Charger', category: 'Smart Tech & Gadgets', price: '$49.99', description: 'Sleek aluminum desk companion featuring wireless fast-charging pad.' },
+    { id: 'prod-3', name: 'Aesthetic Organic Linen Throw Pillow Set', category: 'Lifestyle & Home', price: '$29.99', description: 'Hand-woven textured organic linen cushion cover.' },
+    { id: 'prod-4', name: 'Ergonomic Posture Correction Harness', category: 'Wellness & Fitness', price: '$34.99', description: 'Lightweight, breathable posture trainer designed to relieve back strain.' }
+  ];
 
-    const catalogContext = JSON.stringify(products);
-
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: `You are AuraFinds' AI Shopping Concierge. 
-      User Query: "${prompt}"
-      Available Catalog: ${catalogContext}
-      
-      Task: Select up to 3 most relevant products from the catalog that match the user's intent. 
-      Return ONLY a valid JSON array of objects with keys: id, name, price, and match_reason. No markdown formatting around the JSON, just the raw JSON array.`
-    });
-
-    let rawText = response.text || "[]";
-    rawText = rawText.replace(/```json/g, "").replace(/```/g, "").trim();
-    const recommendations = JSON.parse(rawText);
-
-    return NextResponse.json({ recommendations });
-  } catch (err: any) {
-    console.error("Concierge API Error:", err);
-    return NextResponse.json({ error: err.message || "Internal server error" }, { status: 500 });
+  if (!q.trim()) {
+    return Response.json({ recommendations: catalog });
   }
+
+  const matches = catalog.filter(p => 
+    p.name.toLowerCase().includes(q.toLowerCase()) || 
+    p.category.toLowerCase().includes(q.toLowerCase()) ||
+    p.description.toLowerCase().includes(q.toLowerCase())
+  );
+
+  return Response.json({ recommendations: matches.length > 0 ? matches : catalog });
 }
