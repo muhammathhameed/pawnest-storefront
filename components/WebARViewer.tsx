@@ -2,14 +2,13 @@
 
 import React, { useEffect } from 'react';
 
-// Extend JSX Intrinsic Elements to support Google's <model-viewer> web component
 declare global {
-  namespace JSX {
+  namespace React {
     interface IntrinsicElements {
       'model-viewer': React.DetailedHTMLProps<
         React.HTMLAttributes<HTMLElement> & {
           src?: string;
-          iosSrc?: string;
+          'ios-src'?: string;
           poster?: string;
           alt?: string;
           ar?: boolean;
