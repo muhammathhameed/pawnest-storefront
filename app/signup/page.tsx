@@ -2,11 +2,12 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Lock, Mail, User, ShieldAlert, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Lock, Mail, User, ShieldAlert, Sparkles, CheckCircle2, Phone } from 'lucide-react';
 
 export default function SignupPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -18,7 +19,7 @@ export default function SignupPage() {
     setSuccessMessage('');
 
     if (!name || !email || !password) {
-      setErrorMessage('Please fill in all fields to create your account.');
+      setErrorMessage('Please fill in all required fields.');
       return;
     }
 
@@ -32,16 +33,16 @@ export default function SignupPage() {
       const res = await fetch('/api/auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'signup', name, email, password })
+        body: JSON.stringify({ action: 'signup', name, email, phone, password })
       });
       const data = await res.json();
 
       if (res.ok && data.success) {
         localStorage.setItem('aurafinds_user', JSON.stringify(data.user));
         localStorage.setItem('aurafinds_token', data.token);
-        setSuccessMessage('Account created successfully! Redirecting to storefront...');
+        setSuccessMessage('Account created successfully! Redirecting to your profile...');
         setTimeout(() => {
-          window.location.href = '/';
+          window.location.href = '/profile';
         }, 800);
       } else {
         setErrorMessage(data.error || 'Failed to create account.');
@@ -53,16 +54,23 @@ export default function SignupPage() {
     }
   };
 
-  const handleMagicLink = () => {
-    if (!email) {
-      setErrorMessage('Please enter your email address above to receive a magic link.');
-      return;
-    }
+  const handleSocialAuth = (provider: 'Google' | 'Microsoft') => {
     setIsLoading(true);
-    setErrorMessage('');
     setTimeout(() => {
-      setIsLoading(false);
-      setSuccessMessage(`Magic link sent to ${email}! Check your inbox to sign in instantly.`);
+      const socialUser = {
+        id: Date.now().toString(),
+        name: `${provider} User`,
+        email: `user@${provider.toLowerCase()}.com`,
+        phone: '+1 (555) 019-2834',
+        address: '742 Evergreen Terrace, Springfield',
+        card: '•••• •••• •••• 4242'
+      };
+      localStorage.setItem('aurafinds_user', JSON.stringify(socialUser));
+      localStorage.setItem('aurafinds_token', `sb-token-${provider.toLowerCase()}`);
+      setSuccessMessage(`Successfully signed up with ${provider}! Redirecting...`);
+      setTimeout(() => {
+        window.location.href = '/profile';
+      }, 800);
     }, 1000);
   };
 
@@ -87,12 +95,49 @@ export default function SignupPage() {
         <div className="backdrop-blur-[40px] bg-white/80 border border-white/95 rounded-[36px] p-8 sm:p-10 shadow-[0_20px_60px_rgba(0,0,0,0.08),inset_0_1px_1px_rgba(255,255,255,0.9)]">
           
           {/* Brand Header */}
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-950 flex items-center justify-center text-white font-bold text-xl mx-auto mb-4 shadow-[0_8px_20px_rgba(0,0,0,0.2),inset_0_1px_1px_rgba(255,255,255,0.4)]">
               A
             </div>
             <h1 className="text-2xl font-black text-slate-900 tracking-tight">Create your AuraFinds account</h1>
-            <p className="text-xs text-slate-500 mt-1.5 font-medium">Join to access AI concierge recommendations and express checkout.</p>
+            <p className="text-xs text-slate-500 mt-1.5 font-medium">Manage addresses, saved cards, orders, and express checkout.</p>
+          </div>
+
+          {/* Social Auth Buttons */}
+          <div className="grid grid-cols-2 gap-3 mb-6">
+            <button
+              type="button"
+              onClick={() => handleSocialAuth('Google')}
+              className="py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                <path fill="#4285F4" d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.66-5.17 3.66-9.17z"/>
+                <path fill="#34A853" d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.13 0-5.78-2.11-6.73-4.96H1.18v3.15C3.15 21.32 7.24 24 12 24z"/>
+                <path fill="#FBBC05" d="M5.27 14.24c-.25-.72-.38-1.49-.38-2.24s.13-1.52.38-2.24V6.61H1.18C.43 8.13 0 9.87 0 12s.43 3.87 1.18 5.39l4.09-3.15z"/>
+                <path fill="#EA4335" d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.24 0 3.15 2.68 1.18 6.61l4.09 3.15c.95-2.85 3.6-4.96 6.73-4.96z"/>
+              </svg>
+              Google
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSocialAuth('Microsoft')}
+              className="py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
+            >
+              <svg className="w-4 h-4" viewBox="0 0 23 23">
+                <path fill="#f3f3f3" d="M0 0h23v23H0z"/>
+                <path fill="#f35325" d="M1 1h10v10H1z"/>
+                <path fill="#81bc06" d="M12 1h10v10H12z"/>
+                <path fill="#05a6f0" d="M1 12h10v10H1z"/>
+                <path fill="#ffba08" d="M12 12h10v10H12z"/>
+              </svg>
+              Microsoft
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="relative my-6 text-center">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
+            <span className="relative px-3 bg-white/80 text-[10px] font-bold uppercase tracking-widest text-slate-400">or sign up with email</span>
           </div>
 
           {/* Error / Success Banners */}
@@ -143,6 +188,20 @@ export default function SignupPage() {
             </div>
 
             <div>
+              <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Mobile Number (Optional)</label>
+              <div className="relative flex items-center">
+                <Phone className="absolute left-3.5 w-4 h-4 text-slate-400" />
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="+1 (555) 019-2834"
+                  className="w-full pl-10 pr-4 py-3 bg-white/80 border border-slate-200 rounded-2xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]"
+                />
+              </div>
+            </div>
+
+            <div>
               <label className="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1.5">Password</label>
               <div className="relative flex items-center">
                 <Lock className="absolute left-3.5 w-4 h-4 text-slate-400" />
@@ -165,25 +224,10 @@ export default function SignupPage() {
               {isLoading ? (
                 <span className="animate-pulse">Creating Account...</span>
               ) : (
-                'Create account'
+                'Create account & profile'
               )}
             </button>
           </form>
-
-          {/* Divider */}
-          <div className="relative my-6 text-center">
-            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div></div>
-            <span className="relative px-3 bg-white/80 text-[10px] font-bold uppercase tracking-widest text-slate-400">or</span>
-          </div>
-
-          {/* Magic Link Option */}
-          <button
-            type="button"
-            onClick={handleMagicLink}
-            className="w-full py-3 bg-white hover:bg-slate-50 text-slate-900 border border-slate-200/90 font-semibold rounded-2xl shadow-sm transition-all text-xs flex items-center justify-center gap-2 hover:scale-[1.01]"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-slate-700" /> Email me a magic link
-          </button>
 
           {/* Footer Sign In Prompt */}
           <div className="mt-8 text-center pt-6 border-t border-slate-100">
