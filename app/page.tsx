@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, Camera } from 'lucide-react';
+import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, Camera, LogOut } from 'lucide-react';
 
 const SUGGESTED_PROMPTS = [
   "✨ Best skin care for glowing skin",
@@ -174,6 +174,25 @@ export default function MasterStorefrontPage() {
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [isProcessingExpress, setIsProcessingExpress] = useState<string | null>(null);
+  
+  // User Authentication State
+  const [currentUser, setCurrentUser] = useState<any | null>(null);
+
+  // Check localStorage for active session on load
+  useEffect(() => {
+    try {
+      const savedUser = localStorage.getItem('aurafinds_user');
+      if (savedUser) {
+        setCurrentUser(JSON.parse(savedUser));
+      }
+    } catch (err) {}
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('aurafinds_user');
+    localStorage.removeItem('aurafinds_token');
+    setCurrentUser(null);
+  };
 
   // Fetch products from Supabase API / Concierge backend
   useEffect(() => {
@@ -341,20 +360,44 @@ export default function MasterStorefrontPage() {
             )}
           </div>
 
-          {/* Action Links & Cart */}
+          {/* Action Links & Dynamic User Profile Header State */}
           <div className="flex items-center gap-2 sm:gap-3">
-            <Link
-              href="/login"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 transition-colors"
-            >
-              <User className="w-3.5 h-3.5 text-slate-800" /> Sign In
-            </Link>
-            <Link
-              href="/signup"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all hover:scale-105"
-            >
-              Get Started
-            </Link>
+            {currentUser ? (
+              <div className="flex items-center gap-3">
+                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/80 border border-slate-200/80 shadow-sm">
+                  <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-[10px]">
+                    {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
+                  </div>
+                  <div className="flex flex-col text-left">
+                    <span className="text-xs font-bold text-slate-900 leading-none">{currentUser.name}</span>
+                    <span className="text-[9px] text-slate-500 truncate max-w-[100px]">{currentUser.email}</span>
+                  </div>
+                </div>
+                <button
+                  onClick={handleSignOut}
+                  title="Sign Out"
+                  className="p-2 rounded-2xl bg-white/80 hover:bg-rose-50 text-slate-700 hover:text-rose-600 border border-slate-200/80 transition-all flex items-center gap-1 text-xs font-semibold"
+                >
+                  <LogOut className="w-3.5 h-3.5" /> <span className="hidden md:inline">Sign Out</span>
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 transition-colors"
+                >
+                  <User className="w-3.5 h-3.5 text-slate-800" /> Sign In
+                </Link>
+                <Link
+                  href="/signup"
+                  className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all hover:scale-105"
+                >
+                  Get Started
+                </Link>
+              </>
+            )}
+
             <Link
               href="/cart"
               className="relative p-2.5 rounded-full backdrop-blur-md bg-white/60 hover:bg-white text-slate-800 transition-all flex items-center justify-center hover:scale-105 border border-white/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
@@ -439,12 +482,14 @@ export default function MasterStorefrontPage() {
                   >
                     Explore All {allProducts.length} Items <ArrowRight className="w-4 h-4" />
                   </a>
-                  <a
-                    href="/signup"
-                    className="px-8 py-3.5 backdrop-blur-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm rounded-full border border-white/20 transition-all duration-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]"
-                  >
-                    Create Account
-                  </a>
+                  {!currentUser && (
+                    <a
+                      href="/signup"
+                      className="px-8 py-3.5 backdrop-blur-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm rounded-full border border-white/20 transition-all duration-200 shadow-[inset_0_1px_1px_rgba(255,255,255,0.3)]"
+                    >
+                      Create Account
+                    </a>
+                  )}
                 </div>
               </div>
             ))}
