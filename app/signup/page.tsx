@@ -15,6 +15,7 @@ export default function SignupPage() {
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
+    setSuccessMessage('');
 
     if (!name || !email || !password) {
       setErrorMessage('Please fill in all fields to create your account.');
@@ -35,13 +36,13 @@ export default function SignupPage() {
       });
       const data = await res.json();
 
-      if (data.success) {
+      if (res.ok && data.success) {
         localStorage.setItem('aurafinds_user', JSON.stringify(data.user));
         localStorage.setItem('aurafinds_token', data.token);
         setSuccessMessage('Account created successfully! Redirecting to storefront...');
         setTimeout(() => {
           window.location.href = '/';
-        }, 1000);
+        }, 800);
       } else {
         setErrorMessage(data.error || 'Failed to create account.');
       }
@@ -179,7 +180,7 @@ export default function SignupPage() {
           <button
             type="button"
             onClick={handleMagicLink}
-            className="w-full py-3 bg-white hover:bg-slate-550 text-slate-900 border border-slate-200/90 font-semibold rounded-2xl shadow-sm transition-all text-xs flex items-center justify-center gap-2 hover:scale-[1.01]"
+            className="w-full py-3 bg-white hover:bg-slate-50 text-slate-900 border border-slate-200/90 font-semibold rounded-2xl shadow-sm transition-all text-xs flex items-center justify-center gap-2 hover:scale-[1.01]"
           >
             <Sparkles className="w-3.5 h-3.5 text-slate-700" /> Email me a magic link
           </button>
