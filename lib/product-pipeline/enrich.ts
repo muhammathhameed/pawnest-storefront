@@ -23,12 +23,18 @@ interface EnrichOptions {
   apiKey?: string;
 }
 
-export async function enrichProductData({
-  rawProductData,
-  modelId = "gemini-2.5-flash",
-  apiKey,
-}: EnrichOptions): Promise<EnrichedProductCopy> {
-  const resolvedApiKey = apiKey || process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
+export async function enrichProductData(
+  optionsOrRawData: EnrichOptions | any,
+  modelId?: string,
+  apiKey?: string
+): Promise<EnrichedProductCopy> {
+  // Support both object parameter { rawProductData, modelId, apiKey } and direct rawProductData parameter
+  const rawProductData = optionsOrRawData?.rawProductData !== undefined 
+    ? optionsOrRawData.rawProductData 
+    : optionsOrRawData;
+
+  const resolvedModelId = optionsOrRawData?.modelId || modelId || "gemini-2.5-flash";
+  const resolvedApiKey = optionsOrRawData?.apiKey || apiKey || process.env.GOOGLE_GENERATIVE_AI_API_KEY || process.env.GEMINI_API_KEY;
 
   if (!resolvedApiKey) {
     throw new ProductPipelineConfigurationError(
@@ -36,7 +42,7 @@ export async function enrichProductData({
     );
   }
 
-  const cleanModelId = modelId.replace(/^google\//, "");
+  const cleanModelId = resolvedModelId.replace(/^google\//, "");
 
   const { object } = await generateObject({
     model: google(cleanModelId),
