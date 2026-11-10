@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, Eye, Camera } from 'lucide-react';
+import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, Camera } from 'lucide-react';
 
 const SUGGESTED_PROMPTS = [
   "✨ Best skin care for glowing skin",
@@ -11,19 +11,17 @@ const SUGGESTED_PROMPTS = [
   "🧘 Ergonomic posture solutions"
 ];
 
-// 3D Tilt Card Component for Apple Liquid Glass
+// 3D Tilt Card Component for Apple Liquid Glass (Removed VR feature per request)
 function GlassTiltCard({ 
   product, 
   onSelect, 
   onAddToCart, 
-  onVrView, 
   onArView,
   isAdded 
 }: { 
   product: any; 
   onSelect: () => void; 
   onAddToCart: (p: any, e: React.MouseEvent) => void; 
-  onVrView: (p: any, e: React.MouseEvent) => void;
   onArView: (p: any, e: React.MouseEvent) => void;
   isAdded: boolean 
 }) {
@@ -92,25 +90,18 @@ function GlassTiltCard({
             {product.name.charAt(0)}
           </div>
         )}
-        <span className="absolute top-3 left-3 backdrop-blur-xl bg-white/80 px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-wider border border-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] truncate max-w-[120px] z-10">
+        <span className="absolute top-3 left-3 backdrop-blur-xl bg-white/85 px-3 py-1 rounded-full text-[10px] font-bold text-slate-800 uppercase tracking-wider border border-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] truncate max-w-[130px] z-10">
           {product.category || 'General'}
         </span>
         
-        {/* Top Right Action Badges (VR & AR Camera) */}
+        {/* Top Right AR Camera Action Badge */}
         <div className="absolute top-3 right-3 flex items-center gap-1.5 z-20">
           <button
             onClick={(e) => onArView(product, e)}
-            className="backdrop-blur-xl bg-emerald-600/90 hover:bg-emerald-700 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow flex items-center gap-1 transition-transform hover:scale-105"
+            className="backdrop-blur-xl bg-slate-900/90 hover:bg-slate-950 text-white px-3 py-1.5 rounded-full text-[10px] font-bold shadow flex items-center gap-1 transition-transform hover:scale-105 border border-white/20"
             title="Project in Room (AR Camera)"
           >
-            <Camera className="w-3 h-3" /> AR View
-          </button>
-          <button
-            onClick={(e) => onVrView(product, e)}
-            className="backdrop-blur-xl bg-indigo-600/90 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow flex items-center gap-1 transition-transform hover:scale-105"
-            title="Launch 3D VR Spatial View"
-          >
-            <Eye className="w-3 h-3" /> VR
+            <Camera className="w-3 h-3 text-indigo-400" /> AR View
           </button>
         </div>
       </div>
@@ -135,7 +126,7 @@ function GlassTiltCard({
           </p>
         </div>
 
-        {/* Fixed Bottom Action Row with Proper Spacing and Contrast */}
+        {/* Fixed Bottom Action Row with Matching Palette Colors */}
         <div className="mt-6 pt-4 border-t border-slate-100/80 flex items-center justify-between gap-2">
           <div>
             <span className="text-base font-extrabold text-slate-900">
@@ -150,7 +141,7 @@ function GlassTiltCard({
             className={`px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shrink-0 ${
               isAdded
                 ? 'bg-emerald-600 text-white scale-95'
-                : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:scale-105 shadow-[0_4px_12px_rgba(99,102,241,0.3)]'
+                : 'bg-slate-900 hover:bg-slate-800 text-white hover:scale-105 shadow-[0_4px_12px_rgba(0,0,0,0.15)] border border-white/10'
             }`}
           >
             {isAdded ? (
@@ -178,7 +169,6 @@ export default function MasterStorefrontPage() {
   const [cartCount, setCartCount] = useState(2);
   const [addedItems, setAddedItems] = useState<{ [key: string]: boolean }>({});
   const [quickViewProduct, setQuickViewProduct] = useState<any | null>(null);
-  const [vrModalProduct, setVrModalProduct] = useState<any | null>(null);
   const [arModalProduct, setArModalProduct] = useState<any | null>(null);
   const [arScale, setArScale] = useState(1);
   const [allProducts, setAllProducts] = useState<any[]>([]);
@@ -256,11 +246,6 @@ export default function MasterStorefrontPage() {
     }, 2000);
   };
 
-  const handleVrView = (product: any, e?: React.MouseEvent) => {
-    if (e) e.stopPropagation();
-    setVrModalProduct(product);
-  };
-
   const handleArView = (product: any, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setArScale(1);
@@ -297,7 +282,7 @@ export default function MasterStorefrontPage() {
             </div>
             <div className="flex flex-col">
               <span className="text-base font-bold tracking-tight text-slate-900 leading-none">AuraFinds</span>
-              <span className="text-[10px] uppercase tracking-widest text-indigo-600 font-extrabold mt-0.5">Liquid Glass 3D Storefront</span>
+              <span className="text-[10px] uppercase tracking-widest text-slate-600 font-extrabold mt-0.5">Liquid Glass 3D Storefront</span>
             </div>
           </Link>
 
@@ -310,7 +295,7 @@ export default function MasterStorefrontPage() {
                 value={searchQuery}
                 onChange={(e) => handleAiSearch(e.target.value)}
                 placeholder="✨ Spotlight AI Concierge: Search products or ask for advice..."
-                className="w-full pl-10 pr-10 py-2.5 bg-white/60 border border-white/90 rounded-full text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:bg-white transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.04)]"
+                className="w-full pl-10 pr-10 py-2.5 bg-white/60 border border-white/90 rounded-full text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.04)]"
               />
               {searchQuery && (
                 <button 
@@ -326,8 +311,8 @@ export default function MasterStorefrontPage() {
             {aiSuggestions && (
               <div className="absolute top-full left-0 right-0 mt-2.5 backdrop-blur-[40px] bg-white/90 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-white p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-80 overflow-y-auto">
                 <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-100">
-                  <span className="text-[11px] font-bold text-indigo-600 uppercase tracking-wider flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5" /> AI Spotlight Recommendations
+                  <span className="text-[11px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-slate-700" /> AI Spotlight Recommendations
                   </span>
                   <span className="text-[10px] text-slate-400">{aiSuggestions.length} found</span>
                 </div>
@@ -341,10 +326,10 @@ export default function MasterStorefrontPage() {
                       className="p-3 rounded-2xl hover:bg-slate-100/70 border border-transparent hover:border-slate-200/60 flex items-center justify-between transition-colors cursor-pointer group"
                     >
                       <div className="pr-4">
-                        <h4 className="text-xs font-bold text-slate-900 group-hover:text-indigo-600">{item.name || item.title}</h4>
+                        <h4 className="text-xs font-bold text-slate-900 group-hover:text-slate-700">{item.name || item.title}</h4>
                         <p className="text-[11px] text-slate-500 line-clamp-1">{item.description || item.reason}</p>
                       </div>
-                      <span className="text-xs font-extrabold text-indigo-600 shrink-0">
+                      <span className="text-xs font-extrabold text-slate-900 shrink-0">
                         {typeof item.price === 'number' ? `$${item.price.toFixed(2)}` : item.price}
                       </span>
                     </div>
@@ -360,13 +345,13 @@ export default function MasterStorefrontPage() {
           <div className="flex items-center gap-2 sm:gap-3">
             <Link
               href="/login"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 hover:text-indigo-600 transition-colors"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 transition-colors"
             >
-              <User className="w-3.5 h-3.5 text-indigo-600" /> Sign In
+              <User className="w-3.5 h-3.5 text-slate-800" /> Sign In
             </Link>
             <Link
               href="/signup"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-indigo-600 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all hover:scale-105"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all hover:scale-105"
             >
               Get Started
             </Link>
@@ -376,7 +361,7 @@ export default function MasterStorefrontPage() {
               aria-label="Shopping Cart"
             >
               <ShoppingBag className="w-4 h-4 text-slate-700" />
-              <span className="absolute -top-1 -right-1 bg-indigo-600 text-white font-bold text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow">
+              <span className="absolute -top-1 -right-1 bg-slate-900 text-white font-bold text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow">
                 {cartCount}
               </span>
             </Link>
@@ -409,8 +394,8 @@ export default function MasterStorefrontPage() {
           ))}
 
           {/* Liquid Refraction Orbs */}
-          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-indigo-500/25 rounded-full blur-[100px] pointer-events-none"></div>
-          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 bg-sky-500/20 rounded-full blur-[100px] pointer-events-none"></div>
+          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-slate-800/40 rounded-full blur-[100px] pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 bg-slate-700/30 rounded-full blur-[100px] pointer-events-none"></div>
 
           {/* Carousel Slide Content */}
           <div className="relative z-10 max-w-3xl my-auto">
@@ -422,7 +407,7 @@ export default function MasterStorefrontPage() {
                 }`}
               >
                 <div className="flex flex-wrap items-center gap-2.5 mb-5">
-                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full backdrop-blur-xl bg-white/10 text-indigo-200 border border-white/20 shadow-[0_8px_20px_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,0.4)]">
+                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full backdrop-blur-xl bg-white/10 text-slate-200 border border-white/20 shadow-[0_8px_20px_rgba(0,0,0,0.1),inset_0_1px_1px_rgba(255,255,255,0.4)]">
                     {slide.badge}
                   </span>
                   <span className="text-xs text-slate-300 font-medium backdrop-blur-xl bg-white/5 px-3 py-1 rounded-full border border-white/10">
@@ -442,15 +427,15 @@ export default function MasterStorefrontPage() {
                     <img src={slide.image} alt={slide.productName} className="w-full h-full object-contain" />
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase tracking-wider text-indigo-300 font-bold block">Featured Database Item</span>
-                    <span className="text-xs font-bold text-white">{slide.productName} • <span className="text-indigo-300">{slide.price}</span></span>
+                    <span className="text-[10px] uppercase tracking-wider text-slate-300 font-bold block">Featured Database Item</span>
+                    <span className="text-xs font-bold text-white">{slide.productName} • <span className="text-slate-300">{slide.price}</span></span>
                   </div>
                 </div>
 
                 <div className="flex flex-wrap items-center gap-4">
                   <a
                     href="#catalog"
-                    className="px-8 py-3.5 bg-white text-slate-900 hover:bg-indigo-50 font-bold text-xs sm:text-sm rounded-full shadow-[0_10px_30px_rgba(255,255,255,0.2)] transition-all duration-200 hover:scale-105 flex items-center gap-2"
+                    className="px-8 py-3.5 bg-white text-slate-900 hover:bg-slate-100 font-bold text-xs sm:text-sm rounded-full shadow-[0_10px_30px_rgba(255,255,255,0.2)] transition-all duration-200 hover:scale-105 flex items-center gap-2"
                   >
                     Explore All {allProducts.length} Items <ArrowRight className="w-4 h-4" />
                   </a>
@@ -470,7 +455,7 @@ export default function MasterStorefrontPage() {
             
             {/* Clickable AI Prompt Chips */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider mr-2 flex items-center gap-1">
+              <span className="text-[11px] font-bold text-slate-300 uppercase tracking-wider mr-2 flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5" /> Try Asking AI:
               </span>
               {SUGGESTED_PROMPTS.map((promptText, i) => (
@@ -507,28 +492,28 @@ export default function MasterStorefrontPage() {
       <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-6">
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="backdrop-blur-xl bg-white/80 border border-white/90 p-4 rounded-3xl shadow-[0_10px_30px_rgb(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.8)] flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-indigo-50 text-indigo-600 shadow-inner"><ShieldCheck className="w-5 h-5" /></div>
+            <div className="p-2.5 rounded-2xl bg-slate-100 text-slate-900 shadow-inner"><ShieldCheck className="w-5 h-5" /></div>
             <div>
               <h4 className="text-xs font-bold text-slate-900">30-Day Risk-Free</h4>
               <p className="text-[11px] text-slate-500">100% money-back guarantee</p>
             </div>
           </div>
           <div className="backdrop-blur-xl bg-white/80 border border-white/90 p-4 rounded-3xl shadow-[0_10px_30px_rgb(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.8)] flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-blue-50 text-blue-600 shadow-inner"><Truck className="w-5 h-5" /></div>
+            <div className="p-2.5 rounded-2xl bg-slate-100 text-slate-900 shadow-inner"><Truck className="w-5 h-5" /></div>
             <div>
               <h4 className="text-xs font-bold text-slate-900">Fast & Tracked</h4>
               <p className="text-[11px] text-slate-500">Live courier tracking updates</p>
             </div>
           </div>
           <div className="backdrop-blur-xl bg-white/80 border border-white/90 p-4 rounded-3xl shadow-[0_10px_30px_rgb(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.8)] flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-emerald-50 text-emerald-600 shadow-inner"><Lock className="w-5 h-5" /></div>
+            <div className="p-2.5 rounded-2xl bg-slate-100 text-slate-900 shadow-inner"><Lock className="w-5 h-5" /></div>
             <div>
               <h4 className="text-xs font-bold text-slate-900">Secure Checkout</h4>
               <p className="text-[11px] text-slate-500">Encrypted 256-bit SSL</p>
             </div>
           </div>
           <div className="backdrop-blur-xl bg-white/80 border border-white/90 p-4 rounded-3xl shadow-[0_10px_30px_rgb(0,0,0,0.04),inset_0_1px_1px_rgba(255,255,255,0.8)] flex items-center gap-3">
-            <div className="p-2.5 rounded-2xl bg-purple-50 text-purple-600 shadow-inner"><Star className="w-5 h-5" /></div>
+            <div className="p-2.5 rounded-2xl bg-slate-100 text-slate-900 shadow-inner"><Star className="w-5 h-5" /></div>
             <div>
               <h4 className="text-xs font-bold text-slate-900">Curated Quality</h4>
               <p className="text-[11px] text-slate-500">Rigorously inspected items</p>
@@ -579,7 +564,6 @@ export default function MasterStorefrontPage() {
                 product={product}
                 onSelect={() => setQuickViewProduct(product)}
                 onAddToCart={handleAddToCart}
-                onVrView={handleVrView}
                 onArView={handleArView}
                 isAdded={!!addedItems[product.id]}
               />
@@ -591,10 +575,10 @@ export default function MasterStorefrontPage() {
       {/* AR Camera Room Projection Modal */}
       {arModalProduct && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="backdrop-blur-[50px] bg-slate-950/90 border border-emerald-500/30 w-full max-w-3xl rounded-[36px] p-6 sm:p-8 shadow-[0_30px_90px_rgba(0,0,0,0.7)] text-white relative animate-in zoom-in-95 duration-300">
+          <div className="backdrop-blur-[50px] bg-slate-950/90 border border-white/20 w-full max-w-3xl rounded-[36px] p-6 sm:p-8 shadow-[0_30px_90px_rgba(0,0,0,0.7)] text-white relative animate-in zoom-in-95 duration-300">
             <div className="flex items-center justify-between pb-4 border-b border-white/10">
               <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                <span className="px-3 py-1 rounded-full bg-white/10 text-slate-200 border border-white/20 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
                   <Camera className="w-3.5 h-3.5" /> AR Room Projection Mode
                 </span>
                 <span className="text-xs text-slate-400">Live Camera Feed Simulated</span>
@@ -608,10 +592,9 @@ export default function MasterStorefrontPage() {
             </div>
 
             {/* Simulated Live AR Camera Room View */}
-            <div className="my-6 relative h-80 sm:h-[400px] rounded-3xl overflow-hidden bg-gradient-to-b from-slate-900 via-emerald-950/30 to-slate-950 border border-emerald-500/20 flex items-center justify-center p-6 shadow-inner group">
-              {/* Room Background Simulator (Living Room Floor/Wall Gradient) */}
-              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(16,185,129,0.2)_0,transparent_70%)]"></div>
-              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-900/80 to-transparent border-t border-emerald-500/10"></div>
+            <div className="my-6 relative h-80 sm:h-[400px] rounded-3xl overflow-hidden bg-gradient-to-b from-slate-900 via-slate-950 to-slate-950 border border-white/15 flex items-center justify-center p-6 shadow-inner group">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom,rgba(255,255,255,0.1)_0,transparent_70%)]"></div>
+              <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-slate-900/80 to-transparent border-t border-white/10"></div>
               
               {/* Projected AR Product with Dynamic Scaling */}
               <div 
@@ -631,8 +614,8 @@ export default function MasterStorefrontPage() {
 
               {/* AR Surface Detection Reticle */}
               <div className="absolute bottom-10 inset-x-0 flex flex-col items-center gap-2 z-20">
-                <div className="px-4 py-1.5 rounded-full bg-emerald-600/90 backdrop-blur-md text-[11px] font-bold text-white shadow-[0_4px_15px_rgba(16,185,129,0.4)] border border-emerald-400/40 flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-white animate-ping"></span> Surface Detected: Floor & Table Plane Locked
+                <div className="px-4 py-1.5 rounded-full bg-slate-900/90 backdrop-blur-md text-[11px] font-bold text-white shadow-[0_4px_15px_rgba(0,0,0,0.4)] border border-white/20 flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Surface Detected: Floor & Table Plane Locked
                 </div>
                 
                 {/* Scale Control Slider */}
@@ -645,9 +628,9 @@ export default function MasterStorefrontPage() {
                     step="0.1" 
                     value={arScale}
                     onChange={(e) => setArScale(parseFloat(e.target.value))}
-                    className="w-32 accent-emerald-500 cursor-pointer"
+                    className="w-32 accent-slate-300 cursor-pointer"
                   />
-                  <span className="font-bold text-emerald-400">{Math.round(arScale * 100)}%</span>
+                  <span className="font-bold text-slate-200">{Math.round(arScale * 100)}%</span>
                 </div>
               </div>
             </div>
@@ -665,77 +648,9 @@ export default function MasterStorefrontPage() {
                 <div className="flex gap-3">
                   <button
                     onClick={() => { handleAddToCart(arModalProduct); setArModalProduct(null); }}
-                    className="px-6 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-2xl shadow-lg shadow-emerald-500/30 transition-all flex items-center gap-2"
+                    className="px-6 py-3 bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs rounded-2xl shadow-lg border border-white/10 transition-all flex items-center gap-2"
                   >
                     <ShoppingBag className="w-4 h-4" /> Add to Cart & Buy
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* VR Spatial View Modal */}
-      {vrModalProduct && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-300">
-          <div className="backdrop-blur-[50px] bg-slate-950/80 border border-white/20 w-full max-w-2xl rounded-[36px] p-6 sm:p-8 shadow-[0_30px_90px_rgba(0,0,0,0.6)] text-white relative animate-in zoom-in-95 duration-300">
-            <div className="flex items-center justify-between pb-4 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
-                  <Eye className="w-3.5 h-3.5" /> 3D Spatial VR View
-                </span>
-                <span className="text-xs text-slate-400">Interactive AR Mode</span>
-              </div>
-              <button 
-                onClick={() => setVrModalProduct(null)}
-                className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {/* 3D Viewer Simulator Screen */}
-            <div className="my-6 relative h-72 sm:h-96 rounded-3xl overflow-hidden bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 border border-white/15 flex items-center justify-center p-6 shadow-inner group">
-              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15)_0,transparent_70%)]"></div>
-              
-              {vrModalProduct.image ? (
-                <img 
-                  src={vrModalProduct.image} 
-                  alt={vrModalProduct.name} 
-                  className="max-h-full max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)] animate-pulse duration-1000 scale-105" 
-                />
-              ) : (
-                <div className="text-2xl font-bold">{vrModalProduct.name}</div>
-              )}
-
-              {/* VR Spatial Grid Rings */}
-              <div className="absolute inset-x-0 bottom-4 flex justify-center items-center gap-2">
-                <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-medium text-slate-300 border border-white/20">
-                  🔄 Drag to Rotate 360°
-                </span>
-                <span className="px-3 py-1 rounded-full bg-indigo-600/80 backdrop-blur-md text-[10px] font-bold text-white shadow">
-                  ✨ Spatial Audio & Lighting Active
-                </span>
-              </div>
-            </div>
-
-            <div className="space-y-3">
-              <h3 className="text-xl font-bold">{vrModalProduct.name}</h3>
-              <p className="text-xs text-slate-300 leading-relaxed">{vrModalProduct.description}</p>
-              
-              <div className="pt-4 border-t border-white/10 flex items-center justify-between">
-                <div>
-                  <span className="text-xl font-extrabold text-white">
-                    {typeof vrModalProduct.price === 'number' ? `$${vrModalProduct.price.toFixed(2)}` : vrModalProduct.price}
-                  </span>
-                </div>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => { handleAddToCart(vrModalProduct); setVrModalProduct(null); }}
-                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-2xl shadow-lg shadow-indigo-500/30 transition-all flex items-center gap-2"
-                  >
-                    <ShoppingBag className="w-4 h-4" /> Add to Cart
                   </button>
                 </div>
               </div>
@@ -749,7 +664,7 @@ export default function MasterStorefrontPage() {
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-md flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
           <div className="backdrop-blur-[40px] bg-white/90 w-full max-w-lg rounded-t-[36px] sm:rounded-[36px] p-6 sm:p-8 shadow-[0_25px_70px_rgba(0,0,0,0.25)] border border-white animate-in slide-in-from-bottom duration-300">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">{quickViewProduct.category || 'General'}</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-900">{quickViewProduct.category || 'General'}</span>
               <button 
                 onClick={() => setQuickViewProduct(null)}
                 className="p-1.5 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 transition-colors"
@@ -772,7 +687,7 @@ export default function MasterStorefrontPage() {
                 {quickViewProduct.originalPrice && (
                   <span className="text-sm text-slate-400 line-through">${quickViewProduct.originalPrice.toFixed(2)}</span>
                 )}
-                <span className="ml-auto px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold border border-emerald-100">
+                <span className="ml-auto px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200">
                   In Stock ({quickViewProduct.available || 100})
                 </span>
               </div>
@@ -816,7 +731,7 @@ export default function MasterStorefrontPage() {
 
               <button
                 onClick={() => { handleAddToCart(quickViewProduct); setQuickViewProduct(null); }}
-                className="w-full py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-2xl shadow-[0_8px_20px_rgba(99,102,241,0.3)] transition-all text-xs flex items-center justify-center gap-2 hover:scale-[1.01]"
+                className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-2xl shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition-all text-xs flex items-center justify-center gap-2 hover:scale-[1.01]"
               >
                 <ShoppingBag className="w-4 h-4" /> Add to Standard Bag
               </button>
