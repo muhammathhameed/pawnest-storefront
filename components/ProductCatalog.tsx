@@ -1,9 +1,7 @@
-'use client';
-
-import React, { useState } from 'react';
+import { Product as GlobalProduct } from '@/types/product';
 import { ShoppingBag, Star, CheckCircle2 } from 'lucide-react';
 
-interface Product {
+interface LocalProduct {
   id: string;
   name: string;
   category: string;
@@ -16,13 +14,13 @@ interface Product {
 }
 
 interface ProductCatalogProps {
-  products?: Product[];
+  products?: (GlobalProduct | LocalProduct)[];
   initialCategory?: string;
   reviewSummaries?: Record<string, any>;
   showCollectionHeading?: boolean;
 }
 
-const DEFAULT_PRODUCTS: Product[] = [
+const DEFAULT_PRODUCTS: LocalProduct[] = [
   {
     id: 'prod-1',
     name: 'Viral Smart Beauty Gadget',
@@ -74,18 +72,30 @@ export default function ProductCatalog({
   initialCategory = 'All',
   showCollectionHeading = true
 }: ProductCatalogProps) {
-  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
-  const [addedItems, setAddedItems] = useState<{ [key: string]: boolean }>({});
+  const [selectedCategory, setSelectedCategory] = React.useState(initialCategory);
+  const [addedItems, setAddedItems] = React.useState<{ [key: string]: boolean }>({});
 
   const categories = ['All', 'Beauty & Skincare', 'Smart Tech & Gadgets', 'Lifestyle & Home', 'Wellness & Fitness'];
 
   const displayProducts = products && products.length > 0 ? products : DEFAULT_PRODUCTS;
 
-  const filteredProducts = selectedCategory === 'All' 
-    ? displayProducts 
-    : displayProducts.filter(p => p.category.toLowerCase() === selectedCategory.toLowerCase() || selectedCategory === 'All');
+  const normalizedProducts = displayProducts.map((p: any) => ({
+    id: p.id || Math.random().toString(),
+    name: p.name || 'Curated Product',
+    category: p.category || 'General',
+    price: typeof p.price === 'number' ? p.price : parseFloat(p.price) || 29.99,
+    originalPrice: p.originalPrice || (typeof p.price === 'number' ? p.price * 1.3 : 39.99),
+    rating: p.rating || 4.8,
+    reviewsCount: p.reviewsCount || 100,
+    description: p.description || p.summary || 'Curated to make everyday life a little more delightful.',
+    available: p.available || 50
+  }));
 
-  const handleAddToCart = (product: Product) => {
+  const filteredProducts = selectedCategory === 'All' 
+    ? normalizedProducts 
+    : normalizedProducts.filter(p => p.category.toLowerCase() === selectedCategory.toLowerCase() || selectedCategory === 'All');
+
+  const handleAddToCart = (product: any) => {
     setAddedItems(prev => ({ ...prev, [product.id]: true }));
     setTimeout(() => {
       setAddedItems(prev => ({ ...prev, [product.id]: false }));
@@ -157,8 +167,8 @@ export default function ProductCatalog({
 
               <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
                 <div>
-                  <span className="text-lg font-extrabold text-slate-900">${product.price.toFixed(2)}</span>
-                  <span className="text-xs text-slate-400 line-through ml-2">${product.originalPrice.toFixed(2)}</span>
+                  <span className="text-lg font-extrabold text-slate-900">${Number(product.price).toFixed(2)}</span>
+                  <span className="text-xs text-slate-400 line-through ml-2">${Number(product.originalPrice).toFixed(2)}</span>
                 </div>
                 <button
                   onClick={() => handleAddToCart(product)}
