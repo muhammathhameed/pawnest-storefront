@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { getStripeClient } from "../../../../lib/stripe";
 import { getSupabaseAdmin } from "../../../../lib/supabaseAdmin";
+import { extractShipping } from "../../../../lib/dropship/shipping";
 
 export const runtime = "nodejs";
 
@@ -244,6 +245,29 @@ export async function POST(request: Request) {
 
     const result =
       data && typeof data === "object" && !Array.isArray(data) ? data : null;
+
+    // Hand the paid order to the dropship pipeline. This is deliberately not
+    // fatal: the order is already saved, and the scheduled sweep finalizes
+    // any order this step misses, so a failure here must not make Stripe
+    // retry a payment that was recorded correctly. Idempotent, so it also
+    // runs for duplicate deliveries.
+    if (typeof result?.order_id === "string") {
+      try {
+        const { error: finalizeError } = await supabase.rpc(
+          "finalize_dropship_order" as never,
+          {
+            p_order_id: result.order_id,
+            p_shipping: extractShipping(session),
+          } as never,
+        );
+        if (finalizeError) throw finalizeError;
+      } catch (finalizeError) {
+        console.error(
+          "Could not finalize dropship order; the sweep will retry:",
+          finalizeError,
+        );
+      }
+    }
     return NextResponse.json({
       received: true,
       duplicate: result?.duplicate === true,

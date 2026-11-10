@@ -111,3 +111,38 @@ Set `STRIPE_WEBHOOK_SECRET` to that endpoint's signing secret. Never expose
 `SUPABASE_SERVICE_ROLE_KEY` to browser code or commit them to source control.
 The success page retrieves the Checkout Session directly from Stripe; order
 creation is finalized by the webhook and remains safe to retry.
+
+## Dropship engine (Phase 2)
+
+Paid orders flow through a Postgres-backed pipeline: Stripe webhook →
+`finalize_dropship_order` (order lines + ship-to) → `order.route` job (pick
+suppliers, split into one purchase order per supplier) → `po.place` job (send
+to the supplier, blind by default) → supplier/17TRACK webhooks drive
+`Unfulfilled → PO placed → Partially shipped/Shipped → Delivered / Exception`.
+
+**Setup**
+
+1. Apply, in order, `supabase/migrations/20261108000100_dropship_core.sql` and
+   `20261108000200_dropship_finalize.sql` (they are not part of `setup.sql`).
+2. Add the dropship variables from `.env.example`.
+3. Insert suppliers and `supplier_offers` (one row per supplier and variant, with
+   cost, stock and priority). Products with no offers stay self-managed and
+   behave exactly as before.
+4. Schedule the worker: call `GET /api/jobs/run` with
+   `Authorization: Bearer $CRON_SECRET` every minute. On Vercel Pro:
+   `"crons": [{ "path": "/api/jobs/run", "schedule": "* * * * *" }]` in
+   `vercel.json`. Hobby plans only allow daily crons, so use an external
+   scheduler there.
+5. Register `/api/webhooks/17track` in the 17TRACK dashboard and give each
+   supplier `/api/webhooks/supplier/<code>`.
+
+**Supplier webhook** (signed with `x-signature`, hex HMAC-SHA256 of the raw
+body, secret named by `suppliers.webhook_secret_ref`, which must start with
+`SUPPLIER_`): `inventory` (`items: [{sku, stock, cost_cents?, currency?}]`),
+`shipment` (`reference` = our PO id, `tracking_number`, `carrier`) and
+`po.rejected` (`reference`, `reason`).
+
+**Pricing**: edit `markup_rules` (cost brackets, multiplier, flat amount). The
+seeded third bracket ($50 and up, 1.6x) is a placeholder; review it.
+
+Run the unit tests with `npm test`.

@@ -19,6 +19,7 @@ export interface Database {
           image_url: string | null;
           stock_quantity: number;
           rating: number;
+          is_listed: boolean;
         };
         Insert: {
           id?: string;
@@ -29,6 +30,7 @@ export interface Database {
           image_url?: string | null;
           stock_quantity?: number;
           rating?: number;
+          is_listed?: boolean;
         };
         Update: {
           id?: string;
@@ -39,6 +41,7 @@ export interface Database {
           image_url?: string | null;
           stock_quantity?: number;
           rating?: number;
+          is_listed?: boolean;
         };
         Relationships: [];
       };

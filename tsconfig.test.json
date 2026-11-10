@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "commonjs",
+    "strict": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "types": ["node"],
+    "rootDir": ".",
+    "outDir": ".test-build"
+  },
+  "files": [
+    "lib/dropship/money.ts",
+    "lib/dropship/pricing.ts",
+    "lib/dropship/inventory.ts",
+    "lib/dropship/routing.ts",
+    "lib/dropship/stateMachine.ts",
+    "lib/dropship/blind.ts",
+    "lib/dropship/shipping.ts",
+    "lib/dropship/tracking.ts",
+    "lib/dropship/webhookAuth.ts"
+  ],
+  "include": ["lib/dropship/__tests__/*.ts"]
+}

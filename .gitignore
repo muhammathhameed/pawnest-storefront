@@ -150,3 +150,6 @@ vite.config.ts.timestamp-*
 
 # Vercel project configuration and local deployment artifacts
 .vercel
+
+# Compiled unit tests
+.test-build

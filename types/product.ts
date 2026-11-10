@@ -7,6 +7,8 @@ export interface Product {
   image_url?: string | null;
   stock_quantity: number;
   rating: number;
+  /** False once supplier stock falls below the safety threshold. */
+  is_listed?: boolean;
 }
 
 export interface CartItem {

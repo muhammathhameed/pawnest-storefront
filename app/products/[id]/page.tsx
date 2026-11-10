@@ -20,6 +20,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     .from("products")
     .select("*")
     .eq("id", id)
+    .eq("is_listed", true)
     .maybeSingle();
 
   if (error) {

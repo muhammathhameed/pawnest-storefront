@@ -8,6 +8,15 @@ export const runtime = "nodejs";
 
 export const dynamic = "force-dynamic";
 
+/** Countries we ship to, as ISO codes. Override with DROPSHIP_SHIP_COUNTRIES. */
+function shippableCountries() {
+  const codes = (process.env.DROPSHIP_SHIP_COUNTRIES ?? "US,CA,GB,AU")
+    .split(",")
+    .map((code) => code.trim().toUpperCase())
+    .filter((code) => /^[A-Z]{2}$/.test(code));
+  return (codes.length > 0 ? codes : ["US"]) as Stripe.Checkout.SessionCreateParams.ShippingAddressCollection.AllowedCountry[];
+}
+
 interface RequestedCartItem {
   id: string | number;
   quantity: number;
@@ -106,7 +115,7 @@ export async function POST(request: Request) {
 
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("id, name, price, stock_quantity")
+    .select("id, name, price, stock_quantity, is_listed")
     .in("id", [...quantities.keys()]);
 
   if (productsError) {
@@ -135,6 +144,7 @@ export async function POST(request: Request) {
     const stockQuantity = Number(product.stock_quantity);
 
     if (
+      product.is_listed === false ||
       !product.name ||
       !Number.isFinite(price) ||
       price <= 0 ||
@@ -200,6 +210,11 @@ export async function POST(request: Request) {
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_creation: "always",
+      // Dropshipping needs a ship-to address and a phone number for carriers.
+      shipping_address_collection: {
+        allowed_countries: shippableCountries(),
+      },
+      phone_number_collection: { enabled: true },
       line_items: lineItems,
       customer_email: user.email,
       metadata: {
