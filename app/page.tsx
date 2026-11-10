@@ -139,11 +139,11 @@ export default async function Home({
 
             return (
               <div key={product.id} className="group flex flex-col bg-white rounded-2xl border border-neutral-200 overflow-hidden shadow-xs hover:shadow-md transition-shadow">
-                <Link href={`/products/${product.id}`} className="relative w-full aspect-[4/3] bg-neutral-100 overflow-hidden block">
+                <Link href={`/products/${product.id}`} className="relative w-full aspect-[4/3] bg-white p-4 overflow-hidden block flex items-center justify-center">
                   <img
                     src={img}
                     alt={product.name}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                    className="w-full h-full object-contain object-center group-hover:scale-105 transition-transform duration-300"
                   />
                   {product.category && (
                     <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-xs px-2.5 py-1 rounded-full text-[11px] font-semibold text-neutral-800 shadow-xs">
