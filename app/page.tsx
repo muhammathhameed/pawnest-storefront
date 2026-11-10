@@ -4,39 +4,6 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight } from 'lucide-react';
 
-const HERO_SLIDES = [
-  {
-    id: 1,
-    title: "The 2026 Curated Standard for Smart Living",
-    subtitle: "Experience next-gen smart gadgets and viral essentials curated with uncompromising quality, 30-day risk-free guarantees, and lightning-fast fulfillment.",
-    badge: "✨ Apple-Grade Curation",
-    tag: "Verified 4.9/5 Rating across 1,400+ Orders",
-    image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=800&q=80",
-    productName: "Viral Smart Beauty & Toning Device",
-    price: "$39.99"
-  },
-  {
-    id: 2,
-    title: "Meet Your AI Shopping Concierge",
-    subtitle: "Type any need in our Spotlight bar below—whether it's WFH desk upgrades, organic skincare, or smart home tech—and get instant bespoke recommendations.",
-    badge: "🚀 Powered by Gemini AI",
-    tag: "Instant Semantic Product Matching",
-    image: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80",
-    productName: "Ambient Warm LED Desk Lamp",
-    price: "$49.99"
-  },
-  {
-    id: 3,
-    title: "Zero-Friction Global Checkout & Delivery",
-    subtitle: "Enjoy fully encrypted Apple Pay & Stripe checkout with live courier tracking updates on all 21 premier catalog items.",
-    badge: "🔒 Secure & Guaranteed",
-    tag: "256-Bit SSL Encrypted Transactions",
-    image: "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80",
-    productName: "Aesthetic Organic Linen Set",
-    price: "$29.99"
-  }
-];
-
 const SUGGESTED_PROMPTS = [
   "✨ Best skin care for glowing skin",
   "💡 Smart lighting & desk lamps",
@@ -61,7 +28,7 @@ export default function MasterStorefrontPage() {
     fetch('/api/concierge')
       .then(res => res.json())
       .then(data => {
-        if (data && data.recommendations) {
+        if (data && data.recommendations && data.recommendations.length > 0) {
           setAllProducts(data.recommendations);
         }
       })
@@ -69,12 +36,36 @@ export default function MasterStorefrontPage() {
       .finally(() => setLoadingProducts(false));
   }, []);
 
+  // Use top products from Supabase database for the hero slideshow
+  const heroSlides = allProducts.length > 0 ? allProducts.slice(0, 3).map((p, idx) => ({
+    id: p.id || idx,
+    title: idx === 0 ? "The 2026 Curated Standard for Smart Living" : idx === 1 ? "Meet Your AI Shopping Concierge" : "Zero-Friction Global Checkout",
+    subtitle: p.description || "Experience next-gen smart gadgets and viral essentials curated with uncompromising quality.",
+    badge: idx === 0 ? "✨ Featured Product" : idx === 1 ? "🚀 AI Spotlight Pick" : "🔒 Verified Best Seller",
+    tag: `⭐ 4.8/5 (${p.available || 100} in stock)`,
+    image: p.image || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=800&q=80",
+    productName: p.name,
+    price: typeof p.price === 'number' ? `$${p.price.toFixed(2)}` : p.price
+  })) : [
+    {
+      id: 1,
+      title: "The 2026 Curated Standard for Smart Living",
+      subtitle: "Experience next-gen smart gadgets and viral essentials curated with uncompromising quality.",
+      badge: "✨ Apple-Grade Curation",
+      tag: "Verified 4.9/5 Rating",
+      image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=800&q=80",
+      productName: "Curated Essential",
+      price: "$39.99"
+    }
+  ];
+
   useEffect(() => {
+    if (heroSlides.length === 0) return;
     const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
+      setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
     }, 6500);
     return () => clearInterval(timer);
-  }, []);
+  }, [heroSlides.length]);
 
   const handleAiSearch = async (qText: string) => {
     setSearchQuery(qText);
@@ -108,6 +99,8 @@ export default function MasterStorefrontPage() {
   const filteredProducts = selectedCategory === 'All'
     ? allProducts
     : allProducts.filter(p => (p.category || '').toLowerCase() === selectedCategory.toLowerCase());
+
+  const activeSlide = heroSlides[currentSlide] || heroSlides[0];
 
   return (
     <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
@@ -211,12 +204,12 @@ export default function MasterStorefrontPage() {
         </div>
       </header>
 
-      {/* Apple-Grade Blended Product-Hero Banner Section */}
+      {/* Apple-Grade Blended Product-Hero Banner Section with Database Products */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-6 relative z-0">
         <div className="relative overflow-hidden bg-slate-900 rounded-[32px] text-white py-20 sm:py-28 px-6 sm:px-14 shadow-2xl min-h-[520px] flex flex-col justify-between">
           
-          {/* Active Blended Slide Background Image with Soft Vignette & Gradients */}
-          {HERO_SLIDES.map((slide, index) => (
+          {/* Active Blended Slide Background Image from Database */}
+          {heroSlides.map((slide, index) => (
             <div
               key={slide.id}
               className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
@@ -229,7 +222,6 @@ export default function MasterStorefrontPage() {
                 transition: 'transform 7s ease-out, opacity 1s ease-in-out'
               }}
             >
-              {/* Multi-stop gradient blend overlay for seamless text readability */}
               <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-slate-900/40"></div>
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-slate-950/60"></div>
             </div>
@@ -241,7 +233,7 @@ export default function MasterStorefrontPage() {
 
           {/* Carousel Slide Content */}
           <div className="relative z-10 max-w-3xl my-auto">
-            {HERO_SLIDES.map((slide, index) => (
+            {heroSlides.map((slide, index) => (
               <div
                 key={slide.id}
                 className={`transition-all duration-700 ease-in-out ${
@@ -253,23 +245,23 @@ export default function MasterStorefrontPage() {
                     {slide.badge}
                   </span>
                   <span className="text-xs text-slate-200 font-medium bg-white/10 px-3 py-1 rounded-full border border-white/10 backdrop-blur-md">
-                    ⭐ {slide.tag}
+                    {slide.tag}
                   </span>
                 </div>
-                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 text-white leading-tight drop-shadow-md">
-                  {slide.title}
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 text-white leading-tight drop-shadow-md line-clamp-2">
+                  {slide.productName}
                 </h1>
-                <p className="text-base sm:text-lg text-slate-200 mb-8 font-normal leading-relaxed max-w-2xl drop-shadow">
+                <p className="text-base sm:text-lg text-slate-200 mb-8 font-normal leading-relaxed max-w-2xl drop-shadow line-clamp-2">
                   {slide.subtitle}
                 </p>
 
                 {/* Featured Product Highlight Pill */}
                 <div className="inline-flex items-center gap-3 px-4 py-2.5 rounded-2xl bg-white/10 backdrop-blur-xl border border-white/20 mb-8 shadow-lg">
-                  <div className="w-10 h-10 rounded-xl overflow-hidden bg-white/20 shrink-0">
-                    <img src={slide.image} alt={slide.productName} className="w-full h-full object-cover" />
+                  <div className="w-10 h-10 rounded-xl overflow-hidden bg-white shrink-0 flex items-center justify-center p-1">
+                    <img src={slide.image} alt={slide.productName} className="w-full h-full object-contain" />
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase tracking-wider text-indigo-300 font-bold block">Featured in this slide</span>
+                    <span className="text-[10px] uppercase tracking-wider text-indigo-300 font-bold block">Featured Database Item</span>
                     <span className="text-xs font-bold text-white">{slide.productName} • <span className="text-indigo-300">{slide.price}</span></span>
                   </div>
                 </div>
@@ -279,7 +271,7 @@ export default function MasterStorefrontPage() {
                     href="#catalog"
                     className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm rounded-full shadow-xl transition-all duration-200 hover:scale-105 flex items-center gap-2"
                   >
-                    Explore 21 Curated Items <ArrowRight className="w-4 h-4" />
+                    Explore All {allProducts.length} Items <ArrowRight className="w-4 h-4" />
                   </a>
                   <a
                     href="/signup"
@@ -313,7 +305,7 @@ export default function MasterStorefrontPage() {
 
             {/* Slide Navigation Dots */}
             <div className="flex gap-2">
-              {HERO_SLIDES.map((_, index) => (
+              {heroSlides.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentSlide(index)}
@@ -406,7 +398,7 @@ export default function MasterStorefrontPage() {
                 onClick={() => setQuickViewProduct(product)}
                 className="group bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden cursor-pointer hover:-translate-y-1.5"
               >
-                {/* Card Top Banner with Product Image (Fixed aspect ratio with object-contain and white background container) */}
+                {/* Card Top Banner with Product Image */}
                 <div className="relative h-48 bg-white overflow-hidden flex items-center justify-center p-4 border-b border-slate-100">
                   {product.image ? (
                     <img 
@@ -419,7 +411,7 @@ export default function MasterStorefrontPage() {
                       {product.name.charAt(0)}
                     </div>
                   )}
-                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-wider border border-slate-200/60 shadow-sm">
+                  <span className="absolute top-3 left-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-wider border border-slate-200/60 shadow-sm truncate max-w-[120px]">
                     {product.category || 'General'}
                   </span>
                   <span className="absolute top-3 right-3 bg-slate-900/80 backdrop-blur-md text-white px-2.5 py-0.5 rounded-full text-[10px] font-medium">
