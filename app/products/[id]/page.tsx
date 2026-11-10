@@ -23,7 +23,7 @@ export default async function ProductPage({
   }
 
   const rawData = product.raw_data || {};
-  const primaryImage = product.image_url || rawData.image_url || rawData.image || "/placeholder.jpg";
+  const primaryImage = product.image_url || rawData.image_url || rawData.image || rawData.thumbnail || rawData.img || "/placeholder.jpg";
   const modelUrl = product.model_url || rawData.model_url || "";
   const iosModelUrl = product.ios_model_url || rawData.ios_model_url || "";
 
@@ -52,15 +52,16 @@ export default async function ProductPage({
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 items-start">
           {/* Product Image & WebAR Viewer Column */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="relative w-full aspect-[4/3] max-h-[500px] overflow-hidden rounded-2xl border bg-white shadow-sm flex items-center justify-center">
-              <Image
-                src={primaryImage}
-                alt={product.name || "Product image"}
-                fill
-                sizes="(max-width: 1024px) 100vw, 600px"
-                className="object-contain p-2"
-                priority
-              />
+            <div className="relative w-full aspect-square max-h-[550px] overflow-hidden rounded-2xl border bg-neutral-100 shadow-sm flex items-center justify-center">
+              {primaryImage && primaryImage !== "/placeholder.jpg" ? (
+                <img
+                  src={primaryImage}
+                  alt={product.name || "Product image"}
+                  className="w-full h-full object-contain object-center p-4 bg-white"
+                />
+              ) : (
+                <div className="text-neutral-400 text-sm">No image available</div>
+              )}
             </div>
 
             {/* Integrated WebAR / 3D Viewer Component */}
@@ -95,7 +96,7 @@ export default async function ProductPage({
 
             {product.features && product.features.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-neutral-900 uppercase tracking-wider mb-3">Key Features</h3>
+                <h3 className="text-sm font-semibold text-neutral-900 uppercase tracking-wider mb-3">KeyFeatures</h3>
                 <ul className="list-disc pl-5 space-y-2 text-sm text-neutral-600">
                   {product.features.map((feature: string, index: number) => (
                     <li key={index}>{feature}</li>
