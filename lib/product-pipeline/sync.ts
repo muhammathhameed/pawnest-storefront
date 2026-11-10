@@ -20,8 +20,8 @@ export async function processSupplierProduct(rawProduct: unknown) {
   const product = createAndValidateCandidate(supplierProduct, copy);
 
   const supplierId = (supplierProduct as any).supplierId || (supplierProduct as any).supplier_id || "default-supplier";
-  const sku = supplierProduct.sku || (product.variants?.[0]?.sku) || product.external_id;
-  const price = supplierProduct.price ?? (product.variants?.[0]?.price) ?? 0.00;
+  const sku = (supplierProduct as any).sku || (product.variants?.[0]?.sku) || product.external_id;
+  const price = (supplierProduct as any).price ?? (product.variants?.[0]?.price) ?? 0.00;
 
   const { data, error } = await supabase
     .from("products")
