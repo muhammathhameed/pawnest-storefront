@@ -9,6 +9,16 @@ export interface Product {
   rating: number;
   /** False once supplier stock falls below the safety threshold. */
   is_listed?: boolean;
+  tags?: string[] | null;
+  created_at?: string | null;
+}
+
+export interface ProductReview {
+  id: string;
+  rating: number;
+  title: string;
+  body: string;
+  created_at: string;
 }
 
 export interface CartItem {

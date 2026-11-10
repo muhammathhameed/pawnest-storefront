@@ -111,12 +111,12 @@ export default function AuthForm({ mode }: AuthFormProps) {
             🐾
           </span>
           <span>
-            <strong>PawNest</strong>
-            <small>HAPPY PETS, HAPPY HOMES</small>
+            <strong>AuraFinds</strong>
+            <small>CURATED FINDS, EVERY DAY</small>
           </span>
         </Link>
-        <p className="eyebrow">{isSignup ? "JOIN THE PAWNEST FAMILY" : "WELCOME BACK"}</p>
-        <h1>{isSignup ? "Create your account" : "Sign in to PawNest"}</h1>
+        <p className="eyebrow">{isSignup ? "JOIN THE AURAFINDS COMMUNITY" : "WELCOME BACK"}</p>
+        <h1>{isSignup ? "Create your account" : "Sign in to AuraFinds"}</h1>
         <p className="auth-intro">
           {isSignup
             ? "Save your favorites and keep track of every order."
@@ -185,7 +185,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
           </p>
         )}
         <p className="auth-switch">
-          {isSignup ? "Already have an account?" : "New to PawNest?"}{" "}
+          {isSignup ? "Already have an account?" : "New to AuraFinds?"}{" "}
           <Link href={isSignup ? "/login" : "/signup"}>
             {isSignup ? "Sign in" : "Create an account"}
           </Link>

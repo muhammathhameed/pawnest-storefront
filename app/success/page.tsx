@@ -47,9 +47,9 @@ export default async function CheckoutSuccessPage({
     <main className="checkout-result-shell">
       <section className="checkout-result-card">
         <span className="checkout-result-icon" aria-hidden="true">
-          {paymentStatus === "paid" ? "🎉" : "🐾"}
+          {paymentStatus === "paid" ? "🎉" : "✦"}
         </span>
-        <p className="eyebrow">PAWNEST CHECKOUT</p>
+        <p className="eyebrow">AURAFINDS CHECKOUT</p>
         {hasValidSession ? (
           <>
             {paymentStatus === "paid" && <ClearCartOnPayment />}

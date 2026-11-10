@@ -7,7 +7,7 @@ UPDATE public.products
        category = COALESCE(NULLIF(category, ''), 'Everyday Care'),
        description = COALESCE(
          NULLIF(description, ''),
-         'A thoughtfully selected PawNest essential made to bring comfort, care, and a little more joy to your pet’s everyday routine.'
+         'A thoughtfully selected AuraFinds essential, chosen to make everyday life a little more delightful.'
        ),
        image_url = COALESCE(
          NULLIF(image_url, ''),
@@ -20,63 +20,63 @@ WITH catalog (
   VALUES
     (
       'Everyday Trail Collar',
-      'A soft, adjustable walking collar made for everyday adventures. Durable hardware and a comfortable finish keep every outing easy.',
-      24.00, 'Collars & Leashes', 4.9,
+      'An adjustable, comfortable collar with durable hardware for neighborhood walks and weekend adventures.',
+      24.00, 'Pet Care', 4.9,
       'https://images.unsplash.com/photo-1599443015574-be5fe8a05783?auto=format&fit=crop&w=1200&q=85'
     ),
     (
-      'Rope Walk Leash',
-      'A sturdy, easy-grip rope leash with a lightweight clasp and a relaxed feel in your hand, from neighborhood strolls to weekend trails.',
-      32.00, 'Collars & Leashes', 4.8,
-      'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?auto=format&fit=crop&w=1200&q=85'
-    ),
-    (
       'Cloud Nine Pet Bed',
-      'A cozy, supportive bed with a plush washable cover and a gently raised edge for curling up after a long day of play.',
-      79.00, 'Beds & Furniture', 4.9,
+      'A cozy, supportive bed with a plush washable cover and a softly raised edge for curling up after play.',
+      79.00, 'Pet Care', 4.9,
       'https://images.unsplash.com/photo-1541599540903-216a46ca1dc0?auto=format&fit=crop&w=1200&q=85'
     ),
     (
-      'Window Perch Lounge',
-      'A comfortable perch that gives curious cats a sunny spot to watch the world, nap, and stretch out in style.',
-      58.00, 'Beds & Furniture', 4.7,
-      'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?auto=format&fit=crop&w=1200&q=85'
-    ),
-    (
       'Wiggle & Wonder Puzzle',
-      'An enrichment toy that turns snack time into a satisfying little challenge and encourages curious noses to keep exploring.',
-      21.00, 'Interactive Toys', 4.8,
+      'An enrichment toy that turns snack time into a satisfying challenge and encourages curious noses to explore.',
+      21.00, 'Pet Care', 4.8,
       'https://images.unsplash.com/photo-1535294435445-d7249524ef2e?auto=format&fit=crop&w=1200&q=85'
     ),
     (
-      'Tug Time Play Rope',
-      'A textured, easy-to-grab rope toy for energetic games of tug and fetch together. Made for supervised play.',
-      16.00, 'Interactive Toys', 4.6,
-      'https://images.unsplash.com/photo-1535930749574-1399327ce78f?auto=format&fit=crop&w=1200&q=85'
-    ),
-    (
-      'Stoneware Slow Bowl',
-      'A stable ceramic bowl with a gentle maze design that makes mealtimes more engaging and is easy to clean.',
-      29.00, 'Bowls & Feeding', 4.9,
-      'https://images.unsplash.com/photo-1589924691995-400dc9ecc119?auto=format&fit=crop&w=1200&q=85'
-    ),
-    (
-      'Double Diner Feeding Set',
-      'A thoughtfully sized pair of everyday bowls in a sturdy raised stand, keeping food and fresh water close at hand.',
-      46.00, 'Bowls & Feeding', 4.7,
-      'https://images.unsplash.com/photo-1601758123927-196e5c4c7f87?auto=format&fit=crop&w=1200&q=85'
-    ),
-    (
       'Gentle Groom Brush',
-      'A comfortable grooming brush with soft, flexible pins that helps lift loose fur and makes quiet care time a little easier.',
-      19.00, 'Grooming', 4.8,
+      'A comfortable grooming brush with flexible pins that helps lift loose fur and makes quiet care time easier.',
+      19.00, 'Pet Care', 4.8,
       'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?auto=format&fit=crop&w=1200&q=85'
     ),
     (
-      'Fresh Coat Care Kit',
-      'A simple at-home grooming set with everyday essentials for keeping coats tidy between professional grooming visits.',
-      38.00, 'Grooming', 4.6,
-      'https://images.unsplash.com/photo-1517849845537-4d257902454a?auto=format&fit=crop&w=1200&q=85'
+      'Dewdrop Hydrating Serum',
+      'A lightweight daily serum for a fresh, dewy-feeling skincare routine. Apply a few drops after cleansing.',
+      28.00, 'Beauty & Skincare', 4.8,
+      'https://images.unsplash.com/photo-1608248543803-ba4f8c70ae0b?auto=format&fit=crop&w=1200&q=85'
+    ),
+    (
+      'Cooling Facial Roller',
+      'A smooth facial massage roller designed to add a relaxing, refreshing moment to your morning or evening routine.',
+      18.00, 'Beauty & Skincare', 4.7,
+      'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1200&q=85'
+    ),
+    (
+      'Daily Glow Essentials Set',
+      'A simple, travel-friendly collection of skincare essentials for a fresh and easy daily care ritual.',
+      36.00, 'Beauty & Skincare', 4.8,
+      'https://images.unsplash.com/photo-1556229010-6c3f2c9ca5f8?auto=format&fit=crop&w=1200&q=85'
+    ),
+    (
+      'PocketBeam Mini Projector',
+      'A compact smart projector for turning a blank wall into a cozy movie-night screen at home or away.',
+      119.00, 'Smart Tech & Gadgets', 4.7,
+      'https://images.unsplash.com/photo-1492691527719-9d1e07e534b4?auto=format&fit=crop&w=1200&q=85'
+    ),
+    (
+      'SnapCharge Wireless Stand',
+      'A clean, space-saving wireless charging stand that keeps a compatible phone visible and within easy reach.',
+      39.00, 'Smart Tech & Gadgets', 4.8,
+      'https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?auto=format&fit=crop&w=1200&q=85'
+    ),
+    (
+      'Halo Ambient Smart Light',
+      'A soft-glow smart lamp for winding down, setting a calmer mood, or adding a warm accent to your desk.',
+      49.00, 'Smart Tech & Gadgets', 4.6,
+      'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1200&q=85'
     )
 )
 INSERT INTO public.products (

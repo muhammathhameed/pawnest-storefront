@@ -21,7 +21,7 @@ export default function StoreError({
         <span className="checkout-result-icon" aria-hidden="true">
           🐾
         </span>
-        <p className="eyebrow">PAWNEST CHECKOUT</p>
+        <p className="eyebrow">AURAFINDS</p>
         <h1>Something went wrong.</h1>
         <p>
           {process.env.NODE_ENV === "development"

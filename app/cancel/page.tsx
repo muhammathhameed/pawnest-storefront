@@ -7,7 +7,7 @@ export default function CheckoutCancelPage() {
         <span className="checkout-result-icon" aria-hidden="true">
           🐾
         </span>
-        <p className="eyebrow">PAWNEST CHECKOUT</p>
+        <p className="eyebrow">AURAFINDS CHECKOUT</p>
         <h1>Your cart is still here.</h1>
         <p>
           Checkout was canceled, and you haven&apos;t been charged. Your cart is

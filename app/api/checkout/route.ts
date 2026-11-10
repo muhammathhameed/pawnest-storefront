@@ -3,6 +3,10 @@ import type Stripe from "stripe";
 import { getSupabaseClient } from "../../../lib/supabase";
 import { getStripeClient } from "../../../lib/stripe";
 import { getSupabaseServerClient } from "../../../lib/supabase/server";
+import {
+  FREE_SHIPPING_THRESHOLD_CENTS,
+  STANDARD_SHIPPING_AMOUNT_CENTS,
+} from "../../../lib/shipping";
 
 export const runtime = "nodejs";
 
@@ -115,7 +119,8 @@ export async function POST(request: Request) {
 
   const { data: products, error: productsError } = await supabase
     .from("products")
-    .select("id, name, price, stock_quantity, is_listed")
+    .select("id, name, price, stock_quantity")
+    .eq("status", "active")
     .in("id", [...quantities.keys()]);
 
   if (productsError) {
@@ -137,6 +142,7 @@ export async function POST(request: Request) {
   }
 
   const lineItems: Stripe.Checkout.SessionCreateParams.LineItem[] = [];
+  let subtotalCents = 0;
   for (const product of products) {
     const price = Number(product.price);
     const unitAmount = Math.round(price * 100);
@@ -173,6 +179,7 @@ export async function POST(request: Request) {
         },
       },
     });
+    subtotalCents += unitAmount * quantity;
   }
 
   try {
@@ -207,6 +214,10 @@ export async function POST(request: Request) {
     }
 
     const origin = siteUrl.origin;
+    const shippingAmount =
+      subtotalCents >= FREE_SHIPPING_THRESHOLD_CENTS
+        ? 0
+        : STANDARD_SHIPPING_AMOUNT_CENTS;
     const session = await stripe.checkout.sessions.create({
       mode: "payment",
       customer_creation: "always",
@@ -217,6 +228,16 @@ export async function POST(request: Request) {
       phone_number_collection: { enabled: true },
       line_items: lineItems,
       customer_email: user.email,
+      shipping_address_collection: { allowed_countries: ["US"] },
+      shipping_options: [
+        {
+          shipping_rate_data: {
+            type: "fixed_amount",
+            fixed_amount: { amount: shippingAmount, currency: "usd" },
+            display_name: shippingAmount === 0 ? "Free shipping" : "Standard shipping",
+          },
+        },
+      ],
       metadata: {
         customer_user_id: user.id,
       },

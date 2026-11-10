@@ -2,13 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import {
+  FREE_SHIPPING_THRESHOLD,
+  FREE_SHIPPING_THRESHOLD_CENTS,
+} from "../lib/shipping";
 import { useCartStore } from "../store/cartStore";
+import StoreImage from "./StoreImage";
 
 const currency = new Intl.NumberFormat("en-US", {
   style: "currency",
   currency: "USD",
 });
-
 interface CartDrawerProps {
   isOpen: boolean;
   onClose: () => void;
@@ -24,6 +28,11 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
   const subtotal = items.reduce(
     (total, item) => total + Number(item.product.price) * item.quantity,
     0,
+  );
+  const amountToFreeShipping = Math.max(FREE_SHIPPING_THRESHOLD - subtotal, 0);
+  const freeShippingProgress = Math.min(
+    (subtotal / FREE_SHIPPING_THRESHOLD) * 100,
+    100,
   );
 
   async function handleCheckout() {
@@ -101,7 +110,7 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
       >
         <header className="cart-header">
           <div>
-            <p className="eyebrow">YOUR PAWNEST PICKS</p>
+            <p className="eyebrow">YOUR AURAFINDS FINDS</p>
             <h2 id="cart-title">Shopping cart</h2>
           </div>
           <button
@@ -117,10 +126,10 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
         {items.length === 0 ? (
           <div className="cart-empty">
             <span className="empty-cart-icon" aria-hidden="true">
-              🐾
+              ✦
             </span>
             <h3>Your cart is waiting</h3>
-            <p>Find something lovely for your furry best friend.</p>
+            <p>Find something lovely for your everyday.</p>
             <button type="button" className="primary-button" onClick={onClose}>
               Explore the shop
             </button>
@@ -131,14 +140,14 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
               {items.map(({ product, quantity }) => (
                 <article className="cart-item" key={product.id}>
                   {product.image_url ? (
-                    <img
+                    <StoreImage
                       className="cart-item-image"
                       src={product.image_url}
                       alt=""
                     />
                   ) : (
                     <div className="cart-item-image cart-item-placeholder">
-                      🐾
+                      ✦
                     </div>
                   )}
                   <div className="cart-item-details">
@@ -204,6 +213,26 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             </div>
 
             <footer className="cart-footer">
+              <div className="shipping-progress">
+                <p aria-live="polite">
+                  {amountToFreeShipping > 0
+                    ? `You’re ${currency.format(amountToFreeShipping)} away from free shipping`
+                    : "You unlocked free shipping"}
+                </p>
+                <div
+                  className="shipping-progress-track"
+                  role="progressbar"
+                  aria-label="Free shipping progress"
+                  aria-valuemin={0}
+                  aria-valuemax={FREE_SHIPPING_THRESHOLD_CENTS}
+                  aria-valuenow={Math.min(
+                    subtotal * 100,
+                    FREE_SHIPPING_THRESHOLD_CENTS,
+                  )}
+                >
+                  <span style={{ width: `${freeShippingProgress}%` }} />
+                </div>
+              </div>
               <button
                 type="button"
                 className="clear-cart-button"
@@ -222,7 +251,8 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                 View full cart
               </a>
               <p className="cart-note">
-                Shipping and taxes are calculated securely at checkout.
+                US shipping is $5.95 under $75 and free at $75+. Applicable
+                taxes are not included.
               </p>
               {checkoutError && (
                 <p className="checkout-error" role="alert">
