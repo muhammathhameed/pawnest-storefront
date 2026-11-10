@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { WebARViewer } from "@/components/WebARViewer";
+import WebARViewer from "@/components/WebARViewer";
 
 export default async function ProductPage({
   params,
