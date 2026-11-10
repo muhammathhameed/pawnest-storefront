@@ -11,7 +11,7 @@ const SUGGESTED_PROMPTS = [
   "🧘 Ergonomic posture solutions"
 ];
 
-// 3D Tilt Card Component for Apple Liquid Glass (Removed VR feature per request)
+// 3D Tilt Card Component for Apple Liquid Glass (Fixed line clamping and hover text color matching)
 function GlassTiltCard({ 
   product, 
   onSelect, 
@@ -66,7 +66,7 @@ function GlassTiltCard({
         transform: `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1, 1, 1)`,
         transition: 'transform 0.1s ease-out, box-shadow 0.3s ease',
       }}
-      className="group backdrop-blur-xl bg-white/70 rounded-[32px] border border-white/90 shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] hover:shadow-[0_25px_60px_rgba(99,102,241,0.18)] flex flex-col overflow-hidden cursor-pointer relative"
+      className="group backdrop-blur-xl bg-white/70 rounded-[32px] border border-white/90 shadow-[0_12px_40px_rgba(0,0,0,0.06),inset_0_1px_1px_rgba(255,255,255,0.9)] hover:shadow-[0_25px_60px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden cursor-pointer relative"
     >
       {/* Specular Glare Effect */}
       <div
@@ -86,11 +86,11 @@ function GlassTiltCard({
             className="w-full h-full object-contain object-center group-hover:scale-110 transition-transform duration-500 drop-shadow-md" 
           />
         ) : (
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-lg shadow-inner">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-900 flex items-center justify-center font-bold text-lg shadow-inner">
             {product.name.charAt(0)}
           </div>
         )}
-        <span className="absolute top-3 left-3 backdrop-blur-xl bg-white/85 px-3 py-1 rounded-full text-[10px] font-bold text-slate-800 uppercase tracking-wider border border-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] truncate max-w-[130px] z-10">
+        <span className="absolute top-3 left-3 backdrop-blur-xl bg-white/85 px-3 py-1 rounded-full text-[10px] font-bold text-slate-900 uppercase tracking-wider border border-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] truncate max-w-[140px] z-10">
           {product.category || 'General'}
         </span>
         
@@ -101,12 +101,12 @@ function GlassTiltCard({
             className="backdrop-blur-xl bg-slate-900/90 hover:bg-slate-950 text-white px-3 py-1.5 rounded-full text-[10px] font-bold shadow flex items-center gap-1 transition-transform hover:scale-105 border border-white/20"
             title="Project in Room (AR Camera)"
           >
-            <Camera className="w-3 h-3 text-indigo-400" /> AR View
+            <Camera className="w-3 h-3 text-slate-300" /> AR View
           </button>
         </div>
       </div>
 
-      {/* Card Body */}
+      {/* Card Body with Fully Visible Product Name & Harmonized Hover Text Colors */}
       <div className="p-6 flex-1 flex flex-col justify-between z-10">
         <div>
           <div className="flex items-center gap-1 mb-2">
@@ -118,7 +118,7 @@ function GlassTiltCard({
             <span className="text-xs font-bold text-slate-700">{product.rating || 4.8}</span>
             <span className="text-xs text-slate-400">({product.reviewsCount || 120})</span>
           </div>
-          <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+          <h3 className="text-base font-bold text-slate-900 group-hover:text-slate-950 transition-colors line-clamp-2 min-h-[44px]">
             {product.name}
           </h3>
           <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">
@@ -269,7 +269,7 @@ export default function MasterStorefrontPage() {
     : allProducts.filter(p => (p.category || '').toLowerCase() === selectedCategory.toLowerCase());
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] flex flex-col font-sans selection:bg-indigo-600 selection:text-white">
+    <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] flex flex-col font-sans selection:bg-slate-900 selection:text-white">
       
       {/* Apple Liquid Glass Floating Header */}
       <header className="sticky top-4 z-50 mx-4 sm:mx-8">
@@ -277,7 +277,7 @@ export default function MasterStorefrontPage() {
           
           {/* Brand Logo & Cleaned Tagline */}
           <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-indigo-900 flex items-center justify-center text-white font-bold text-lg shadow-[0_4px_12px_rgba(0,0,0,0.15),inset_0_1px_1px_rgba(255,255,255,0.3)] group-hover:scale-105 transition-transform">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-950 flex items-center justify-center text-white font-bold text-lg shadow-[0_4px_12px_rgba(0,0,0,0.15),inset_0_1px_1px_rgba(255,255,255,0.3)] group-hover:scale-105 transition-transform">
               A
             </div>
             <div className="flex flex-col">
@@ -326,7 +326,7 @@ export default function MasterStorefrontPage() {
                       className="p-3 rounded-2xl hover:bg-slate-100/70 border border-transparent hover:border-slate-200/60 flex items-center justify-between transition-colors cursor-pointer group"
                     >
                       <div className="pr-4">
-                        <h4 className="text-xs font-bold text-slate-900 group-hover:text-slate-700">{item.name || item.title}</h4>
+                        <h4 className="text-xs font-bold text-slate-900 group-hover:text-slate-950">{item.name || item.title}</h4>
                         <p className="text-[11px] text-slate-500 line-clamp-1">{item.description || item.reason}</p>
                       </div>
                       <span className="text-xs font-extrabold text-slate-900 shrink-0">
