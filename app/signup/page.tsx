@@ -36,6 +36,19 @@ export default function SignupPage() {
     }, 1000);
   };
 
+  const handleMagicLink = () => {
+    if (!email) {
+      setErrorMessage('Please enter your email address above to receive a magic link.');
+      return;
+    }
+    setIsLoading(true);
+    setErrorMessage('');
+    setTimeout(() => {
+      setIsLoading(false);
+      setSuccessMessage(`Magic link sent to ${email}! Check your inbox to sign in instantly.`);
+    }, 1000);
+  };
+
   return (
     <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] flex items-center justify-center p-4 sm:p-6 font-sans selection:bg-slate-900 selection:text-white relative">
       
@@ -135,10 +148,26 @@ export default function SignupPage() {
               {isLoading ? (
                 <span className="animate-pulse">Creating Account...</span>
               ) : (
-                'Create Account'
+                'Create account'
               )}
             </button>
           </form>
+
+          {/* Divider */}
+          <div className="relative my-6 text-center">
+            <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-slate-200"></div>
+            </div>
+            <span className="relative px-3 bg-white/80 text-[10px] font-bold uppercase tracking-widest text-slate-400">or</span>
+          </div>
+
+          {/* Magic Link Option */}
+          <button
+            type="button"
+            onClick={handleMagicLink}
+            className="w-full py-3 bg-white hover:bg-slate-500 text-slate-900 border border-slate-200/90 font-semibold rounded-2xl shadow-sm transition-all text-xs flex items-center justify-center gap-2 hover:scale-[1.01]"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-slate-700" /> Email me a magic link
+          </button>
 
           {/* Footer Sign In Prompt */}
           <div className="mt-8 text-center pt-6 border-t border-slate-100">
