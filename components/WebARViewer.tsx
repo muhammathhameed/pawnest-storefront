@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'pivotal-react'; // placeholder check
+import React from 'react';
 
 interface WebARViewerProps {
   modelSrc?: string;
