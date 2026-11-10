@@ -1,7 +1,9 @@
-import { Product as GlobalProduct } from '@/types/product';
+'use client';
+
+import React, { useState } from 'react';
 import { ShoppingBag, Star, CheckCircle2 } from 'lucide-react';
 
-interface LocalProduct {
+interface Product {
   id: string;
   name: string;
   category: string;
@@ -14,13 +16,13 @@ interface LocalProduct {
 }
 
 interface ProductCatalogProps {
-  products?: (GlobalProduct | LocalProduct)[];
+  products?: any[];
   initialCategory?: string;
   reviewSummaries?: Record<string, any>;
   showCollectionHeading?: boolean;
 }
 
-const DEFAULT_PRODUCTS: LocalProduct[] = [
+const DEFAULT_PRODUCTS: Product[] = [
   {
     id: 'prod-1',
     name: 'Viral Smart Beauty Gadget',
@@ -72,14 +74,14 @@ export default function ProductCatalog({
   initialCategory = 'All',
   showCollectionHeading = true
 }: ProductCatalogProps) {
-  const [selectedCategory, setSelectedCategory] = React.useState(initialCategory);
-  const [addedItems, setAddedItems] = React.useState<{ [key: string]: boolean }>({});
+  const [selectedCategory, setSelectedCategory] = useState(initialCategory);
+  const [addedItems, setAddedItems] = useState<{ [key: string]: boolean }>({});
 
   const categories = ['All', 'Beauty & Skincare', 'Smart Tech & Gadgets', 'Lifestyle & Home', 'Wellness & Fitness'];
 
   const displayProducts = products && products.length > 0 ? products : DEFAULT_PRODUCTS;
 
-  const normalizedProducts = displayProducts.map((p: any) => ({
+  const normalizedProducts: Product[] = displayProducts.map((p: any) => ({
     id: p.id || Math.random().toString(),
     name: p.name || 'Curated Product',
     category: p.category || 'General',
@@ -95,7 +97,7 @@ export default function ProductCatalog({
     ? normalizedProducts 
     : normalizedProducts.filter(p => p.category.toLowerCase() === selectedCategory.toLowerCase() || selectedCategory === 'All');
 
-  const handleAddToCart = (product: any) => {
+  const handleAddToCart = (product: Product) => {
     setAddedItems(prev => ({ ...prev, [product.id]: true }));
     setTimeout(() => {
       setAddedItems(prev => ({ ...prev, [product.id]: false }));
