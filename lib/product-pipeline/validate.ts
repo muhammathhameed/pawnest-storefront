@@ -2,7 +2,8 @@ import { ProductPipelineValidationError } from "./errors";
 import type { EnrichedProductCopy } from "./enrich";
 
 export interface SupplierProduct {
-  id: string;
+  id?: string;
+  external_id?: string;
   title?: string;
   description?: string;
   variants?: Array<{
@@ -14,7 +15,7 @@ export interface SupplierProduct {
 }
 
 export function validateSupplierProduct(supplier: SupplierProduct, copy: EnrichedProductCopy) {
-  if (!supplier || !supplier.id) {
+  if (!supplier || (!supplier.id && !supplier.external_id)) {
     throw new ProductPipelineValidationError("Invalid supplier product: missing ID.");
   }
 
@@ -31,7 +32,7 @@ export function validateSupplierProduct(supplier: SupplierProduct, copy: Enriche
   if (supplier.variants) {
     supplier.variants.forEach((variant) => {
       if (!variant.id || typeof variant.price !== "number" || variant.price < 0) {
-        throw new ProductPipelineValidationError(`Invalid variant found for product ${supplier.id}`);
+        throw new ProductPipelineValidationError(`Invalid variant found for product ${supplier.id || supplier.external_id}`);
       }
     });
   }
@@ -43,8 +44,10 @@ export function validateSupplierProduct(supplier: SupplierProduct, copy: Enriche
 export function createAndValidateCandidate(supplierProduct: SupplierProduct, copy: EnrichedProductCopy) {
   validateSupplierProduct(supplierProduct, copy);
 
+  const productId = supplierProduct.id || supplierProduct.external_id || "unknown-id";
+
   return {
-    external_id: supplierProduct.id,
+    external_id: productId,
     title: copy.title || supplierProduct.title || "Untitled Product",
     description: copy.description || supplierProduct.description || "",
     features: copy.features || [],
