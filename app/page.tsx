@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, CreditCard } from 'lucide-react';
+import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, Eye } from 'lucide-react';
 
 const SUGGESTED_PROMPTS = [
   "✨ Best skin care for glowing skin",
@@ -12,7 +12,19 @@ const SUGGESTED_PROMPTS = [
 ];
 
 // 3D Tilt Card Component for Apple Liquid Glass
-function GlassTiltCard({ product, onSelect, onAddToCart, isAdded }: { product: any; onSelect: () => void; onAddToCart: (p: any, e: React.MouseEvent) => void; isAdded: boolean }) {
+function GlassTiltCard({ 
+  product, 
+  onSelect, 
+  onAddToCart, 
+  onVrView, 
+  isAdded 
+}: { 
+  product: any; 
+  onSelect: () => void; 
+  onAddToCart: (p: any, e: React.MouseEvent) => void; 
+  onVrView: (p: any, e: React.MouseEvent) => void;
+  isAdded: boolean 
+}) {
   const cardRef = useRef<HTMLDivElement>(null);
   const [rotateX, setRotateX] = useState(0);
   const [rotateY, setRotateY] = useState(0);
@@ -81,9 +93,15 @@ function GlassTiltCard({ product, onSelect, onAddToCart, isAdded }: { product: a
         <span className="absolute top-3 left-3 backdrop-blur-xl bg-white/80 px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-wider border border-white shadow-[0_4px_12px_rgba(0,0,0,0.05)] truncate max-w-[120px] z-10">
           {product.category || 'General'}
         </span>
-        <span className="absolute top-3 right-3 backdrop-blur-xl bg-slate-900/80 text-white px-2.5 py-0.5 rounded-full text-[10px] font-medium shadow z-10">
-          {product.available || 100} left
-        </span>
+        
+        {/* VR View 3D Badge on Top Right */}
+        <button
+          onClick={(e) => onVrView(product, e)}
+          className="absolute top-3 right-3 backdrop-blur-xl bg-indigo-600/90 hover:bg-indigo-700 text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow flex items-center gap-1 z-20 transition-transform hover:scale-105"
+          title="Launch 3D VR Spatial View"
+        >
+          <Eye className="w-3 h-3" /> VR View
+        </button>
       </div>
 
       {/* Card Body */}
@@ -106,18 +124,19 @@ function GlassTiltCard({ product, onSelect, onAddToCart, isAdded }: { product: a
           </p>
         </div>
 
-        <div className="mt-6 pt-4 border-t border-slate-100/80 flex items-center justify-between">
+        {/* Fixed Bottom Action Row with Proper Spacing and Contrast */}
+        <div className="mt-6 pt-4 border-t border-slate-100/80 flex items-center justify-between gap-2">
           <div>
             <span className="text-base font-extrabold text-slate-900">
               {typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : product.price}
             </span>
             {product.originalPrice && (
-              <span className="text-xs text-slate-400 line-through ml-2">${product.originalPrice.toFixed(2)}</span>
+              <span className="text-xs text-slate-400 line-through ml-1.5">${product.originalPrice.toFixed(2)}</span>
             )}
           </div>
           <button
             onClick={(e) => onAddToCart(product, e)}
-            className={`px-3.5 py-2 rounded-2xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md ${
+            className={`px-4 py-2.5 rounded-2xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-md shrink-0 ${
               isAdded
                 ? 'bg-emerald-600 text-white scale-95'
                 : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:scale-105 shadow-[0_4px_12px_rgba(99,102,241,0.3)]'
@@ -129,7 +148,7 @@ function GlassTiltCard({ product, onSelect, onAddToCart, isAdded }: { product: a
               </>
             ) : (
               <>
-                <ShoppingBag className="w-3.5 h-3.5" /> Add
+                <ShoppingBag className="w-3.5 h-3.5" /> Add to Cart
               </>
             )}
           </button>
@@ -148,6 +167,7 @@ export default function MasterStorefrontPage() {
   const [cartCount, setCartCount] = useState(2);
   const [addedItems, setAddedItems] = useState<{ [key: string]: boolean }>({});
   const [quickViewProduct, setQuickViewProduct] = useState<any | null>(null);
+  const [vrModalProduct, setVrModalProduct] = useState<any | null>(null);
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
   const [isProcessingExpress, setIsProcessingExpress] = useState<string | null>(null);
@@ -223,6 +243,11 @@ export default function MasterStorefrontPage() {
     }, 2000);
   };
 
+  const handleVrView = (product: any, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setVrModalProduct(product);
+  };
+
   const handleExpressPay = (provider: 'apple' | 'google') => {
     setIsProcessingExpress(provider);
     setTimeout(() => {
@@ -246,14 +271,14 @@ export default function MasterStorefrontPage() {
       <header className="sticky top-4 z-50 mx-4 sm:mx-8">
         <div className="max-w-7xl mx-auto backdrop-blur-[32px] bg-white/70 border border-white/80 shadow-[0_16px_40px_rgb(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] rounded-3xl px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4 transition-all duration-300">
           
-          {/* Brand Logo */}
+          {/* Brand Logo & Cleaned Tagline */}
           <Link href="/" className="flex items-center gap-2.5 group">
             <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-slate-900 via-indigo-950 to-indigo-900 flex items-center justify-center text-white font-bold text-lg shadow-[0_4px_12px_rgba(0,0,0,0.15),inset_0_1px_1px_rgba(255,255,255,0.3)] group-hover:scale-105 transition-transform">
               A
             </div>
             <div className="flex flex-col">
               <span className="text-base font-bold tracking-tight text-slate-900 leading-none">AuraFinds</span>
-              <span className="text-[10px] uppercase tracking-widest text-indigo-600 font-semibold mt-0.5">Liquid Glass 3D</span>
+              <span className="text-[10px] uppercase tracking-widest text-indigo-600 font-extrabold mt-0.5">Liquid Glass 3D Storefront</span>
             </div>
           </Link>
 
@@ -498,7 +523,7 @@ export default function MasterStorefrontPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">Shop the Collection</h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">Showing {filteredProducts.length} live Supabase products with interactive 3D Liquid Glass tilt effects.</p>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">Showing {filteredProducts.length} live Supabase products with interactive 3D Liquid Glass tilt effects & spatial VR View.</p>
           </div>
 
           {/* Liquid Glass Category Pills */}
@@ -535,12 +560,81 @@ export default function MasterStorefrontPage() {
                 product={product}
                 onSelect={() => setQuickViewProduct(product)}
                 onAddToCart={handleAddToCart}
+                onVrView={handleVrView}
                 isAdded={!!addedItems[product.id]}
               />
             ))}
           </div>
         )}
       </main>
+
+      {/* VR Spatial View Modal */}
+      {vrModalProduct && (
+        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xl flex items-center justify-center p-4 animate-in fade-in duration-300">
+          <div className="backdrop-blur-[50px] bg-slate-950/80 border border-white/20 w-full max-w-2xl rounded-[36px] p-6 sm:p-8 shadow-[0_30px_90px_rgba(0,0,0,0.6)] text-white relative animate-in zoom-in-95 duration-300">
+            <div className="flex items-center justify-between pb-4 border-b border-white/10">
+              <div className="flex items-center gap-2">
+                <span className="px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30 text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5">
+                  <Eye className="w-3.5 h-3.5" /> 3D Spatial VR View
+                </span>
+                <span className="text-xs text-slate-400">Interactive AR Mode</span>
+              </div>
+              <button 
+                onClick={() => setVrModalProduct(null)}
+                className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* 3D Viewer Simulator Screen */}
+            <div className="my-6 relative h-72 sm:h-96 rounded-3xl overflow-hidden bg-gradient-to-tr from-slate-900 via-indigo-950 to-slate-900 border border-white/15 flex items-center justify-center p-6 shadow-inner group">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15)_0,transparent_70%)]"></div>
+              
+              {vrModalProduct.image ? (
+                <img 
+                  src={vrModalProduct.image} 
+                  alt={vrModalProduct.name} 
+                  className="max-h-full max-w-full object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.8)] animate-pulse duration-1000 scale-105" 
+                />
+              ) : (
+                <div className="text-2xl font-bold">{vrModalProduct.name}</div>
+              )}
+
+              {/* VR Spatial Grid Rings */}
+              <div className="absolute inset-x-0 bottom-4 flex justify-center items-center gap-2">
+                <span className="px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-[10px] font-medium text-slate-300 border border-white/20">
+                  🔄 Drag to Rotate 360°
+                </span>
+                <span className="px-3 py-1 rounded-full bg-indigo-600/80 backdrop-blur-md text-[10px] font-bold text-white shadow">
+                  ✨ Spatial Audio & Lighting Active
+                </span>
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <h3 className="text-xl font-bold">{vrModalProduct.name}</h3>
+              <p className="text-xs text-slate-300 leading-relaxed">{vrModalProduct.description}</p>
+              
+              <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                <div>
+                  <span className="text-xl font-extrabold text-white">
+                    {typeof vrModalProduct.price === 'number' ? `$${vrModalProduct.price.toFixed(2)}` : vrModalProduct.price}
+                  </span>
+                </div>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => { handleAddToCart(vrModalProduct); setVrModalProduct(null); }}
+                    className="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-2xl shadow-lg shadow-indigo-500/30 transition-all flex items-center gap-2"
+                  >
+                    <ShoppingBag className="w-4 h-4" /> Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Apple Liquid Glass Quick View Modal Sheet with Express Checkout */}
       {quickViewProduct && (
