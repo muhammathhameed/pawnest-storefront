@@ -6,7 +6,7 @@ export async function createClient() {
 
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key',
+    process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key',
     {
       cookies: {
         getAll() {
@@ -19,6 +19,8 @@ export async function createClient() {
             );
           } catch {
             // The `setAll` method was called from a Server Component.
+            // This can be ignored if you have middleware refreshing
+            // user sessions.
           }
         },
       },
@@ -26,7 +28,7 @@ export async function createClient() {
   );
 }
 
-// Alias to support legacy codebase imports expecting getSupabaseServerClient
+// Alias for legacy codebase imports expecting getSupabaseServerClient
 export async function getSupabaseServerClient() {
   return createClient();
 }
