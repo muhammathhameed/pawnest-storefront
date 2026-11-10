@@ -11,7 +11,7 @@ export default function LoginPage() {
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
     
@@ -21,17 +21,29 @@ export default function LoginPage() {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-      if (email.includes('error')) {
-        setErrorMessage('Invalid email or password. Please check your credentials and try again.');
-      } else {
+    try {
+      const res = await fetch('/api/auth', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'login', email, password })
+      });
+      const data = await res.json();
+      
+      if (data.success) {
+        localStorage.setItem('aurafinds_user', JSON.stringify(data.user));
+        localStorage.setItem('aurafinds_token', data.token);
         setSuccessMessage('Successfully signed in! Redirecting to storefront...');
         setTimeout(() => {
           window.location.href = '/';
-        }, 1200);
+        }, 1000);
+      } else {
+        setErrorMessage(data.error || 'Invalid email or password.');
       }
-    }, 1000);
+    } catch (err) {
+      setErrorMessage('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleMagicLink = () => {
