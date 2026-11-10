@@ -16,8 +16,8 @@ export const ingestItemSchema = z
     cost_price: money,
     price: money.optional(),
     compare_at_price: money.optional(),
-    image_url: z.url().max(2048),
-    gallery_images: z.array(z.url().max(2048)).max(12).default([]),
+    image_url: z.string().url().max(2048),
+    gallery_images: z.array(z.string().url().max(2048)).max(12).default([]),
     key_highlights: z.array(cleanText(160)).max(8).default([]),
     specifications: z.record(z.string(), z.string().max(300)).default({}),
     variants: z
