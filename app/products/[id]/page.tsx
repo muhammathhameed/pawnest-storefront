@@ -49,49 +49,48 @@ export default async function ProductPage({
       </div>
 
       <div className="mx-auto mt-6 max-w-7xl px-6">
-        <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
-          {/* Product Image & WebAR Viewer */}
-          <div className="space-y-6">
-            <div className="relative aspect-square overflow-hidden rounded-2xl border bg-white shadow-sm">
+        <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 items-start">
+          {/* Product Image & WebAR Viewer Column */}
+          <div className="lg:col-span-7 space-y-6">
+            <div className="relative w-full aspect-[4/3] max-h-[500px] overflow-hidden rounded-2xl border bg-white shadow-sm flex items-center justify-center">
               <Image
                 src={primaryImage}
                 alt={product.name || "Product image"}
                 fill
-                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 600px"
+                className="object-contain p-2"
                 priority
               />
             </div>
 
             {/* Integrated WebAR / 3D Viewer Component */}
             <div className="rounded-2xl border bg-white p-6 shadow-sm">
-              <h3 className="text-base font-semibold text-neutral-900 mb-2">Interactive 3D & Augmented Reality</h3>
-              <p className="text-sm text-neutral-600 mb-4">
-                Inspect this product in 3D or place it directly in your space using your mobile device camera.
-              </p>
               <WebARViewer
                 modelSrc={modelUrl}
                 iosModelSrc={iosModelUrl}
                 altText={product.name}
+                productName={product.name}
+                category={product.category}
               />
             </div>
           </div>
 
-          {/* Product Details */}
-          <div className="flex flex-col justify-start space-y-6">
+          {/* Product Details Column */}
+          <div className="lg:col-span-5 flex flex-col justify-start space-y-6">
             <div>
               <span className="inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
                 ★ Curated Find
               </span>
-              <h1 className="mt-3 text-3xl font-bold tracking-tight text-neutral-900">
+              <h1 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 leading-snug">
                 {product.name}
               </h1>
-              <p className="mt-2 text-3xl font-extrabold text-neutral-900">
+              <p className="mt-3 text-3xl font-extrabold text-neutral-900">
                 ${Number(product.price || 0).toFixed(2)}
               </p>
             </div>
 
             <div className="border-t border-b py-6 text-neutral-700 space-y-4">
-              <p className="leading-relaxed">{product.description}</p>
+              <p className="leading-relaxed text-sm sm:text-base">{product.description}</p>
             </div>
 
             {product.features && product.features.length > 0 && (
