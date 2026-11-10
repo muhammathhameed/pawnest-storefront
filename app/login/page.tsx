@@ -46,24 +46,10 @@ export default function LoginPage() {
     }
   };
 
-  const handleSocialAuth = (provider: 'Google' | 'Microsoft') => {
+  const handleSocialAuth = (provider: 'google' | 'azure-ad') => {
     setIsLoading(true);
-    setTimeout(() => {
-      const socialUser = {
-        id: Date.now().toString(),
-        name: `${provider} User`,
-        email: `user@${provider.toLowerCase()}.com`,
-        phone: '+1 (555) 019-2834',
-        address: '742 Evergreen Terrace, Springfield',
-        card: '•••• •••• •••• 4242'
-      };
-      localStorage.setItem('aurafinds_user', JSON.stringify(socialUser));
-      localStorage.setItem('aurafinds_token', `sb-token-${provider.toLowerCase()}`);
-      setSuccessMessage(`Successfully signed in with ${provider}! Redirecting...`);
-      setTimeout(() => {
-        window.location.href = '/profile';
-      }, 800);
-    }, 1000);
+    // Trigger NextAuth OAuth route handler redirect
+    window.location.href = `/api/auth/signin/${provider}`;
   };
 
   const handleMagicLink = () => {
@@ -112,7 +98,7 @@ export default function LoginPage() {
           <div className="grid grid-cols-2 gap-3 mb-6">
             <button
               type="button"
-              onClick={() => handleSocialAuth('Google')}
+              onClick={() => handleSocialAuth('google')}
               className="py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -125,7 +111,7 @@ export default function LoginPage() {
             </button>
             <button
               type="button"
-              onClick={() => handleSocialAuth('Microsoft')}
+              onClick={() => handleSocialAuth('azure-ad')}
               className="py-2.5 px-4 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl text-xs font-bold text-slate-800 shadow-sm flex items-center justify-center gap-2 transition-all hover:scale-[1.01]"
             >
               <svg className="w-4 h-4" viewBox="0 0 23 23">
