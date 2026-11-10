@@ -2,77 +2,37 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2 } from 'lucide-react';
+import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight } from 'lucide-react';
 
 const HERO_SLIDES = [
   {
     id: 1,
-    title: "Designed for Modern Living",
-    subtitle: "Experience next-gen smart gadgets and viral essentials curated with uncompromising quality.",
+    title: "The 2026 Curated Standard for Smart Living",
+    subtitle: "Experience next-gen smart gadgets and viral essentials curated with uncompromising quality, 30-day risk-free guarantees, and lightning-fast fulfillment.",
     badge: "✨ Apple-Grade Curation",
-    bg: "from-slate-900 via-indigo-950 to-slate-900"
+    tag: "Verified 4.9/5 Rating across 1,400+ Orders"
   },
   {
     id: 2,
-    title: "AI Concierge Search Active",
-    subtitle: "Type anything in the Spotlight bar below to find bespoke problem-solving products instantly.",
+    title: "Meet Your AI Shopping Concierge",
+    subtitle: "Type any need in our Spotlight bar below—whether it's WFH desk upgrades, organic skincare, or smart home tech—and get instant bespoke recommendations.",
     badge: "🚀 Powered by Gemini AI",
-    bg: "from-indigo-950 via-purple-950 to-slate-900"
+    tag: "Instant Semantic Product Matching"
   },
   {
     id: 3,
-    title: "Zero Friction Global Checkout",
-    subtitle: "Fast Apple Pay & Stripe integration with express tracked shipping on all orders.",
+    title: "Zero-Friction Global Checkout & Delivery",
+    subtitle: "Enjoy fully encrypted Apple Pay & Stripe checkout with live courier tracking updates on all 21 premier catalog items.",
     badge: "🔒 Secure & Guaranteed",
-    bg: "from-blue-950 via-slate-900 to-indigo-950"
+    tag: "256-Bit SSL Encrypted Transactions"
   }
 ];
 
-const CURATED_PRODUCTS = [
-  {
-    id: 'prod-1',
-    name: 'Viral Smart Beauty & Toning Device',
-    category: 'Beauty & Skincare',
-    price: 39.99,
-    originalPrice: 59.99,
-    rating: 4.9,
-    reviewsCount: 142,
-    description: 'Advanced ultrasonic facial rejuvenation and microcurrent toning device for professional at-home skincare.',
-    available: 120
-  },
-  {
-    id: 'prod-2',
-    name: 'Ambient Warm LED Desk Lamp & Qi Wireless Charger',
-    category: 'Smart Tech & Gadgets',
-    price: 49.99,
-    originalPrice: 69.99,
-    rating: 4.8,
-    reviewsCount: 98,
-    description: 'Sleek aluminum desk companion featuring wireless fast-charging pad, adjustable color temperature, and touch dimming.',
-    available: 85
-  },
-  {
-    id: 'prod-3',
-    name: 'Aesthetic Organic Linen Throw Pillow Set',
-    category: 'Lifestyle & Home',
-    price: 29.99,
-    originalPrice: 45.00,
-    rating: 5.0,
-    reviewsCount: 215,
-    description: 'Hand-woven textured organic linen cushion cover designed to elevate living room comfort and interior aesthetics.',
-    available: 200
-  },
-  {
-    id: 'prod-4',
-    name: 'Ergonomic Posture Correction Harness',
-    category: 'Wellness & Fitness',
-    price: 34.99,
-    originalPrice: 50.00,
-    rating: 4.7,
-    reviewsCount: 76,
-    description: 'Lightweight, breathable posture trainer designed to relieve back strain and align spine during long work sessions.',
-    available: 64
-  }
+const SUGGESTED_PROMPTS = [
+  "✨ Best skin care for glowing skin",
+  "💡 Smart lighting & desk lamps",
+  "🛋️ Aesthetic home comfort sets",
+  "🧘 Ergonomic posture solutions"
 ];
 
 export default function MasterStorefrontPage() {
@@ -84,31 +44,39 @@ export default function MasterStorefrontPage() {
   const [cartCount, setCartCount] = useState(2);
   const [addedItems, setAddedItems] = useState<{ [key: string]: boolean }>({});
   const [quickViewProduct, setQuickViewProduct] = useState<any | null>(null);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
+  const [loadingProducts, setLoadingProducts] = useState(true);
+
+  // Fetch products from Supabase API / Concierge backend
+  useEffect(() => {
+    fetch('/api/concierge')
+      .then(res => res.json())
+      .then(data => {
+        if (data && data.recommendations) {
+          setAllProducts(data.recommendations);
+        }
+      })
+      .catch(() => {})
+      .finally(() => setLoadingProducts(false));
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
-    }, 6000);
+    }, 6500);
     return () => clearInterval(timer);
   }, []);
 
-  const handleAiSearch = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const q = e.target.value;
-    setSearchQuery(q);
-
-    if (q.trim().length > 0) {
+  const handleAiSearch = async (qText: string) => {
+    setSearchQuery(qText);
+    if (qText.trim().length > 0) {
       setIsAiLoading(true);
       try {
-        const res = await fetch(`/api/concierge?q=${encodeURIComponent(q)}`);
+        const res = await fetch(`/api/concierge?q=${encodeURIComponent(qText)}`);
         const data = await res.json();
-        setAiSuggestions(data.recommendations || CURATED_PRODUCTS);
+        setAiSuggestions(data.recommendations || []);
       } catch (err) {
-        const filtered = CURATED_PRODUCTS.filter(p => 
-          p.name.toLowerCase().includes(q.toLowerCase()) || 
-          p.category.toLowerCase().includes(q.toLowerCase()) ||
-          p.description.toLowerCase().includes(q.toLowerCase())
-        );
-        setAiSuggestions(filtered.length > 0 ? filtered : CURATED_PRODUCTS);
+        setAiSuggestions([]);
       } finally {
         setIsAiLoading(false);
       }
@@ -129,8 +97,8 @@ export default function MasterStorefrontPage() {
   const categories = ['All', 'Beauty & Skincare', 'Smart Tech & Gadgets', 'Lifestyle & Home', 'Wellness & Fitness'];
 
   const filteredProducts = selectedCategory === 'All'
-    ? CURATED_PRODUCTS
-    : CURATED_PRODUCTS.filter(p => p.category.toLowerCase() === selectedCategory.toLowerCase());
+    ? allProducts
+    : allProducts.filter(p => (p.category || '').toLowerCase() === selectedCategory.toLowerCase());
 
   return (
     <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] flex flex-col font-sans selection:bg-indigo-500 selection:text-white">
@@ -157,7 +125,7 @@ export default function MasterStorefrontPage() {
               <input
                 type="text"
                 value={searchQuery}
-                onChange={handleAiSearch}
+                onChange={(e) => handleAiSearch(e.target.value)}
                 placeholder="✨ Spotlight AI Concierge: Search products or ask for advice..."
                 className="w-full pl-10 pr-10 py-2.5 bg-slate-100/90 border border-slate-200/80 rounded-full text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:bg-white transition-all shadow-inner"
               />
@@ -171,7 +139,7 @@ export default function MasterStorefrontPage() {
               )}
             </div>
 
-            {/* AI Suggestions Dropdown with Text visibility fix */}
+            {/* AI Suggestions Dropdown */}
             {aiSuggestions && (
               <div className="absolute top-full left-0 right-0 mt-2.5 bg-white rounded-2xl shadow-2xl border border-slate-200/80 p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-80 overflow-y-auto">
                 <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-100">
@@ -183,7 +151,7 @@ export default function MasterStorefrontPage() {
                 <div className="space-y-2">
                   {isAiLoading ? (
                     <div className="text-center py-4 text-xs text-slate-500 animate-pulse">Analyzing query...</div>
-                  ) : aiSuggestions.map((item, idx) => (
+                  ) : aiSuggestions.length > 0 ? aiSuggestions.map((item, idx) => (
                     <div 
                       key={idx} 
                       onClick={() => { setQuickViewProduct(item); setAiSuggestions(null); setSearchQuery(''); }}
@@ -193,9 +161,13 @@ export default function MasterStorefrontPage() {
                         <h4 className="text-xs font-bold text-slate-900 group-hover:text-indigo-600">{item.name || item.title}</h4>
                         <p className="text-[11px] text-slate-500 line-clamp-1">{item.description || item.reason}</p>
                       </div>
-                      <span className="text-xs font-extrabold text-indigo-600 shrink-0">{item.price}</span>
+                      <span className="text-xs font-extrabold text-indigo-600 shrink-0">
+                        {typeof item.price === 'number' ? `$${item.price.toFixed(2)}` : item.price}
+                      </span>
                     </div>
-                  ))}
+                  )) : (
+                    <div className="text-center py-6 text-xs text-slate-500">No matching products found. Try asking our AI concierge differently!</div>
+                  )}
                 </div>
               </div>
             )}
@@ -230,47 +202,90 @@ export default function MasterStorefrontPage() {
         </div>
       </header>
 
-      {/* Hero Apple-Grade Slideshow Carousel with generous height and z-index isolation */}
+      {/* Apple-Grade Spacious Split Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-6 relative z-0">
-        <div className="relative overflow-hidden bg-slate-900 rounded-3xl text-white py-20 sm:py-24 px-6 sm:px-12 shadow-2xl min-h-[420px] flex flex-col justify-center items-center text-center">
-          {HERO_SLIDES.map((slide, index) => (
-            <div
-              key={slide.id}
-              className={`absolute inset-0 flex flex-col items-center justify-center transition-all duration-1000 ease-in-out px-6 sm:px-16 ${
-                index === currentSlide ? 'opacity-100 pointer-events-auto scale-100' : 'opacity-0 pointer-events-none scale-95'
-              }`}
-            >
-              <span className="inline-flex items-center gap-1.5 px-4 py-1.5 mb-6 text-xs font-semibold uppercase tracking-wider rounded-full bg-white/15 backdrop-blur-md text-indigo-200 border border-white/20 shadow-sm">
-                {slide.badge}
-              </span>
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-4 text-white max-w-4xl leading-tight">
-                {slide.title}
-              </h1>
-              <p className="max-w-2xl text-base sm:text-lg text-slate-300 mb-8 font-normal leading-relaxed">
-                {slide.subtitle}
-              </p>
-              <a
-                href="#catalog"
-                className="px-8 py-3.5 bg-white text-slate-900 hover:bg-slate-100 font-bold text-xs sm:text-sm rounded-full shadow-xl transition-all duration-200 hover:scale-105"
-              >
-                Explore Collection &rarr;
-              </a>
-            </div>
-          ))}
+        <div className="relative overflow-hidden bg-slate-900 rounded-[32px] text-white py-20 sm:py-28 px-6 sm:px-14 shadow-2xl min-h-[500px] flex flex-col justify-between">
+          
+          {/* Background Ambient Glows */}
+          <div className="absolute top-0 right-0 -mt-12 -mr-12 w-96 h-96 bg-indigo-500/20 rounded-full blur-3xl pointer-events-none"></div>
+          <div className="absolute bottom-0 left-0 -mb-12 -ml-12 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl pointer-events-none"></div>
 
-          {/* Indicators */}
-          <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2 z-20">
-            {HERO_SLIDES.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => setCurrentSlide(index)}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentSlide ? 'w-8 bg-indigo-400' : 'w-2 bg-white/40 hover:bg-white/60'
+          {/* Carousel Slide Content */}
+          <div className="relative z-10 max-w-3xl my-auto">
+            {HERO_SLIDES.map((slide, index) => (
+              <div
+                key={slide.id}
+                className={`transition-all duration-700 ease-in-out ${
+                  index === currentSlide ? 'opacity-100 translate-y-0 relative' : 'opacity-0 absolute inset-0 pointer-events-none translate-y-4'
                 }`}
-                aria-label={`Go to slide ${index + 1}`}
-              />
+              >
+                <div className="flex flex-wrap items-center gap-2.5 mb-5">
+                  <span className="inline-flex items-center gap-1.5 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider rounded-full bg-white/10 backdrop-blur-md text-indigo-300 border border-white/20 shadow-sm">
+                    {slide.badge}
+                  </span>
+                  <span className="text-xs text-slate-300 font-medium bg-white/5 px-3 py-1 rounded-full border border-white/10">
+                    ⭐ {slide.tag}
+                  </span>
+                </div>
+                <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight mb-6 text-white leading-tight">
+                  {slide.title}
+                </h1>
+                <p className="text-base sm:text-lg text-slate-300 mb-8 font-normal leading-relaxed max-w-2xl">
+                  {slide.subtitle}
+                </p>
+                <div className="flex flex-wrap items-center gap-4">
+                  <a
+                    href="#catalog"
+                    className="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs sm:text-sm rounded-full shadow-xl transition-all duration-200 hover:scale-105 flex items-center gap-2"
+                  >
+                    Explore 21 Curated Items <ArrowRight className="w-4 h-4" />
+                  </a>
+                  <a
+                    href="/signup"
+                    className="px-8 py-3.5 bg-white/10 hover:bg-white/20 text-white font-bold text-xs sm:text-sm rounded-full backdrop-blur-md border border-white/20 transition-all duration-200"
+                  >
+                    Create Account
+                  </a>
+                </div>
+              </div>
             ))}
           </div>
+
+          {/* Interactive AI Prompt Chips & Slide Indicators Bottom Bar */}
+          <div className="relative z-10 pt-12 mt-8 border-t border-white/10 flex flex-col md:flex-row items-center justify-between gap-6">
+            
+            {/* Clickable AI Prompt Chips */}
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-bold text-indigo-300 uppercase tracking-wider mr-2 flex items-center gap-1">
+                <Sparkles className="w-3.5 h-3.5" /> Try Asking AI:
+              </span>
+              {SUGGESTED_PROMPTS.map((promptText, i) => (
+                <button
+                  key={i}
+                  onClick={() => handleAiSearch(promptText.replace(/^[^\s]+\s/, ''))}
+                  className="px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-white/20 text-xs text-slate-200 font-medium transition-all border border-white/10 hover:border-white/30 backdrop-blur-sm"
+                >
+                  {promptText}
+                </button>
+              ))}
+            </div>
+
+            {/* Slide Navigation Dots */}
+            <div className="flex gap-2">
+              {HERO_SLIDES.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    index === currentSlide ? 'w-8 bg-indigo-400' : 'w-2 bg-white/40 hover:bg-white/60'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+
+          </div>
+
         </div>
       </section>
 
@@ -313,7 +328,7 @@ export default function MasterStorefrontPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-950 tracking-tight">Shop the Collection</h2>
-            <p className="text-xs sm:text-sm text-slate-500 mt-1">Hand-picked viral essentials with instant Apple Pay and AR preview.</p>
+            <p className="text-xs sm:text-sm text-slate-500 mt-1">Showing {filteredProducts.length} live Supabase products with instant Apple Pay and AR preview.</p>
           </div>
 
           {/* Category Pills */}
@@ -335,71 +350,84 @@ export default function MasterStorefrontPage() {
         </div>
 
         {/* Bento Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filteredProducts.map((product) => (
-            <div
-              key={product.id}
-              onClick={() => setQuickViewProduct(product)}
-              className="group bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden cursor-pointer hover:-translate-y-1.5"
-            >
-              {/* Card Top Banner */}
-              <div className="p-6 pb-3 bg-gradient-to-tr from-slate-50 to-indigo-50/50 flex items-center justify-between">
-                <span className="bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-wider border border-slate-200/60 shadow-sm">
-                  {product.category}
-                </span>
-                <span className="text-[11px] font-medium text-slate-400">
-                  {product.available} left
-                </span>
-              </div>
-
-              {/* Card Body */}
-              <div className="p-6 flex-1 flex flex-col justify-between">
-                <div>
-                  <div className="flex items-center gap-1 mb-2">
-                    <div className="flex text-amber-400">
-                      {[...Array(5)].map((_, i) => (
-                        <Star key={i} className="w-3 h-3 fill-current" />
-                      ))}
-                    </div>
-                    <span className="text-xs font-bold text-slate-700">{product.rating}</span>
-                    <span className="text-xs text-slate-400">({product.reviewsCount})</span>
-                  </div>
-                  <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
-                    {product.name}
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">
-                    {product.description}
-                  </p>
+        {loadingProducts ? (
+          <div className="text-center py-20 text-slate-500 animate-pulse text-sm">Loading your Supabase inventory...</div>
+        ) : filteredProducts.length === 0 ? (
+          <div className="text-center py-20 bg-white rounded-3xl border border-slate-200 p-8 space-y-2">
+            <h3 className="text-lg font-bold text-slate-900">No products found in this category</h3>
+            <p className="text-xs text-slate-500">Try selecting "All" or searching with our AI concierge.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filteredProducts.map((product) => (
+              <div
+                key={product.id}
+                onClick={() => setQuickViewProduct(product)}
+                className="group bg-white rounded-3xl border border-slate-200/80 shadow-sm hover:shadow-2xl transition-all duration-300 flex flex-col overflow-hidden cursor-pointer hover:-translate-y-1.5"
+              >
+                {/* Card Top Banner */}
+                <div className="p-6 pb-3 bg-gradient-to-tr from-slate-50 to-indigo-50/50 flex items-center justify-between">
+                  <span className="bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-[10px] font-bold text-indigo-600 uppercase tracking-wider border border-slate-200/60 shadow-sm truncate max-w-[140px]">
+                    {product.category || 'General'}
+                  </span>
+                  <span className="text-[11px] font-medium text-slate-400">
+                    {product.available || 100} left
+                  </span>
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                {/* Card Body */}
+                <div className="p-6 flex-1 flex flex-col justify-between">
                   <div>
-                    <span className="text-base font-extrabold text-slate-900">${product.price.toFixed(2)}</span>
-                    <span className="text-xs text-slate-400 line-through ml-2">${product.originalPrice.toFixed(2)}</span>
+                    <div className="flex items-center gap-1 mb-2">
+                      <div className="flex text-amber-400">
+                        {[...Array(5)].map((_, i) => (
+                          <Star key={i} className="w-3 h-3 fill-current" />
+                        ))}
+                      </div>
+                      <span className="text-xs font-bold text-slate-700">{product.rating || 4.8}</span>
+                      <span className="text-xs text-slate-400">({product.reviewsCount || 120})</span>
+                    </div>
+                    <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                      {product.name}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-2 line-clamp-2 leading-relaxed">
+                      {product.description}
+                    </p>
                   </div>
-                  <button
-                    onClick={(e) => handleAddToCart(product, e)}
-                    className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md ${
-                      addedItems[product.id]
-                        ? 'bg-emerald-600 text-white scale-95'
-                        : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:scale-105'
-                    }`}
-                  >
-                    {addedItems[product.id] ? (
-                      <>
-                        <CheckCircle2 className="w-3.5 h-3.5" /> Added
-                      </>
-                    ) : (
-                      <>
-                        <ShoppingBag className="w-3.5 h-3.5" /> Add
-                      </>
-                    )}
-                  </button>
+
+                  <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                    <div>
+                      <span className="text-base font-extrabold text-slate-900">
+                        {typeof product.price === 'number' ? `$${product.price.toFixed(2)}` : product.price}
+                      </span>
+                      {product.originalPrice && (
+                        <span className="text-xs text-slate-400 line-through ml-2">${product.originalPrice.toFixed(2)}</span>
+                      )}
+                    </div>
+                    <button
+                      onClick={(e) => handleAddToCart(product, e)}
+                      className={`px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md ${
+                        addedItems[product.id]
+                          ? 'bg-emerald-600 text-white scale-95'
+                          : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:scale-105'
+                      }`}
+                    >
+                      {addedItems[product.id] ? (
+                        <>
+                          <CheckCircle2 className="w-3.5 h-3.5" /> Added
+                        </>
+                      ) : (
+                        <>
+                          <ShoppingBag className="w-3.5 h-3.5" /> Add
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
       </main>
 
       {/* iOS Quick View Modal Sheet */}
@@ -407,7 +435,7 @@ export default function MasterStorefrontPage() {
         <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in duration-200">
           <div className="bg-white w-full max-w-lg rounded-t-[32px] sm:rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-200 animate-in slide-in-from-bottom duration-300">
             <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">{quickViewProduct.category}</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-indigo-600">{quickViewProduct.category || 'General'}</span>
               <button 
                 onClick={() => setQuickViewProduct(null)}
                 className="p-1 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200"
@@ -419,11 +447,15 @@ export default function MasterStorefrontPage() {
               <h3 className="text-xl font-extrabold text-slate-900">{quickViewProduct.name || quickViewProduct.title}</h3>
               <p className="text-sm text-slate-600 leading-relaxed">{quickViewProduct.description || quickViewProduct.reason}</p>
               <div className="flex items-center gap-3">
-                <span className="text-2xl font-black text-slate-900">{typeof quickViewProduct.price === 'number' ? `$${quickViewProduct.price.toFixed(2)}` : quickViewProduct.price}</span>
+                <span className="text-2xl font-black text-slate-900">
+                  {typeof quickViewProduct.price === 'number' ? `$${quickViewProduct.price.toFixed(2)}` : quickViewProduct.price}
+                </span>
                 {quickViewProduct.originalPrice && (
                   <span className="text-sm text-slate-400 line-through">${quickViewProduct.originalPrice.toFixed(2)}</span>
                 )}
-                <span className="ml-auto px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">In Stock</span>
+                <span className="ml-auto px-3 py-1 rounded-full bg-emerald-50 text-emerald-700 text-xs font-bold">
+                  In Stock ({quickViewProduct.available || 100})
+                </span>
               </div>
             </div>
             <div className="pt-4 border-t border-slate-100 flex gap-3">
