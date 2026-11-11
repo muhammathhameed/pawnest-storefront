@@ -1,45 +1,36 @@
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse, type NextRequest } from "next/server";
-import type { Database } from "../../../types/database";
+import { NextResponse } from 'next/server'
+import { createServerClient } from '@supabase/ssr'
+import { cookies } from 'next/headers'
 
-export async function GET(request: NextRequest) {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  if (!url || !anonKey) {
-    throw new Error(
-      "NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY are required.",
-    );
-  }
-
-  const code = request.nextUrl.searchParams.get("code");
-  const destination = request.nextUrl.searchParams.get("next") ?? "/account";
-  const safeDestination = destination.startsWith("/") && !destination.startsWith("//")
-    ? destination
-    : "/account";
-  const response = NextResponse.redirect(
-    new URL(safeDestination, request.nextUrl.origin),
-  );
+export async function GET(request: Request) {
+  const { searchParams, origin } = new URL(request.url)
+  const code = searchParams.get('code')
 
   if (code) {
-    const supabase = createServerClient<Database>(url, anonKey, {
-      cookies: {
-        getAll: () => request.cookies.getAll(),
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options),
-          );
+    const cookieStore = cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: any) {
+            cookieStore.set({ name, value, ...options })
+          },
+          remove(name: string, options: any) {
+            cookieStore.set({ name, value: '', ...options })
+          },
         },
-      },
-    });
+      }
+    )
 
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
-    if (error) {
-      console.error("Could not exchange Supabase auth callback code:", error);
-      return NextResponse.redirect(
-        new URL("/login?error=auth_callback", request.nextUrl.origin),
-      );
+    const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (!error) {
+      return NextResponse.redirect(`${origin}/`)
     }
   }
 
-  return response;
+  return NextResponse.redirect(`${origin}/login?error=Could not authenticate user`)
 }
