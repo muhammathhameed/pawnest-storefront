@@ -5,17 +5,17 @@ import MicrosoftEntraID from "next-auth/providers/microsoft-entra-id";
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Google({
-      clientId: process.env.AUTH_GOOGLE_ID,
-      clientSecret: process.env.AUTH_GOOGLE_SECRET,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
     MicrosoftEntraID({
-      clientId: process.env.AUTH_MICROSOFT_ENTRA_ID_CLIENT_ID || process.env.AUTH_MICROSOFT_ENTRA_ID_ID,
-      clientSecret: process.env.AUTH_MICROSOFT_ENTRA_ID_CLIENT_SECRET || process.env.AUTH_MICROSOFT_ENTRA_ID_SECRET,
-      issuer: `https://login.microsoftonline.com/${process.env.AUTH_MICROSOFT_ENTRA_ID_TENANT_ID}/v2.0`,
+      clientId: process.env.MICROSOFT_CLIENT_ID,
+      clientSecret: process.env.MICROSOFT_CLIENT_SECRET,
+      issuer: `https://login.microsoftonline.com/${process.env.MICROSOFT_TENANT_ID || "common"}/v2.0`,
     }),
   ],
   basePath: "/api/auth",
-  secret: process.env.AUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET,
   pages: {
     signIn: "/login",
   },
