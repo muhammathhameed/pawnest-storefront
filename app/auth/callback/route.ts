@@ -27,7 +27,7 @@ export async function GET(request: Request) {
           remove(name: string, options: any) {
             try {
               cookieStore.set({ name, value: '', ...options })
-            } catch (error) {
+            } catch (image_b45486) {
               // The `remove` method was called from a Server Component.
             }
           },
@@ -37,7 +37,12 @@ export async function GET(request: Request) {
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
     if (!error) {
-      return NextResponse.redirect(`${origin}${next}`)
+      // Forward request cookies to the redirect response so the session persists
+      const forwardedHost = request.headers.get('x-forwarded-host')
+      const isLocalEnv = process.env.NODE_ENV === 'development'
+      const redirectBase = isLocalEnv ? origin : forwardedHost ? `https://${forwardedHost}` : origin
+      
+      return NextResponse.redirect(`${redirectBase}${next}`)
     }
   }
 
