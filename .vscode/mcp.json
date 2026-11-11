@@ -1,0 +1,19 @@
+{
+  "inputs": [
+    {
+      "type": "promptString",
+      "id": "n8n-mcp-bearer-token",
+      "description": "n8n instance-level MCP bearer token",
+      "password": true
+    }
+  ],
+  "servers": {
+    "n8n-mcp": {
+      "type": "http",
+      "url": "https://pawnest.app.n8n.cloud/mcp-server/http",
+      "headers": {
+        "Authorization": "Bearer ${input:n8n-mcp-bearer-token}"
+      }
+    }
+  }
+}
