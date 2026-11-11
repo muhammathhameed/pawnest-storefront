@@ -14,6 +14,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       issuer: `https://login.microsoftonline.com/${process.env.AUTH_MICROSOFT_ENTRA_ID_TENANT_ID}/v2.0`,
     }),
   ],
+  basePath: "/api/auth",
+  secret: process.env.AUTH_SECRET,
   pages: {
     signIn: "/login",
   },
