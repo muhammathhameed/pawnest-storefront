@@ -1,0 +1,20 @@
+import assert from "node:assert/strict";
+import { safeNextPath, nextFromParams, matchesPrefix, isAdminRole } from "../lib/auth/redirect";
+
+assert.equal(safeNextPath("/account/orders"), "/account/orders");
+assert.equal(safeNextPath(null), "/account");
+assert.equal(safeNextPath("//evil.com"), "/account");
+assert.equal(safeNextPath("https://evil.com"), "/account");
+assert.equal(safeNextPath("/\\evil.com"), "/account");
+assert.equal(safeNextPath("%2F%2Fevil.com"), "/account");
+assert.equal(safeNextPath("/login?next=/login"), "/account");
+assert.equal(safeNextPath("/auth/callback"), "/account");
+assert.equal(safeNextPath("/%E0%A4%A"), "/account");
+assert.equal(safeNextPath("/checkout"), "/checkout");
+assert.equal(nextFromParams(new URLSearchParams("redirect=%2Fcheckout")), "/checkout");
+assert.equal(nextFromParams(new URLSearchParams("next=/a&redirect=/b")), "/a");
+assert.ok(matchesPrefix("/account/orders", ["/account"]));
+assert.ok(!matchesPrefix("/accounting", ["/account"]));
+assert.ok(isAdminRole("admin") && isAdminRole("super_admin"));
+assert.ok(!isAdminRole("customer") && !isAdminRole(null));
+console.log("redirect helpers: all assertions passed");

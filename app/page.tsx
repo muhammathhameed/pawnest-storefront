@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { getSupabaseBrowserClient } from '../lib/supabase/browser';
 import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, Camera, LogOut } from 'lucide-react';
 
 const SUGGESTED_PROMPTS = [
@@ -178,20 +179,28 @@ export default function MasterStorefrontPage() {
   // User Authentication State
   const [currentUser, setCurrentUser] = useState<any | null>(null);
 
-  // Check localStorage for active session on load
+  // Real Supabase session (replaces the old fake localStorage user)
   useEffect(() => {
+    let unsub: (() => void) | undefined;
     try {
-      const savedUser = localStorage.getItem('aurafinds_user');
-      if (savedUser) {
-        setCurrentUser(JSON.parse(savedUser));
-      }
-    } catch (err) {}
+      const supabase = getSupabaseBrowserClient();
+      const toUser = (u: any) =>
+        u ? { name: u.user_metadata?.full_name || u.user_metadata?.name || u.email, email: u.email } : null;
+      supabase.auth.getUser().then(({ data }) => setCurrentUser(toUser(data.user))).catch(() => {});
+      const { data } = supabase.auth.onAuthStateChange((_e, session) => setCurrentUser(toUser(session?.user)));
+      unsub = () => data.subscription.unsubscribe();
+    } catch {
+      // Supabase not configured: render as signed-out.
+    }
+    return () => unsub?.();
   }, []);
 
-  const handleSignOut = () => {
-    localStorage.removeItem('aurafinds_user');
-    localStorage.removeItem('aurafinds_token');
+  const handleSignOut = async () => {
+    try {
+      await getSupabaseBrowserClient().auth.signOut();
+    } catch {}
     setCurrentUser(null);
+    window.location.assign('/');
   };
 
   // Fetch products from Supabase API / Concierge backend

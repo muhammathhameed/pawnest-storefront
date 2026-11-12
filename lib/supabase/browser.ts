@@ -1,13 +1,13 @@
-import { createBrowserClient } from '@supabase/ssr';
+import { createBrowserClient } from "@supabase/ssr";
+import { requireSupabasePublicConfig } from "./config";
 
+/** Browser client. Throws a clear error when the public env vars are missing/placeholder. */
 export function createClient() {
-  return createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
-  );
+  const { url, anonKey } = requireSupabasePublicConfig("authentication");
+  return createBrowserClient(url, anonKey);
 }
 
-// Alias for legacy codebase imports expecting getSupabaseBrowserClient
+// Alias for legacy imports.
 export function getSupabaseBrowserClient() {
   return createClient();
 }

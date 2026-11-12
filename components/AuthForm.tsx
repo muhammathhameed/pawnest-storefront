@@ -1,18 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
+import { useSearchParams } from "next/navigation";
 import { toast } from "sonner";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
+import { nextFromParams } from "../lib/auth/redirect";
+import OAuthButtons from "./OAuthButtons";
 
 interface AuthFormProps {
   mode: "login" | "signup";
-}
-
-function getRedirectPath(value: string | null) {
-  return value && value.startsWith("/") && !value.startsWith("//")
-    ? value
-    : "/account";
 }
 
 export default function AuthForm({ mode }: AuthFormProps) {
@@ -22,6 +19,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const searchParams = useSearchParams();
+  const redirectPath = nextFromParams(new URLSearchParams(searchParams.toString()));
+
+  useEffect(() => {
+    const err = searchParams.get("error");
+    if (err) setMessage(err);
+  }, [searchParams]);
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -30,12 +34,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
     try {
       const supabase = getSupabaseBrowserClient();
-      const redirectPath = getRedirectPath(
-        new URLSearchParams(window.location.search).get("redirect"),
-      );
       const emailRedirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectPath)}`;
 
-      const { error } = isSignup
+      const { data, error } = isSignup
         ? await supabase.auth.signUp({
             email,
             password,
@@ -47,6 +48,12 @@ export default function AuthForm({ mode }: AuthFormProps) {
         : await supabase.auth.signInWithPassword({ email, password });
 
       if (error) throw error;
+
+      if (isSignup && data && "session" in data && data.session) {
+        // Email confirmation disabled in Supabase: user is already signed in.
+        window.location.assign(redirectPath);
+        return;
+      }
 
       if (isSignup) {
         const confirmationMessage =
@@ -79,9 +86,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
     setIsLoading(true);
     try {
       const supabase = getSupabaseBrowserClient();
-      const redirectPath = getRedirectPath(
-        new URLSearchParams(window.location.search).get("redirect"),
-      );
       const { error } = await supabase.auth.signInWithOtp({
         email,
         options: {
@@ -123,6 +127,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
             : "Your favorite finds and order history are waiting."}
         </p>
 
+        <OAuthButtons next={redirectPath} onError={(m) => { setMessage(m); toast.error(m); }} />
+        <div className="auth-divider"><span>or use email</span></div>
+
         <form className="auth-form" onSubmit={handleSubmit}>
           {isSignup && (
             <label>
@@ -161,6 +168,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
               <span className="field-hint">Use at least 8 characters.</span>
             )}
           </label>
+          {!isSignup && (
+            <Link className="auth-switch" href="/forgot-password">
+              Forgot your password?
+            </Link>
+          )}
           <button className="primary-button auth-submit" disabled={isLoading}>
             {isLoading
               ? "Please wait..."
@@ -186,7 +198,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         )}
         <p className="auth-switch">
           {isSignup ? "Already have an account?" : "New to AuraFinds?"}{" "}
-          <Link href={isSignup ? "/login" : "/signup"}>
+          <Link href={`${isSignup ? "/login" : "/signup"}?next=${encodeURIComponent(redirectPath)}`}>
             {isSignup ? "Sign in" : "Create an account"}
           </Link>
         </p>

@@ -10,13 +10,13 @@ export default async function OrdersPage() {
   } = await supabase.auth.getUser();
 
   if (!user) {
-    redirect('/login?next=/account/orders');
+    redirect('/login?next=%2Faccount%2Forders');
   }
 
   const { data: orders, error } = await supabase
     .from('orders')
     .select('*')
-    .eq('user_id', user.id)
+    .eq('customer_user_id', user.id)
     .order('created_at', { ascending: false });
 
   // Explicitly type and cast orders array to resolve TypeScript 'never[]' inference error
