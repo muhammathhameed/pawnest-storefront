@@ -83,7 +83,7 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
       } else {
         const { error } = await sb.auth.signInWithPassword({ email, password });
         if (error) throw error;
-        try { remember ? localStorage.setItem(REMEMBER_KEY, email) : localStorage.removeItem(REMEMBER_KEY); } catch {}
+        try { if (remember) localStorage.setItem(REMEMBER_KEY, email); else localStorage.removeItem(REMEMBER_KEY); } catch {}
         window.location.assign(next);
         return;
       }
