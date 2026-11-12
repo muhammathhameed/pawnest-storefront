@@ -27,3 +27,6 @@ Unused now: `NEXTAUTH_SECRET`, `AUTH_SECRET`, `AUTH_GOOGLE_*`, `AUTH_MICROSOFT_*
 ## Flow
 `/login`, `/signup` (AuthForm: email+password, magic link, Google, Microsoft) → `/auth/callback` (exchangeCodeForSession or verifyOtp; cookies on the redirect response; `next` validated as same-origin relative path) → destination. Password reset: `/forgot-password` → email → `/auth/callback?next=/reset-password` → `/reset-password`.
 Middleware refreshes the session with `getUser()`, protects `/account/*`, `/profile`, `/admin/*` (admin requires `profiles.role` in admin/super_admin, enforced server side), and redirects signed-in users away from `/login`.
+
+## Customer account (feature/customer-account-redesign)
+Apply `supabase/migrations/20261112000200_customer_account.sql` after the profiles migration (addresses, wishlist, avatar bucket, phone, notification prefs). Account deletion needs `SUPABASE_SERVICE_ROLE_KEY` on Vercel. Routes: `/account`, `/account/{orders,wishlist,addresses,profile,notifications,security}`; header dropdown: `components/account/AccountDropdown.tsx`.

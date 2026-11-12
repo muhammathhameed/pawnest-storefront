@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import AccountDropdown from '../components/account/AccountDropdown';
 import { getSupabaseBrowserClient } from '../lib/supabase/browser';
 import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, Camera, LogOut } from 'lucide-react';
 
@@ -371,41 +372,7 @@ export default function MasterStorefrontPage() {
 
           {/* Action Links & Dynamic User Profile Header State */}
           <div className="flex items-center gap-2 sm:gap-3">
-            {currentUser ? (
-              <div className="flex items-center gap-3">
-                <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-2xl bg-white/80 border border-slate-200/80 shadow-sm">
-                  <div className="w-6 h-6 rounded-full bg-slate-900 text-white flex items-center justify-center font-bold text-[10px]">
-                    {currentUser.name ? currentUser.name.charAt(0).toUpperCase() : 'U'}
-                  </div>
-                  <div className="flex flex-col text-left">
-                    <span className="text-xs font-bold text-slate-900 leading-none">{currentUser.name}</span>
-                    <span className="text-[9px] text-slate-500 truncate max-w-[100px]">{currentUser.email}</span>
-                  </div>
-                </div>
-                <button
-                  onClick={handleSignOut}
-                  title="Sign Out"
-                  className="p-2 rounded-2xl bg-white/80 hover:bg-rose-50 text-slate-700 hover:text-rose-600 border border-slate-200/80 transition-all flex items-center gap-1 text-xs font-semibold"
-                >
-                  <LogOut className="w-3.5 h-3.5" /> <span className="hidden md:inline">Sign Out</span>
-                </button>
-              </div>
-            ) : (
-              <>
-                <Link
-                  href="/login"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-slate-700 hover:text-slate-900 transition-colors"
-                >
-                  <User className="w-3.5 h-3.5 text-slate-800" /> Sign In
-                </Link>
-                <Link
-                  href="/signup"
-                  className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-2xl shadow-[0_4px_12px_rgba(0,0,0,0.15)] transition-all hover:scale-105"
-                >
-                  Get Started
-                </Link>
-              </>
-            )}
+            <AccountDropdown />
 
             <Link
               href="/cart"

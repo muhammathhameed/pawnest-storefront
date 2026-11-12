@@ -18,3 +18,10 @@ assert.ok(!matchesPrefix("/accounting", ["/account"]));
 assert.ok(isAdminRole("admin") && isAdminRole("super_admin"));
 assert.ok(!isAdminRole("customer") && !isAdminRole(null));
 console.log("redirect helpers: all assertions passed");
+
+import { strength } from "../lib/auth/password";
+assert.equal(strength(""), 0);
+assert.ok(strength("abc") === 0);
+assert.ok(strength("password1") >= 2 && strength("password1") < 4);
+assert.equal(strength("Tr0ub4dor&3xyz!"), 4);
+console.log("password strength: all assertions passed");

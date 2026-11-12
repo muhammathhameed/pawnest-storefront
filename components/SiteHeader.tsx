@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import AccountDropdown from './account/AccountDropdown';
 import { Search, ShoppingBag, User, Sparkles, X, ArrowRight, ShieldCheck, Truck, Headphones } from 'lucide-react';
 
 export default function SiteHeader() {
@@ -115,19 +116,7 @@ export default function SiteHeader() {
 
         {/* Navigation Actions */}
         <div className="flex items-center gap-3 sm:gap-4">
-          <Link
-            href="/login"
-            className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-700 hover:text-indigo-600 transition-colors"
-          >
-            <User className="w-4 h-4" />
-            Sign In
-          </Link>
-          <Link
-            href="/signup"
-            className="hidden sm:inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 rounded-xl shadow-md transition-all hover:scale-105"
-          >
-            Get Started
-          </Link>
+          <AccountDropdown />
 
           {/* Cart Trigger */}
           <Link
