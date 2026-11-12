@@ -108,8 +108,8 @@ export default function ProductCatalog({
     <div className="space-y-8">
       {showCollectionHeading && (
         <div className="text-center space-y-2">
-          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Shop the Collection</h2>
-          <p className="text-sm text-slate-500 max-w-xl mx-auto">Curated viral finds and smart essentials across every category.</p>
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-ink tracking-tight">Shop the Collection</h2>
+          <p className="text-sm text-muted max-w-xl mx-auto">Curated viral finds and smart essentials across every category.</p>
         </div>
       )}
 
@@ -121,8 +121,8 @@ export default function ProductCatalog({
             onClick={() => setSelectedCategory(cat)}
             className={`px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold transition-all shadow-sm ${
               selectedCategory.toLowerCase() === cat.toLowerCase()
-                ? 'bg-indigo-600 text-white shadow-indigo-200 scale-105'
-                : 'bg-white text-slate-700 hover:bg-slate-100 border border-slate-200'
+                ? 'bg-brand text-[var(--on-primary)] shadow-indigo-200 scale-105'
+                : 'bg-card text-ink hover:bg-surface border border-line'
             }`}
           >
             {cat}
@@ -135,14 +135,14 @@ export default function ProductCatalog({
         {filteredProducts.map((product) => (
           <div
             key={product.id}
-            className="group bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden hover:-translate-y-1"
+            className="group bg-card rounded-2xl border border-line shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col overflow-hidden hover:-translate-y-1"
           >
             {/* Product Badge Box */}
-            <div className="relative p-6 pb-2 bg-gradient-to-tr from-indigo-50 to-purple-50 flex items-center justify-between">
-              <span className="bg-white px-2.5 py-1 rounded-full text-[10px] font-bold text-indigo-700 uppercase tracking-wider border border-indigo-100 shadow-sm">
+            <div className="relative p-6 pb-2 bg-gradient-to-tr from-brand/10 to-brand-2/10 flex items-center justify-between">
+              <span className="bg-card px-2.5 py-1 rounded-full text-[10px] font-bold text-brand uppercase tracking-wider border border-line shadow-sm">
                 {product.category}
               </span>
-              <span className="text-xs font-medium text-slate-500">
+              <span className="text-xs font-medium text-muted">
                 {product.available} left
               </span>
             </div>
@@ -156,28 +156,28 @@ export default function ProductCatalog({
                       <Star key={i} className="w-3.5 h-3.5 fill-current" />
                     ))}
                   </div>
-                  <span className="text-xs font-bold text-slate-700">{product.rating}</span>
-                  <span className="text-xs text-slate-400">({product.reviewsCount})</span>
+                  <span className="text-xs font-bold text-ink">{product.rating}</span>
+                  <span className="text-xs text-muted">({product.reviewsCount})</span>
                 </div>
-                <h3 className="text-base font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                <h3 className="text-base font-bold text-ink group-hover:text-brand transition-colors line-clamp-1">
                   {product.name}
                 </h3>
-                <p className="text-xs text-slate-500 mt-1.5 line-clamp-2">
+                <p className="text-xs text-muted mt-1.5 line-clamp-2">
                   {product.description}
                 </p>
               </div>
 
-              <div className="mt-5 pt-4 border-t border-slate-100 flex items-center justify-between">
+              <div className="mt-5 pt-4 border-t border-line flex items-center justify-between">
                 <div>
-                  <span className="text-lg font-extrabold text-slate-900">${Number(product.price).toFixed(2)}</span>
-                  <span className="text-xs text-slate-400 line-through ml-2">${Number(product.originalPrice).toFixed(2)}</span>
+                  <span className="text-lg font-extrabold text-ink">${Number(product.price).toFixed(2)}</span>
+                  <span className="text-xs text-muted line-through ml-2">${Number(product.originalPrice).toFixed(2)}</span>
                 </div>
                 <button
                   onClick={() => handleAddToCart(product)}
                   className={`px-4 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-md ${
                     addedItems[product.id]
-                      ? 'bg-emerald-600 text-white scale-95'
-                      : 'bg-indigo-600 hover:bg-indigo-700 text-white hover:scale-105'
+                      ? 'bg-success text-[var(--on-primary)] scale-95'
+                      : 'bg-brand hover:opacity-90 text-[var(--on-primary)] hover:scale-105'
                   }`}
                 >
                   {addedItems[product.id] ? (

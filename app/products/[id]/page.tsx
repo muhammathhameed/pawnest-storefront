@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import SiteHeader from "../../../components/SiteHeader";
 import Link from "next/link";
 import WebARViewer from "@/components/WebARViewer";
 
@@ -28,22 +29,11 @@ export default async function ProductPage({
   const iosModelUrl = product.ios_model_url || rawData.ios_model_url || "";
 
   return (
-    <main className="min-h-screen bg-neutral-50 pb-16">
-      <header className="border-b bg-white px-6 py-4">
-        <div className="mx-auto flex max-w-7xl items-center justify-between">
-          <Link href="/" className="text-xl font-bold tracking-tight text-neutral-900">
-            AuraFinds
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/cart" className="rounded-full bg-neutral-100 px-4 py-2 text-sm font-medium text-neutral-700 hover:bg-neutral-200">
-              View cart
-            </Link>
-          </div>
-        </div>
-      </header>
+    <main className="min-h-screen pb-16">
+      <SiteHeader />
 
       <div className="mx-auto max-w-7xl px-6 pt-6">
-        <Link href="/" className="text-sm font-medium text-neutral-500 hover:text-neutral-900">
+        <Link href="/" className="text-sm font-medium text-muted hover:text-ink">
           ← Back to the collection
         </Link>
       </div>
@@ -52,20 +42,20 @@ export default async function ProductPage({
         <div className="grid grid-cols-1 gap-12 lg:grid-cols-12 items-start">
           {/* Product Image & WebAR Viewer Column */}
           <div className="lg:col-span-7 space-y-6">
-            <div className="relative w-full aspect-square max-h-[550px] overflow-hidden rounded-2xl border bg-neutral-100 shadow-sm flex items-center justify-center">
+            <div className="relative w-full aspect-square max-h-[550px] overflow-hidden glass rounded-[var(--r-xl)] flex items-center justify-center">
               {primaryImage && primaryImage !== "/placeholder.jpg" ? (
                 <img
                   src={primaryImage}
                   alt={product.name || "Product image"}
-                  className="w-full h-full object-contain object-center p-4 bg-white"
+                  className="w-full h-full object-contain object-center p-4 bg-card"
                 />
               ) : (
-                <div className="text-neutral-400 text-sm">No image available</div>
+                <div className="text-muted text-sm">No image available</div>
               )}
             </div>
 
             {/* Integrated WebAR / 3D Viewer Component */}
-            <div className="rounded-2xl border bg-white p-6 shadow-sm">
+            <div className="glass-card">
               <WebARViewer
                 modelSrc={modelUrl}
                 iosModelSrc={iosModelUrl}
@@ -79,25 +69,25 @@ export default async function ProductPage({
           {/* Product Details Column */}
           <div className="lg:col-span-5 flex flex-col justify-start space-y-6">
             <div>
-              <span className="inline-block rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700">
+              <span className="badge badge-success">
                 ★ Curated Find
               </span>
-              <h1 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 leading-snug">
+              <h1 className="mt-3 t-page">
                 {product.name}
               </h1>
-              <p className="mt-3 text-3xl font-extrabold text-neutral-900">
+              <p className="mt-3 t-page">
                 ${Number(product.price || 0).toFixed(2)}
               </p>
             </div>
 
-            <div className="border-t border-b py-6 text-neutral-700 space-y-4">
+            <div className="border-y border-line py-6 text-ink space-y-4">
               <p className="leading-relaxed text-sm sm:text-base">{product.description}</p>
             </div>
 
             {product.features && product.features.length > 0 && (
               <div>
-                <h3 className="text-sm font-semibold text-neutral-900 uppercase tracking-wider mb-3">KeyFeatures</h3>
-                <ul className="list-disc pl-5 space-y-2 text-sm text-neutral-600">
+                <h3 className="text-sm font-semibold text-ink uppercase tracking-wider mb-3">KeyFeatures</h3>
+                <ul className="list-disc pl-5 space-y-2 text-sm text-muted">
                   {product.features.map((feature: string, index: number) => (
                     <li key={index}>{feature}</li>
                   ))}
@@ -106,7 +96,7 @@ export default async function ProductPage({
             )}
 
             <div className="pt-4">
-              <button className="w-full rounded-xl bg-neutral-900 px-6 py-4 text-center font-semibold text-white shadow-md hover:bg-neutral-800 transition-colors">
+              <button className="btn btn-primary w-full !min-h-12">
                 Add to Cart
               </button>
             </div>

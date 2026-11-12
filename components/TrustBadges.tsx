@@ -1,37 +1,22 @@
-// components/TrustBadges.tsx
-import React from 'react';
+const BADGES = [
+  ["🛡️", "30-Day Risk-Free", "100% money-back guarantee"],
+  ["⚡", "Fast & Tracked", "Live courier tracking updates"],
+  ["🔒", "Secure Checkout", "Encrypted payments via Stripe"],
+  ["✨", "Curated Quality", "Rigorously inspected items"],
+] as const;
 
 export default function TrustBadges() {
   return (
-    <div className="grid grid-cols-2 gap-4 my-6 pt-6 border-t border-neutral-200">
-      <div className="flex items-center space-x-3 p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-        <span className="text-xl">🛡️</span>
-        <div>
-          <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider">30-Day Risk-Free</h4>
-          <p className="text-[11px] text-neutral-500">100% money-back guarantee</p>
-        </div>
-      </div>
-      <div className="flex items-center space-x-3 p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-        <span className="text-xl">⚡</span>
-        <div>
-          <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider">Fast & Tracked</h4>
-          <p className="text-[11px] text-neutral-500">Live courier tracking updates</p>
-        </div>
-      </div>
-      <div className="flex items-center space-x-3 p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-        <span className="text-xl">🔒</span>
-        <div>
-          <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider">Secure Checkout</h4>
-          <p className="text-[11px] text-neutral-500">Encrypted 256-bit SSL</p>
-        </div>
-      </div>
-      <div className="flex items-center space-x-3 p-3 bg-neutral-50 rounded-xl border border-neutral-100">
-        <span className="text-xl">✨</span>
-        <div>
-          <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-wider">Curated Quality</h4>
-          <p className="text-[11px] text-neutral-500">Rigorously inspected items</p>
-        </div>
-      </div>
-    </div>
+    <ul className="my-6 grid list-none grid-cols-2 gap-3 border-t border-line p-0 pt-6" aria-label="Our guarantees">
+      {BADGES.map(([icon, title, desc]) => (
+        <li key={title} className="glass flex items-center gap-3 rounded-[var(--r-md)] p-3">
+          <span className="text-xl" aria-hidden="true">{icon}</span>
+          <div className="min-w-0">
+            <h4 className="t-label !text-[var(--text)]">{title}</h4>
+            <p className="t-caption">{desc}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
