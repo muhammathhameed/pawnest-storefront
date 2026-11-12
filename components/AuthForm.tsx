@@ -10,7 +10,7 @@ import { strength } from "../lib/auth/password";
 type Provider = "google" | "azure";
 const REMEMBER_KEY = "aurafinds_remember_email";
 const LABELS = ["Too weak", "Weak", "Fair", "Good", "Strong"];
-const COLORS = ["bg-slate-300", "bg-rose-500", "bg-amber-500", "bg-lime-500", "bg-emerald-500"];
+const COLORS = ["bg-[var(--border)]", "bg-[var(--danger)]", "bg-[var(--warning)]", "bg-[var(--electric)]", "bg-[var(--success)]"];
 
 function friendly(message: string) {
   const m = message.toLowerCase();
@@ -93,40 +93,40 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
     setBusy(null);
   }
 
-  const btn = "flex w-full items-center justify-center gap-3 rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-800 shadow-sm transition hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-60 dark:border-slate-700 dark:bg-slate-900 dark:text-white dark:hover:bg-slate-800";
-  const input = "w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-sm text-slate-900 placeholder-slate-400 focus:border-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/30 dark:border-slate-700 dark:bg-slate-950 dark:text-white";
+  const btn = "btn btn-glass w-full !justify-center";
+  const input = "glass-input";
   const q = next !== "/account" ? `?next=${encodeURIComponent(next)}` : "";
 
   return (
-    <main className="grid min-h-screen bg-white text-slate-900 dark:bg-slate-950 dark:text-slate-100 lg:grid-cols-2">
-      <aside className="relative hidden flex-col justify-between overflow-hidden bg-gradient-to-br from-indigo-700 via-violet-700 to-fuchsia-700 p-12 text-white lg:flex">
+    <main className="grid min-h-screen text-ink lg:grid-cols-2">
+      <aside className="brand-hero relative hidden flex-col justify-between overflow-hidden p-12 lg:flex">
         <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-white/10 blur-3xl" aria-hidden />
-        <Link href="/" className="relative text-2xl font-black tracking-tight">🐾 AuraFinds</Link>
+        <Link href="/" className="t-section relative">🐾 AuraFinds</Link>
         <div className="relative space-y-8">
-          <h2 className="text-4xl font-black leading-tight">Shop smarter with curated finds.</h2>
+          <h2 className="t-hero">Shop smarter with curated finds.</h2>
           <ul className="space-y-5">
-            {[["✨", "AI Powered Shopping", "Ask our concierge for exactly what you need."], ["🎯", "Smart Recommendations", "Picks tuned to what you love."], ["🔒", "Secure Shopping", "Payments handled by Stripe. Your data stays yours."]].map(([i, t, d]) => (
-              <li key={t} className="flex gap-4"><span className="text-2xl" aria-hidden>{i}</span><span><strong className="block">{t}</strong><span className="text-sm text-white/75">{d}</span></span></li>
+            {[["✨", "AI Shopping", "Ask our concierge for exactly what you need."], ["🔎", "Intelligent Product Discovery", "Find the right item faster, with context."], ["✅", "Verified Suppliers", "Every product is vetted before it reaches the shop."], ["🎯", "Smart Recommendations", "Picks tuned to what you love."]].map(([i, t, d]) => (
+              <li key={t} className="flex gap-4"><span className="text-2xl" aria-hidden>{i}</span><span><strong className="block">{t}</strong><span className="t-caption !text-white/80">{d}</span></span></li>
             ))}
           </ul>
         </div>
         <div className="relative flex flex-wrap gap-2 text-xs font-semibold">
-          {["SSL encrypted", "Stripe secure checkout", "Easy returns"].map((b) => <span key={b} className="rounded-full bg-white/15 px-3 py-1.5">{b}</span>)}
+          {["SSL encrypted", "Stripe secure checkout", "Verified suppliers"].map((b) => <span key={b} className="glass rounded-full px-3 py-2 text-white">{b}</span>)}
         </div>
       </aside>
 
       <section className="flex items-center justify-center px-4 py-10 sm:px-8">
         <div className="w-full max-w-md">
-          <Link href="/" className="mb-6 block text-xl font-black lg:hidden">🐾 AuraFinds</Link>
-          <div role="tablist" aria-label="Authentication" className="mb-6 grid grid-cols-2 rounded-xl bg-slate-100 p-1 text-sm font-semibold dark:bg-slate-900">
-            <Link role="tab" aria-selected={!isSignup} href={`/login${q}`} className={`rounded-lg py-2 text-center ${!isSignup ? "bg-white shadow dark:bg-slate-800" : "text-slate-500"}`}>Sign in</Link>
-            <Link role="tab" aria-selected={isSignup} href={`/signup${q}`} className={`rounded-lg py-2 text-center ${isSignup ? "bg-white shadow dark:bg-slate-800" : "text-slate-500"}`}>Create account</Link>
+          <Link href="/" className="t-section mb-6 block lg:hidden">🐾 AuraFinds</Link>
+          <div role="tablist" aria-label="Authentication" className="mb-6 grid grid-cols-2 gap-1 rounded-[var(--r-md)] bg-surface p-1">
+            <Link role="tab" aria-selected={!isSignup} href={`/login${q}`} className={`t-button min-h-10 rounded-[var(--r-sm)] py-3 text-center ${!isSignup ? "glass text-ink" : "text-muted"}`}>Sign in</Link>
+            <Link role="tab" aria-selected={isSignup} href={`/signup${q}`} className={`t-button min-h-10 rounded-[var(--r-sm)] py-3 text-center ${isSignup ? "glass text-ink" : "text-muted"}`}>Create account</Link>
           </div>
-          <h1 className="text-2xl font-black tracking-tight">{isSignup ? "Create your account" : "Welcome back"}</h1>
-          <p className="mb-6 mt-1 text-sm text-slate-500">{isSignup ? "Save favorites, track orders and check out faster." : "Sign in to your AuraFinds account."}</p>
+          <h1 className="t-page">{isSignup ? "Create your account" : "Welcome back"}</h1>
+          <p className="mb-6 mt-1 text-sm text-muted">{isSignup ? "Save favorites, track orders and check out faster." : "Sign in to your AuraFinds account."}</p>
 
-          {error && <p role="alert" className="mb-4 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900 dark:bg-rose-950/40 dark:text-rose-300">{error}</p>}
-          {success && <p role="status" className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-700 dark:border-emerald-900 dark:bg-emerald-950/40 dark:text-emerald-300">{success}</p>}
+          {error && <p role="alert" className="alert alert-danger mb-4">{error}</p>}
+          {success && <p role="status" className="alert alert-success mb-4">{success}</p>}
 
           <div className="space-y-3">
             <button type="button" className={btn} disabled={busy !== null} onClick={() => oauth("google")}>
@@ -142,33 +142,33 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
           {showEmail && (
             <form onSubmit={submit} className="mt-5 space-y-4" noValidate>
-              <div className="relative text-center text-xs uppercase tracking-wide text-slate-400"><span className="bg-white px-2 dark:bg-slate-950">or with email</span></div>
+              <div className="text-center"><span className="t-label">or with email</span></div>
               {isSignup && (
-                <label className="block text-sm font-medium"><span className="mb-1 block">Full name</span>
+                <label className="block t-body font-medium"><span className="mb-1 block">Full name</span>
                   <input className={input} value={name} onChange={(e) => setName(e.target.value)} autoComplete="name" maxLength={100} required /></label>
               )}
-              <label className="block text-sm font-medium"><span className="mb-1 block">Email</span>
+              <label className="block t-body font-medium"><span className="mb-1 block">Email</span>
                 <input className={input} type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" maxLength={254} required /></label>
-              <label className="block text-sm font-medium"><span className="mb-1 block">Password</span>
+              <label className="block t-body font-medium"><span className="mb-1 block">Password</span>
                 <input className={input} type="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete={isSignup ? "new-password" : "current-password"} minLength={8} required /></label>
               {isSignup && password && (
                 <div aria-live="polite">
-                  <div className="h-1.5 overflow-hidden rounded bg-slate-200 dark:bg-slate-800"><div className={`h-full transition-all ${COLORS[score]}`} style={{ width: `${(score / 4) * 100}%` }} /></div>
-                  <p className="mt-1 text-xs text-slate-500">Strength: {LABELS[score]}</p>
+                  <div className="h-1.5 overflow-hidden rounded bg-surface"><div className={`h-full transition-all ${COLORS[score]}`} style={{ width: `${(score / 4) * 100}%` }} /></div>
+                  <p className="mt-1 text-xs text-muted">Strength: {LABELS[score]}</p>
                 </div>
               )}
               {!isSignup && (
                 <div className="flex items-center justify-between text-sm">
-                  <label className="flex items-center gap-2"><input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> Remember my email</label>
-                  <Link href="/forgot-password" className="font-semibold text-indigo-600 hover:underline">Forgot password?</Link>
+                  <label className="flex items-center gap-2 t-body"><input type="checkbox" checked={remember} onChange={(e) => setRemember(e.target.checked)} /> Remember my email</label>
+                  <Link href="/forgot-password" className="font-semibold text-brand hover:underline">Forgot password?</Link>
                 </div>
               )}
-              <button disabled={busy !== null} className="w-full rounded-xl bg-indigo-600 px-4 py-3 text-sm font-bold text-white shadow hover:bg-indigo-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500 disabled:opacity-60">
+              <button disabled={busy !== null} className="btn btn-primary w-full">
                 {busy === "email" ? "Please wait..." : isSignup ? "Create account" : "Sign in"}
               </button>
             </form>
           )}
-          <p className="mt-6 text-center text-xs text-slate-500">🔒 Encrypted connection · We never store your card details</p>
+          <p className="mt-6 text-center text-xs text-muted">🔒 Encrypted connection · We never store your card details</p>
         </div>
       </section>
     </main>

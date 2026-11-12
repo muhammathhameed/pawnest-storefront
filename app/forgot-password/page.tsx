@@ -29,7 +29,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <main className="auth-page min-h-screen grid place-items-center">
-      <section className="auth-card w-full rounded-2xl bg-white">
+      <section className="auth-card">
         <h1>Reset your password</h1>
         <form className="auth-form" onSubmit={submit}>
           <label>

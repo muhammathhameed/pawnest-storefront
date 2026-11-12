@@ -37,7 +37,7 @@ export default function ResetPasswordPage() {
 
   return (
     <main className="auth-page min-h-screen grid place-items-center">
-      <section className="auth-card w-full rounded-2xl bg-white">
+      <section className="auth-card">
         <h1>Choose a new password</h1>
         {hasSession === false ? (
           <p className="auth-message">
