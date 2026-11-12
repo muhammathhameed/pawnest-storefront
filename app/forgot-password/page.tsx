@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { rememberNext } from "../../lib/auth/next-cookie";
 import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
 
 export default function ForgotPasswordPage() {
@@ -14,8 +15,9 @@ export default function ForgotPasswordPage() {
     setBusy(true);
     setMsg("");
     try {
+      rememberNext("/reset-password");
       const { error } = await getSupabaseBrowserClient().auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth/callback?next=/reset-password`,
+        redirectTo: `${window.location.origin}/auth/callback`,
       });
       if (error) throw error;
       // Same message either way: do not reveal whether an account exists.

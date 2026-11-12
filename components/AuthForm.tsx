@@ -6,6 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { getSupabaseBrowserClient } from "../lib/supabase/browser";
 import { nextFromParams } from "../lib/auth/redirect";
 import { strength } from "../lib/auth/password";
+import { rememberNext } from "../lib/auth/next-cookie";
 
 type Provider = "google" | "azure";
 const REMEMBER_KEY = "aurafinds_remember_email";
@@ -37,13 +38,18 @@ export default function AuthForm({ mode }: { mode: "login" | "signup" }) {
   useEffect(() => {
     const e = params.get("error");
     if (e) setError(friendly(e));
+    const n = params.get("notice");
+    if (n) { setSuccess(n); setShowEmail(true); }
     try {
       const saved = localStorage.getItem(REMEMBER_KEY);
       if (saved && !isSignup) { setEmail(saved); setShowEmail(true); }
     } catch {}
   }, [params, isSignup]);
 
-  const callback = () => `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`;
+  const callback = () => {
+    rememberNext(next);
+    return `${window.location.origin}/auth/callback`;
+  };
   const score = strength(password);
 
   async function oauth(provider: Provider) {

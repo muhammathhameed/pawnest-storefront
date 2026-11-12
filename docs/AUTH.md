@@ -30,3 +30,10 @@ Middleware refreshes the session with `getUser()`, protects `/account/*`, `/prof
 
 ## Customer account (feature/customer-account-redesign)
 Apply `supabase/migrations/20261112000200_customer_account.sql` after the profiles migration (addresses, wishlist, avatar bucket, phone, notification prefs). Account deletion needs `SUPABASE_SERVICE_ROLE_KEY` on Vercel. Routes: `/account`, `/account/{orders,wishlist,addresses,profile,notifications,security}`; header dropdown: `components/account/AccountDropdown.tsx`.
+
+## Email verification flow (verified against the code)
+`signUp` (AuthForm) → Supabase emails a link → Supabase `/auth/v1/verify` confirms the address and redirects to `redirectTo` with `?code=` → `/auth/callback` → `exchangeCodeForSession` (needs the PKCE `code_verifier` cookie from the browser that signed up) → session cookies on the redirect → destination from the `af_next` cookie.
+- `redirectTo` is now exactly `<origin>/auth/callback` (no query string) so it matches an exact allow-list entry. Add BOTH `https://pawnest-storefront.vercel.app/auth/callback` and `https://pawnest-storefront.vercel.app/**`.
+- Link opened on another device/browser: the address IS confirmed but no verifier exists, so the callback sends the user to `/login?notice=…` (sign in with the password) instead of an error.
+- Fragment-token links (`#access_token`) are finished client-side at `/auth/complete`.
+- Supabase Site URL must be the storefront; if it is the OMS URL, unmatched redirects land on the OMS.
