@@ -24,12 +24,12 @@ export default async function WishlistPage() {
           {products.map((p) => (
             <Card key={p.id}>
               <Link href={`/products/${p.id}`}>
-                <div className="aspect-square overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800">
+                <div className="aspect-square overflow-hidden rounded-xl bg-surface">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   {p.image_url && <img src={p.image_url} alt={p.name} className="h-full w-full object-cover" />}
                 </div>
                 <p className="mt-2 truncate text-sm font-medium">{p.name}</p>
-                <p className="text-sm font-bold text-indigo-600">${Number(p.price).toFixed(2)}</p>
+                <p className="text-sm font-bold text-brand">${Number(p.price).toFixed(2)}</p>
               </Link>
               <form action={removeWishlist.bind(null, p.id)} className="mt-3"><button className={btnGhost}>Remove</button></form>
             </Card>

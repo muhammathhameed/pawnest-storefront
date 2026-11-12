@@ -24,9 +24,9 @@ export default function AddressManager({ addresses }: { addresses: Addr[] }) {
             <Card key={a.id}>
               <div className="mb-1 flex items-center gap-2">
                 <span className="font-bold">{a.label}</span>
-                {a.is_default && <span className="rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-semibold text-indigo-700">Default</span>}
+                {a.is_default && <span className="badge badge-primary">Default</span>}
               </div>
-              <address className="text-sm not-italic leading-relaxed text-slate-600 dark:text-slate-300">
+              <address className="text-sm not-italic leading-relaxed text-muted">
                 {a.full_name}<br />{a.line1}{a.line2 ? `, ${a.line2}` : ""}<br />{a.city}, {a.region} {a.postal_code}<br />{a.country}{a.phone ? ` · ${a.phone}` : ""}
               </address>
               <div className="mt-4 flex flex-wrap gap-2">

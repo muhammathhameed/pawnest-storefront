@@ -11,13 +11,13 @@ import {
 function Msg({ r }: { r: Result | null }) {
   if (!r) return null;
   return (
-    <p role="status" className={`rounded-xl px-3 py-2 text-sm ${r.ok ? "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300" : "bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-300"}`}>
+    <p role="status" className={`alert ${r.ok ? "alert-success" : "alert-danger"}`}>
       {r.message}
     </p>
   );
 }
 const Field = ({ label, children }: { label: string; children: ReactNode }) => (
-  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300">
+  <label className="block text-sm font-medium text-ink">
     <span className="mb-1 block">{label}</span>
     {children}
   </label>
@@ -56,14 +56,14 @@ export function ProfileForm({ userId, name, email, phone, avatar }: { userId: st
           // eslint-disable-next-line @next/next/no-img-element
           <img src={preview} alt="Profile photo" className="h-20 w-20 rounded-full object-cover" referrerPolicy="no-referrer" />
         ) : (
-          <span className="flex h-20 w-20 items-center justify-center rounded-full bg-indigo-100 text-2xl font-black text-indigo-700">{(name || email).charAt(0).toUpperCase()}</span>
+          <span className="flex h-20 w-20 items-center justify-center rounded-full badge-primary t-page">{(name || email).charAt(0).toUpperCase()}</span>
         )}
         <div className="space-y-2">
           <label className={`${btnGhost} cursor-pointer`}>
             {busy ? "Uploading..." : "Upload photo"}
             <input type="file" accept="image/jpeg,image/png,image/webp" className="sr-only" disabled={busy} onChange={(e) => upload(e.target.files?.[0])} />
           </label>
-          <p className="text-xs text-slate-500">JPG, PNG or WebP, up to 2 MB.</p>
+          <p className="text-xs text-muted">JPG, PNG or WebP, up to 2 MB.</p>
         </div>
       </div>
       <Msg r={photo} />
@@ -117,7 +117,7 @@ export function NotificationForm({ prefs }: { prefs: { order_updates: boolean; p
       {rows.map(([k, t, d]) => (
         <label key={k} className="flex items-start gap-3">
           <input type="checkbox" name={k} defaultChecked={prefs[k]} className="mt-1 h-4 w-4" />
-          <span><span className="block text-sm font-semibold">{t}</span><span className="text-xs text-slate-500">{d}</span></span>
+          <span><span className="block text-sm font-semibold">{t}</span><span className="text-xs text-muted">{d}</span></span>
         </label>
       ))}
       <Msg r={res} />
@@ -149,18 +149,18 @@ export function SecurityForms() {
     <div className="space-y-6">
       <form onSubmit={change} className="space-y-3">
         <Field label="New password"><input type="password" value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="new-password" className={inputCls} /></Field>
-        <div className="h-1.5 rounded bg-slate-200 dark:bg-slate-800"><div className={`h-full rounded transition-all ${["w-0","w-1/4 bg-rose-500","w-2/4 bg-amber-500","w-3/4 bg-lime-500","w-full bg-emerald-500"][strength(pw)]}`} /></div>
+        <div className="h-1.5 rounded bg-surface"><div className={`h-full rounded transition-all ${["w-0","w-1/4 bg-[var(--danger)]","w-2/4 bg-[var(--warning)]","w-3/4 bg-[var(--electric)]","w-full bg-[var(--success)]"][strength(pw)]}`} /></div>
         <Msg r={pwRes} />
         <button className={btnPrimary}>Change password</button>
       </form>
-      <div className="space-y-3 border-t border-slate-200 pt-6 dark:border-slate-800">
-        <p className="text-sm text-slate-500">Sign out everywhere except this device.</p>
+      <div className="space-y-3 border-t border-line pt-6">
+        <p className="text-sm text-muted">Sign out everywhere except this device.</p>
         <Msg r={sessRes} />
         <button type="button" onClick={others} className={btnGhost}>Sign out other sessions</button>
       </div>
-      <form action={delAction} className="space-y-3 border-t border-rose-200 pt-6 dark:border-rose-900">
-        <p className="text-sm font-semibold text-rose-600">Delete account</p>
-        <p className="text-xs text-slate-500">Permanently removes your login, profile, addresses and wishlist. Past orders are kept for our records without a link to you. This cannot be undone.</p>
+      <form action={delAction} className="space-y-3 border-t border-line pt-6">
+        <p className="t-card text-[var(--danger)]">Delete account</p>
+        <p className="text-xs text-muted">Permanently removes your login, profile, addresses and wishlist. Past orders are kept for our records without a link to you. This cannot be undone.</p>
         <input name="confirm" placeholder="Type DELETE" className={inputCls} autoComplete="off" />
         <Msg r={del} />
         <button className={btnDanger} disabled={delPending}>{delPending ? "Deleting..." : "Delete my account"}</button>
