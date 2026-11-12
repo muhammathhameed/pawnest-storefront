@@ -26,7 +26,7 @@ export default function SiteHeader({ onSelectSuggestion }: { onSelectSuggestion?
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<Suggestion[] | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout>>();
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const box = useRef<HTMLDivElement>(null);
 
   useEffect(() => { setMenuOpen(false); }, [pathname]);
