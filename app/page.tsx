@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import AccountDropdown from '../components/account/AccountDropdown';
+import SiteHeader from '../components/SiteHeader';
 import { getSupabaseBrowserClient } from '../lib/supabase/browser';
 import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, Camera, LogOut } from 'lucide-react';
 
@@ -298,96 +298,9 @@ export default function MasterStorefrontPage() {
     : allProducts.filter(p => (p.category || '').toLowerCase() === selectedCategory.toLowerCase());
 
   return (
-    <div className="min-h-screen bg-[#F5F5F7] text-[#1D1D1F] flex flex-col font-sans selection:bg-slate-900 selection:text-white">
+    <div data-theme="light" className="min-h-screen bg-[var(--bg)] text-[var(--text)] flex flex-col font-sans selection:bg-slate-900 selection:text-white">
       
-      {/* Apple Liquid Glass Floating Header */}
-      <header className="sticky top-4 z-50 mx-4 sm:mx-8">
-        <div className="max-w-7xl mx-auto backdrop-blur-[32px] bg-white/70 border border-white/80 shadow-[0_16px_40px_rgb(0,0,0,0.08),inset_0_1px_0_rgba(255,255,255,0.9)] rounded-3xl px-4 sm:px-6 py-3.5 flex items-center justify-between gap-4 transition-all duration-300">
-          
-          {/* Brand Logo & Cleaned Tagline */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-950 flex items-center justify-center text-white font-bold text-lg shadow-[0_4px_12px_rgba(0,0,0,0.15),inset_0_1px_1px_rgba(255,255,255,0.3)] group-hover:scale-105 transition-transform">
-              A
-            </div>
-            <div className="flex flex-col">
-              <span className="text-base font-bold tracking-tight text-slate-900 leading-none">AuraFinds</span>
-              <span className="text-[10px] uppercase tracking-widest text-slate-600 font-extrabold mt-0.5">Liquid Glass 3D Storefront</span>
-            </div>
-          </Link>
-
-          {/* Spotlight AI Search Bar */}
-          <div className="flex-1 max-w-lg relative hidden md:block">
-            <div className="relative flex items-center">
-              <Search className="absolute left-3.5 w-4 h-4 text-slate-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => handleAiSearch(e.target.value)}
-                placeholder="✨ Spotlight AI Concierge: Search products or ask for advice..."
-                className="w-full pl-10 pr-10 py-2.5 bg-white/60 border border-white/90 rounded-full text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:bg-white transition-all shadow-[inset_0_2px_4px_rgba(0,0,0,0.04)]"
-              />
-              {searchQuery && (
-                <button 
-                  onClick={() => { setSearchQuery(''); setAiSuggestions(null); }}
-                  className="absolute right-3 text-slate-400 hover:text-slate-600"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </button>
-              )}
-            </div>
-
-            {/* AI Suggestions Dropdown */}
-            {aiSuggestions && (
-              <div className="absolute top-full left-0 right-0 mt-2.5 backdrop-blur-[40px] bg-white/90 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.12)] border border-white p-4 z-50 animate-in fade-in slide-in-from-top-2 duration-200 max-h-80 overflow-y-auto">
-                <div className="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-100">
-                  <span className="text-[11px] font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <Sparkles className="w-3.5 h-3.5 text-slate-700" /> AI Spotlight Recommendations
-                  </span>
-                  <span className="text-[10px] text-slate-400">{aiSuggestions.length} found</span>
-                </div>
-                <div className="space-y-2">
-                  {isAiLoading ? (
-                    <div className="text-center py-4 text-xs text-slate-500 animate-pulse">Analyzing query...</div>
-                  ) : aiSuggestions.length > 0 ? aiSuggestions.map((item, idx) => (
-                    <div 
-                      key={idx} 
-                      onClick={() => { setQuickViewProduct(item); setAiSuggestions(null); setSearchQuery(''); }}
-                      className="p-3 rounded-2xl hover:bg-slate-100/70 border border-transparent hover:border-slate-200/60 flex items-center justify-between transition-colors cursor-pointer group"
-                    >
-                      <div className="pr-4">
-                        <h4 className="text-xs font-bold text-slate-900 group-hover:text-slate-950">{item.name || item.title}</h4>
-                        <p className="text-[11px] text-slate-500 line-clamp-1">{item.description || item.reason}</p>
-                      </div>
-                      <span className="text-xs font-extrabold text-slate-900 shrink-0">
-                        {typeof item.price === 'number' ? `$${item.price.toFixed(2)}` : item.price}
-                      </span>
-                    </div>
-                  )) : (
-                    <div className="text-center py-6 text-xs text-slate-500">No matching products found. Try asking our AI concierge differently!</div>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Action Links & Dynamic User Profile Header State */}
-          <div className="flex items-center gap-2 sm:gap-3">
-            <AccountDropdown />
-
-            <Link
-              href="/cart"
-              className="relative p-2.5 rounded-full backdrop-blur-md bg-white/60 hover:bg-white text-slate-800 transition-all flex items-center justify-center hover:scale-105 border border-white/80 shadow-[0_4px_12px_rgba(0,0,0,0.05)]"
-              aria-label="Shopping Cart"
-            >
-              <ShoppingBag className="w-4 h-4 text-slate-700" />
-              <span className="absolute -top-1 -right-1 bg-slate-900 text-white font-bold text-[9px] w-4 h-4 rounded-full flex items-center justify-center shadow">
-                {cartCount}
-              </span>
-            </Link>
-          </div>
-
-        </div>
-      </header>
+      <SiteHeader onSelectSuggestion={(item: any) => setQuickViewProduct(item)} />
 
       {/* Apple Liquid Glass Hero Section */}
       <section className="max-w-7xl mx-auto px-4 sm:px-8 mt-6 relative z-0">
