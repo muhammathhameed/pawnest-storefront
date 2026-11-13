@@ -6,7 +6,11 @@ import { usePathname, useRouter } from 'next/navigation';
 import AccountDropdown from './account/AccountDropdown';
 import CartButton from './CartButton';
 
-type Suggestion = { id?: string; title: string; price?: string; reason?: string; [k: string]: any };
+type Suggestion = { id?: string | number; title?: string; name?: string; price?: string | number; reason?: string; description?: string; category?: string; [k: string]: any };
+
+const label = (r: Suggestion) => r.title ?? r.name ?? 'Product';
+const blurb = (r: Suggestion) => r.reason ?? r.category ?? r.description ?? '';
+const money = (v: Suggestion['price']) => (typeof v === 'number' ? `$${v.toFixed(2)}` : v ?? '');
 
 const NAV = [
   { href: '/#catalog', label: 'Shop' },
@@ -82,17 +86,22 @@ export default function SiteHeader({ onSelectSuggestion }: { onSelectSuggestion?
         {loading && <span className="t-caption" role="status">Searching…</span>}
       </div>
       {results && (
-        <div className="glass-menu absolute left-0 right-0 top-full z-50 mt-2 max-h-80 overflow-y-auto p-2" role="listbox" aria-label="Search suggestions">
+        <div className="glass-menu absolute left-0 right-0 top-full z-[60] mt-2 max-h-[min(70vh,24rem)] overflow-y-auto overscroll-contain p-2" role="listbox" aria-label="Search suggestions">
           <p className="t-label px-3 py-2">AI recommendations</p>
           {results.length === 0 ? (
             <p className="t-caption px-3 py-4">No matches yet. Try describing what you need.</p>
           ) : (
-            results.map((r, i) => (
-              <button key={r.id ?? i} type="button" role="option" aria-selected="false" onClick={() => pick(r)} className="flex w-full items-center justify-between gap-3 rounded-xl px-3 py-2 text-left hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]">
-                <span className="min-w-0"><span className="t-card block truncate">{r.title}</span>{r.reason && <span className="t-caption block truncate">{r.reason}</span>}</span>
-                {r.price && <span className="t-card text-brand">{r.price}</span>}
-              </button>
-            ))
+            <ul className="m-0 grid list-none gap-1 p-0">
+              {results.map((r, i) => (
+                <li key={r.id ?? i}>
+                  <button type="button" role="option" aria-selected="false" onClick={() => pick(r)} className="grid w-full grid-cols-[minmax(0,1fr)_auto] items-start gap-x-3 gap-y-1 rounded-[var(--r-md)] px-3 py-3 text-left transition hover:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)] focus-visible:bg-[color-mix(in_srgb,var(--primary)_10%,transparent)]">
+                    <span className="t-card line-clamp-1 text-ink">{label(r)}</span>
+                    <span className="t-card whitespace-nowrap text-brand">{money(r.price)}</span>
+                    {blurb(r) && <span className="t-caption col-span-2 line-clamp-2">{blurb(r)}</span>}
+                  </button>
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       )}

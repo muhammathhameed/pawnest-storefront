@@ -4,6 +4,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import SiteHeader from '../components/SiteHeader';
 import { getSupabaseBrowserClient } from '../lib/supabase/browser';
+import { useCartStore } from '../store/cartStore';
+import { toCartProduct } from '../lib/cart-product';
+import { toast } from 'sonner';
 import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, Camera, LogOut } from 'lucide-react';
 
 const SUGGESTED_PROMPTS = [
@@ -168,7 +171,6 @@ export default function MasterStorefrontPage() {
   const [isAiLoading, setIsAiLoading] = useState(false);
   const [aiSuggestions, setAiSuggestions] = useState<any[] | null>(null);
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [cartCount, setCartCount] = useState(2);
   const [addedItems, setAddedItems] = useState<{ [key: string]: boolean }>({});
   const [quickViewProduct, setQuickViewProduct] = useState<any | null>(null);
   const [arModalProduct, setArModalProduct] = useState<any | null>(null);
@@ -266,12 +268,27 @@ export default function MasterStorefrontPage() {
     }
   };
 
+  const addItem = useCartStore((state) => state.addItem);
+
   const handleAddToCart = (product: any, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
-    setCartCount(prev => prev + 1);
-    setAddedItems(prev => ({ ...prev, [product.id]: true }));
+    const cartProduct = toCartProduct(product);
+    if (!cartProduct) {
+      toast.error('This item cannot be added to the cart right now.');
+      return;
+    }
+    const qtyOf = () =>
+      useCartStore.getState().items.find((i) => String(i.product.id) === String(cartProduct.id))?.quantity ?? 0;
+    const before = qtyOf();
+    addItem(cartProduct); // persisted to localStorage ("pawnest-cart") by the store
+    if (qtyOf() === before) {
+      toast.error(`No more stock available for ${cartProduct.name}.`);
+      return;
+    }
+    toast.success(`${cartProduct.name} added to your cart.`);
+    setAddedItems(prev => ({ ...prev, [cartProduct.id]: true }));
     setTimeout(() => {
-      setAddedItems(prev => ({ ...prev, [product.id]: false }));
+      setAddedItems(prev => ({ ...prev, [cartProduct.id]: false }));
     }, 2000);
   };
 
@@ -285,7 +302,6 @@ export default function MasterStorefrontPage() {
     setIsProcessingExpress(provider);
     setTimeout(() => {
       setIsProcessingExpress(null);
-      setCartCount(prev => prev + 1);
       setQuickViewProduct(null);
       alert(`Success! Express checkout via ${provider === 'apple' ? 'Apple Pay' : 'Google Pay'} completed for ${quickViewProduct?.name || 'item'}.`);
     }, 1500);
@@ -499,7 +515,7 @@ export default function MasterStorefrontPage() {
                 onSelect={() => setQuickViewProduct(product)}
                 onAddToCart={handleAddToCart}
                 onArView={handleArView}
-                isAdded={!!addedItems[product.id]}
+                isAdded={!!addedItems[String(product.id)]}
               />
             ))}
           </div>

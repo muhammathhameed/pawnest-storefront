@@ -4,10 +4,10 @@ export async function GET(request: Request) {
   const url = new URL(request.url);
   const q = (url.searchParams.get('q') || '').toLowerCase().trim();
 
-  const supabase = createClient();
   let dbProducts: any[] = [];
 
   try {
+    const supabase = createClient();
     const { data, error } = await supabase
       .from('products')
       .select('*')
@@ -24,7 +24,7 @@ export async function GET(request: Request) {
           rating: 4.8,
           reviewsCount: 120,
           description: p.description || 'Hand-picked viral essential curated for modern living.',
-          available: p.stock_quantity || 100,
+          available: Number.isFinite(Number(p.stock_quantity)) ? Number(p.stock_quantity) : 0,
           image: p.image_url || ''
         };
       });

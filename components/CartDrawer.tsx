@@ -6,6 +6,7 @@ import {
   FREE_SHIPPING_THRESHOLD,
   FREE_SHIPPING_THRESHOLD_CENTS,
 } from "../lib/shipping";
+import Link from "next/link";
 import { useCartStore } from "../store/cartStore";
 import StoreImage from "./StoreImage";
 
@@ -130,9 +131,9 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             </span>
             <h3>Your cart is waiting</h3>
             <p>Find something lovely for your everyday.</p>
-            <button type="button" className="primary-button" onClick={onClose}>
+            <Link href="/shop" className="primary-button" onClick={onClose}>
               Explore the shop
-            </button>
+            </Link>
           </div>
         ) : (
           <>
