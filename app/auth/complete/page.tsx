@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getSupabaseBrowserClient } from "../../lib/supabase/browser";
-import { safeNextPath } from "../../lib/auth/redirect";
-import { NEXT_COOKIE } from "../../lib/auth/next-cookie";
+import { getSupabaseBrowserClient } from "../../../lib/supabase/browser";
+import { safeNextPath } from "../../../lib/auth/redirect";
+import { NEXT_COOKIE } from "../../../lib/auth/next-cookie";
 
 /** Finishes sign-in for links that carry tokens in the URL #fragment (implicit flow). */
 export default function AuthComplete() {
