@@ -6,6 +6,7 @@ import SiteHeader from '../components/SiteHeader';
 import { getSupabaseBrowserClient } from '../lib/supabase/browser';
 import { useCartStore } from '../store/cartStore';
 import { toCartProduct } from '../lib/cart-product';
+import { stockLabel } from '../lib/stock';
 import { toast } from 'sonner';
 import { Search, ShoppingBag, User, Sparkles, X, ShieldCheck, Truck, Lock, Star, CheckCircle2, ArrowRight, Camera, LogOut } from 'lucide-react';
 
@@ -177,7 +178,6 @@ export default function MasterStorefrontPage() {
   const [arScale, setArScale] = useState(1);
   const [allProducts, setAllProducts] = useState<any[]>([]);
   const [loadingProducts, setLoadingProducts] = useState(true);
-  const [isProcessingExpress, setIsProcessingExpress] = useState<string | null>(null);
   
   // User Authentication State
   const [currentUser, setCurrentUser] = useState<any | null>(null);
@@ -225,7 +225,7 @@ export default function MasterStorefrontPage() {
     title: idx === 0 ? "The Liquid Glass Standard for Smart Living" : idx === 1 ? "Meet Your AI Shopping Concierge" : "Zero-Friction Global Checkout",
     subtitle: p.description || "Experience next-gen smart gadgets and viral essentials curated with uncompromising quality.",
     badge: idx === 0 ? "✨ Featured Product" : idx === 1 ? "🚀 AI Spotlight Pick" : "🔒 Verified Best Seller",
-    tag: `⭐ 4.8/5 (${p.available || 100} in stock)`,
+    tag: `⭐ 4.8/5 · ${stockLabel(p.available).label}`,
     image: p.image || "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=800&q=80",
     productName: p.name,
     price: typeof p.price === 'number' ? `$${p.price.toFixed(2)}` : p.price
@@ -298,14 +298,6 @@ export default function MasterStorefrontPage() {
     setArModalProduct(product);
   };
 
-  const handleExpressPay = (provider: 'apple' | 'google') => {
-    setIsProcessingExpress(provider);
-    setTimeout(() => {
-      setIsProcessingExpress(null);
-      setQuickViewProduct(null);
-      alert(`Success! Express checkout via ${provider === 'apple' ? 'Apple Pay' : 'Google Pay'} completed for ${quickViewProduct?.name || 'item'}.`);
-    }, 1500);
-  };
 
   const categories = ['All', 'Beauty & Skincare', 'Smart Tech & Gadgets', 'Lifestyle & Home', 'Wellness & Fitness'];
 
@@ -638,47 +630,12 @@ export default function MasterStorefrontPage() {
                   <span className="text-sm text-slate-400 line-through">${quickViewProduct.originalPrice.toFixed(2)}</span>
                 )}
                 <span className="ml-auto px-3 py-1 rounded-full bg-slate-100 text-slate-800 text-xs font-bold border border-slate-200">
-                  In Stock ({quickViewProduct.available || 100})
+                  {stockLabel(quickViewProduct.available).label}
                 </span>
               </div>
             </div>
 
-            {/* Express Checkout Options */}
-            <div className="space-y-3 pt-4 border-t border-slate-100">
-              <span className="text-[10px] uppercase font-bold tracking-wider text-slate-400 block text-center">Express 1-Click Checkout</span>
-              
-              <div className="grid grid-cols-2 gap-3">
-                {/* Apple Pay Button */}
-                <button
-                  onClick={() => handleExpressPay('apple')}
-                  disabled={isProcessingExpress !== null}
-                  className="py-3 bg-black hover:bg-slate-800 text-white font-semibold rounded-2xl shadow-md transition-all text-xs flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-                >
-                  {isProcessingExpress === 'apple' ? (
-                    <span className="animate-pulse">Authorizing...</span>
-                  ) : (
-                    <>
-                      <span className="text-sm font-bold tracking-tight">Pay</span> Express
-                    </>
-                  )}
-                </button>
-
-                {/* Google Pay Button */}
-                <button
-                  onClick={() => handleExpressPay('google')}
-                  disabled={isProcessingExpress !== null}
-                  className="py-3 bg-white hover:bg-slate-50 text-slate-900 border border-slate-200/90 font-semibold rounded-2xl shadow-sm transition-all text-xs flex items-center justify-center gap-1.5 hover:scale-[1.02] active:scale-95 disabled:opacity-50"
-                >
-                  {isProcessingExpress === 'google' ? (
-                    <span className="animate-pulse">Authorizing...</span>
-                  ) : (
-                    <>
-                      <span className="font-bold text-slate-800">G</span><span className="font-semibold text-slate-700">Pay</span> Express
-                    </>
-                  )}
-                </button>
-              </div>
-
+              <div className="space-y-3 pt-4 border-t border-slate-100">
               <button
                 onClick={() => { handleAddToCart(quickViewProduct); setQuickViewProduct(null); }}
                 className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-2xl shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition-all text-xs flex items-center justify-center gap-2 hover:scale-[1.01]"

@@ -1,5 +1,7 @@
 'use client';
 
+import { stockLabel } from '../lib/stock';
+
 import React, { useState } from 'react';
 import { ShoppingBag, Star, CheckCircle2 } from 'lucide-react';
 
@@ -143,7 +145,7 @@ export default function ProductCatalog({
                 {product.category}
               </span>
               <span className="text-xs font-medium text-muted">
-                {product.available} left
+                {stockLabel(product.available).label}
               </span>
             </div>
 
