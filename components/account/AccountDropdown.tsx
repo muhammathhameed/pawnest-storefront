@@ -42,7 +42,7 @@ export default function AccountDropdown() {
       if (e.key === "Escape") { setOpen(false); root.current?.querySelector<HTMLElement>("button")?.focus(); }
       if (e.key === "ArrowDown" || e.key === "ArrowUp") {
         e.preventDefault();
-        const els = Array.from(root.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
+        const els: HTMLElement[] = Array.from(root.current?.querySelectorAll<HTMLElement>('[role="menuitem"]') ?? []);
         const i = els.indexOf(document.activeElement as HTMLElement);
         els[(i + (e.key === "ArrowDown" ? 1 : -1) + els.length) % els.length]?.focus();
       }
