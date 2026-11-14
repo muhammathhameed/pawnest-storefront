@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { getSupabaseClient } from "../../../lib/supabase";
 import { getStripeClient } from "../../../lib/stripe";
 import { getSupabaseServerClient } from "../../../lib/supabase/server";
+import { resolveSiteUrl } from "../../../lib/site-url";
 import {
   FREE_SHIPPING_THRESHOLD_CENTS,
   STANDARD_SHIPPING_AMOUNT_CENTS,
@@ -181,29 +182,8 @@ export async function POST(request: Request) {
     }
 
     const stripe = getStripeClient();
-    const configuredSiteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-    if (!configuredSiteUrl && process.env.NODE_ENV === "production") {
-      throw new Error(
-        "NEXT_PUBLIC_SITE_URL is required in production to create checkout return URLs.",
-      );
-    }
-
-    let siteUrl: URL;
-    try {
-      siteUrl = new URL(configuredSiteUrl ?? new URL(request.url).origin);
-    } catch {
-      throw new Error("NEXT_PUBLIC_SITE_URL must be a valid absolute URL.");
-    }
-    if (
-      (process.env.NODE_ENV === "production" && siteUrl.protocol !== "https:") ||
-      (siteUrl.protocol !== "http:" && siteUrl.protocol !== "https:")
-    ) {
-      throw new Error(
-        "NEXT_PUBLIC_SITE_URL must use HTTPS in production and HTTP or HTTPS otherwise.",
-      );
-    }
-
-    const origin = siteUrl.origin;
+    // Never derived from the request: see lib/site-url.ts
+    const origin = resolveSiteUrl();
     const shippingAmount =
       subtotalCents >= FREE_SHIPPING_THRESHOLD_CENTS
         ? 0
@@ -231,6 +211,7 @@ export async function POST(request: Request) {
       },
       success_url: `${origin}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${origin}/cancel`,
+      locale: "en",
     });
 
     if (!session.url) {
