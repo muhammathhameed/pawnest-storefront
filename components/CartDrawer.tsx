@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { FREE_SHIPPING_THRESHOLD, FREE_SHIPPING_THRESHOLD_CENTS, STANDARD_SHIPPING_AMOUNT_CENTS } from "../lib/shipping";
 import { useCartStore } from "../store/cartStore";
@@ -36,6 +37,9 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const [checkoutError, setCheckoutError] = useState<string | null>(null);
   const [trending, setTrending] = useState<Trending[]>([]);
+  // Portal target must exist on the client only.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   const count = items.reduce((n, i) => n + i.quantity, 0);
   const subtotalCents = Math.round(items.reduce((t, i) => t + Number(i.product.price) * i.quantity, 0) * 100);
@@ -87,9 +91,12 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
     }
   }
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
-  return (
+  // Rendered into <body>, not inside the sticky header. The header uses
+  // backdrop-filter, which makes it the containing block for position:fixed
+  // descendants, so a drawer rendered there was sized to the header (~74px).
+  return createPortal(
     <div className="cart-overlay">
       <button type="button" className="cart-backdrop" onClick={onClose} aria-label="Close cart" />
       <section className="cart-drawer" role="dialog" aria-modal="true" aria-labelledby="cart-title">
@@ -193,6 +200,7 @@ export default function CartDrawer({ isOpen, onClose }: { isOpen: boolean; onClo
           </>
         )}
       </section>
-    </div>
+    </div>,
+    document.body,
   );
 }
